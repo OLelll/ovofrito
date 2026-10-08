@@ -275,6 +275,32 @@ footer .copy{border-top:2px solid #3a3733;padding-top:20px;font-size:.85rem;opac
 .toast.show{transform:translate(-50%,0)}
 .to-top{position:fixed;right:18px;bottom:18px;z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
 .to-top.show{opacity:1;pointer-events:auto}
+.fab{position:fixed;left:18px;bottom:18px;z-index:40;display:none}
+.fab.show{display:inline-flex}
+.admin{width:min(1120px,100%);height:min(88vh,860px);display:grid;grid-template-columns:210px 1fr;grid-template-rows:auto 1fr;overflow:hidden;animation:pop .3s}
+.ad-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 20px;border-bottom:3px solid var(--line);background:var(--yolk);color:#151515}
+.ad-head h2{font-size:1.5rem}
+.ad-nav{display:flex;flex-direction:column;gap:6px;padding:14px;border-right:3px solid var(--line);overflow:auto}
+.ad-nav button{text-align:left;padding:.6rem .8rem;border:2px solid transparent;border-radius:12px;font-weight:700}
+.ad-nav button:hover{border-color:var(--line)}
+.ad-nav button[aria-current="true"]{background:var(--ink);color:var(--bg)}
+.ad-main{padding:22px;overflow:auto}
+.ad-main h3{font-size:1.6rem;margin-bottom:12px}
+.ad-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.ad-bar input{flex:1 1 200px;width:auto}
+.ad-list{list-style:none;display:grid;gap:10px;margin-bottom:20px}
+.ad-list li{display:flex;gap:12px;align-items:center;padding:10px;border:3px solid var(--line);border-radius:14px;background:var(--bg)}
+.ad-thumb{width:46px;height:62px;flex:none;border:2px solid var(--line);border-radius:8px;display:grid;place-items:center;font-size:1.3rem;overflow:hidden;color:#151515;font-weight:700}
+.ad-t{flex:1;min-width:0}
+.ad-t strong,.ad-t small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ad-t small{color:var(--muted);font-size:.82rem}
+.ad-btns{display:flex;gap:6px}
+.ad-btns button{min-width:38px;height:38px;padding:0 .6rem;border:2px solid var(--line);border-radius:10px;background:var(--card);font-weight:700}
+.ad-btns button:hover{background:var(--yolk);color:#151515}
+.ad-box{padding:16px;margin-bottom:20px;box-shadow:none}
+.ad-box h4{font-size:1.15rem;margin-bottom:8px}
+.ad-note{padding:.7rem 1rem;border-radius:12px;border:2px dashed var(--line);font-size:.88rem;color:var(--muted);margin-bottom:14px}
+@media(max-width:760px){.admin{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;height:92vh}.ad-nav{flex-direction:row;border-right:0;border-bottom:3px solid var(--line)}.ad-nav button{white-space:nowrap}}
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .6s,transform .6s}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}html{scroll-behavior:auto}}
@@ -377,13 +403,13 @@ footer .copy{border-top:2px solid #3a3733;padding-top:20px;font-size:.85rem;opac
       <p>Nossa nota usa ovos fritos. Quanto mais ovo, melhor o filme. Aí é com você: concorda ou não?</p>
     </div>
     <article class="card review reveal">
-      <div class="review-visual" aria-hidden="true"><span>🛸</span></div>
+      <div class="review-visual" aria-hidden="true"><span id="rvEmoji">🛸</span></div>
       <div class="review-body">
-        <span class="tag">Resenha · 7 min de leitura</span>
-        <h3>“Ressaca Cósmica” é a bagunça mais bem organizada do ano</h3>
-        <p>Imagina uma festa que termina com uma nave desgovernada e um grupo de amigos tentando lembrar o que fez na noite anterior. Parece confuso, e é. Mas o filme conduz tudo com tanto carinho e piada boa que você nem liga de se perder no meio.</p>
-        <p>O final divide opiniões. A gente adorou. E você?</p>
-        <div class="meter" aria-label="Nota do Ovo Frito: 4 de 5 ovos">🍳🍳🍳🍳<span style="filter:grayscale(1);opacity:.4">🍳</span><b>4/5</b></div>
+        <span class="tag" id="rvTag">Resenha · 7 min de leitura</span>
+        <h3 id="rvTitle">“Ressaca Cósmica” é a bagunça mais bem organizada do ano</h3>
+        <div id="rvText"><p>Imagina uma festa que termina com uma nave desgovernada e um grupo de amigos tentando lembrar o que fez na noite anterior. Parece confuso, e é. Mas o filme conduz tudo com tanto carinho e piada boa que você nem liga de se perder no meio.</p>
+        <p>O final divide opiniões. A gente adorou. E você?</p></div>
+        <div class="meter" id="rvMeter" aria-label="Nota do Ovo Frito: 4 de 5 ovos">🍳🍳🍳🍳<span style="filter:grayscale(1);opacity:.4">🍳</span><b>4/5</b></div>
         <div class="agree">
           <button class="btn alt" data-agree="yes">👍 Concordo</button>
           <button class="btn alt" data-agree="no">👎 Nem a pau</button>
@@ -488,7 +514,7 @@ footer .copy{border-top:2px solid #3a3733;padding-top:20px;font-size:.85rem;opac
       <div><h4>Participe</h4><ul><li><a href="#participe">Enquete</a></li><li><a href="#participe">Indique um título</a></li><li><a href="#ranking">Avalie filmes</a></li></ul></div>
       <div><h4>Fale com a gente</h4><ul><li><a href="mailto:oi@ovofrito.example">oi@ovofrito.example</a></li><li><a href="#topo">Sugira uma pauta</a></li><li><a href="#topo">Anuncie</a></li></ul></div>
     </div>
-    <div class="copy"><span>© <span id="year"></span> Ovo Frito! Todos os direitos reservados (e uns ovos também).</span><span>Feito com 🍳 e muita pipoca.</span></div>
+    <div class="copy"><span>© <span id="year"></span> Ovo Frito! Todos os direitos reservados (e uns ovos também).</span><span>Feito com 🍳 e muita pipoca · <a href="#admin" id="openAdmin">Redação 🔒</a></span></div>
   </div>
 </footer>
 
@@ -516,6 +542,35 @@ footer .copy{border-top:2px solid #3a3733;padding-top:20px;font-size:.85rem;opac
   </div>
 </div>
 
+<button type="button" class="btn fab" id="adminFab">🛠️ Painel</button>
+
+<div class="overlay" id="loginOv" role="dialog" aria-modal="true" aria-labelledby="lgTitle">
+  <div class="card modal" style="width:min(420px,100%)">
+    <button class="close" id="lgClose" type="button" aria-label="Fechar">✕</button>
+    <div class="modal-body">
+      <h3 id="lgTitle">Área da redação 🍳</h3>
+      <p style="color:var(--muted);margin-bottom:16px">Entre pra editar o conteúdo do site.</p>
+      <form id="loginForm" novalidate>
+        <div class="field"><label for="lgUser">Usuário</label><input type="text" id="lgUser" autocomplete="username"></div>
+        <div class="field"><label for="lgPass">Senha</label><input type="password" id="lgPass" autocomplete="current-password"></div>
+        <span class="err" id="lgErr" role="alert"></span>
+        <button class="btn" type="submit" style="margin-top:6px">Entrar</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="adminOv" role="dialog" aria-modal="true" aria-label="Painel da redação">
+  <div class="card admin">
+    <div class="ad-head">
+      <h2>🛠️ Painel da redação</h2>
+      <div class="ad-bar" style="margin:0"><button class="btn alt" id="adClose" type="button">Ver o site</button><button class="btn alt" id="adLogout" type="button">Sair</button></div>
+    </div>
+    <nav class="ad-nav" id="adNav" aria-label="Seções do painel"></nav>
+    <div class="ad-main" id="adMain"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -532,7 +587,14 @@ const store = {
 };
 let toastT;
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600)}
-const poster = (it,cls='')=>`<div class="poster ${cls}" style="background:linear-gradient(135deg,${it.c[0]},${it.c[1]})" aria-hidden="true"><span>${it.emoji}</span></div>`;
+const GR=[['#FFD21F','#FF4A1C'],['#7B5CFF','#FF7AB8'],['#2FD69A','#7B5CFF'],['#FF4A1C','#151515'],['#FF7AB8','#FFD21F'],['#2FD69A','#FFD21F']];
+const randGrad=()=>GR[Math.floor(Math.random()*GR.length)];
+const bgStyle=it=>{
+  if(it.img)return `background:#222 center/cover no-repeat url('${String(it.img).replace(/['"()\\<>\s]/g,'')}')`;
+  const c=Array.isArray(it.c)?it.c:GR[0];
+  return `background:linear-gradient(135deg,${c[0]},${c[1]})`;
+};
+const poster = (it,cls='')=>`<div class="poster ${cls}" style="${bgStyle(it)}" aria-hidden="true">${it.img?'':`<span>${esc(it.emoji||'🎬')}</span>`}</div>`;
 
 /* ---------- dados (todos fictícios) ---------- */
 const movies = [
@@ -610,6 +672,34 @@ const moods = [
  {k:'pirar',e:'🤯',l:'Pirar'},{k:'nada',e:'🛋️',l:'Relaxar'},{k:'surpresa',e:'🎲',l:'Me surpreende'}
 ];
 
+/* ---------- conteúdo editável (painel da redação) ---------- */
+const review={id:'rv0',emoji:'🛸',tag:'Resenha · 7 min de leitura',t:'“Ressaca Cósmica” é a bagunça mais bem organizada do ano',b:'Imagina uma festa que termina com uma nave desgovernada e um grupo de amigos tentando lembrar o que fez na noite anterior. Parece confuso, e é. Mas o filme conduz tudo com tanto carinho e piada boa que você nem liga de se perder no meio.\n\nO final divide opiniões. A gente adorou. E você?',n:4,yes:842,no:197};
+const COLL={movies,series,articles,ticker,interviews,nacional};
+ticker.splice(0,ticker.length,...ticker.map(([k,t])=>({k,t})));
+poll.id='p0';
+let booted=false;
+const rv=()=>booted?'reveal in':'reveal';
+function collect(){const o={};Object.keys(COLL).forEach(k=>o[k]=COLL[k]);o.poll=poll;o.review=review;return o}
+function applyContent(c){
+  if(!c||typeof c!=='object')return;
+  Object.keys(COLL).forEach(k=>{if(Array.isArray(c[k]))COLL[k].splice(0,COLL[k].length,...c[k])});
+  if(c.poll&&Array.isArray(c.poll.o)){Object.keys(poll).forEach(k=>delete poll[k]);Object.assign(poll,c.poll);poll.id=poll.id||'p0'}
+  if(c.review&&typeof c.review==='object')Object.assign(review,c.review);
+}
+function saveContent(){store.set('content',collect())}
+const DEFAULT_SNAPSHOT=JSON.stringify(collect());
+applyContent(store.get('content',null));
+function renderReview(){
+  $('#rvEmoji').textContent=review.emoji||'🎬';
+  $('#rvTag').textContent=review.tag||'Resenha';
+  $('#rvTitle').textContent=review.t||'';
+  $('#rvText').innerHTML=String(review.b||'').split(/\n\s*\n/).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('');
+  const n=Math.max(0,Math.min(5,Math.round(+review.n||0)));
+  $('#rvMeter').innerHTML=Array.from({length:5},(_,i)=>`<span style="${i<n?'':'filter:grayscale(1);opacity:.4'}">🍳</span>`).join('')+`<b>${n}/5</b>`;
+  $('#rvMeter').setAttribute('aria-label',`Nota do Ovo Frito: ${n} de 5 ovos`);
+}
+renderReview();
+
 /* ---------- tema, menu, topo ---------- */
 const root=document.documentElement;
 function setTheme(t){root.setAttribute('data-theme',t);$('#themeBtn').textContent=t==='dark'?'☀️':'🌙';store.set('theme',t)}
@@ -630,27 +720,36 @@ $('#year').textContent=new Date().getFullYear();
 })();
 
 /* ---------- ticker ---------- */
-(function(){
-  const html=ticker.map(([k,t])=>`<span><b>${k}</b>${esc(t)}</span>`).join('');
+function renderTicker(){
+  const html=ticker.map(({k,t})=>`<span>${k?`<b>${esc(k)}</b>`:''}${esc(t)}</span>`).join('');
   $('#ticker').innerHTML=html+html;
-})();
+  $('.ticker').style.display=ticker.length?'':'none';
+}
+renderTicker();
 
 /* ---------- ranking ---------- */
 let kind='movies';
 const myRates=store.get('rates',{});
 const ratingHints=['','Nem vi graça 😬','Meh 😐','Foi legal 🙂','Muito bom 😄','Obra-prima! 🤩'];
 function readerAvg(it){
-  const r=myRates[it.id];
-  return r?(it.avg*it.votes+r)/(it.votes+1):it.avg;
+  const r=myRates[it.id],v=it.votes||0;
+  if(!v&&!r)return null;
+  return r?((it.avg||0)*v+r)/(v+1):it.avg;
 }
+const galera=it=>{const r=readerAvg(it);return r==null?'—':(r*2).toFixed(1)};
 function score(it){
-  return (readerAvg(it)*2*0.5)+(((it.imdb)+(it.tmdb/10))/2*0.5);
+  const parts=[],ra=readerAvg(it),ext=[];
+  if(ra!=null)parts.push(ra*2);
+  if(it.imdb)ext.push(+it.imdb);
+  if(it.tmdb)ext.push(it.tmdb/10);
+  if(ext.length)parts.push(ext.reduce((a,b)=>a+b,0)/ext.length);
+  return parts.length?parts.reduce((a,b)=>a+b,0)/parts.length:0;
 }
 function renderRank(){
   const list=(kind==='movies'?movies:series).slice().sort((a,b)=>score(b)-score(a));
   $('#rankList').innerHTML=list.map((it,i)=>{
-    const pos=i+1,diff=it.prev-pos;
-    const trend=diff>0?`<span class="trend up">▲ ${diff}</span>`:diff<0?`<span class="trend down">▼ ${-diff}</span>`:`<span class="trend">= igual</span>`;
+    const pos=i+1,diff=it.prev?it.prev-pos:0;
+    const trend=diff>0?`<span class="trend up">▲ ${diff}</span>`:diff<0?`<span class="trend down">▼ ${-diff}</span>`:(it.prev?`<span class="trend">= igual</span>`:`<span class="trend up">🆕 novo</span>`);
     const my=myRates[it.id]||0;
     const stars=[5,4,3,2,1].map(n=>`<button type="button" class="${my===n?'on':''}" data-id="${it.id}" data-n="${n}" aria-label="Dar nota ${n} de 5 para ${esc(it.t)}">🍳</button>`).join('');
     const votes=it.votes+(my?1:0);
@@ -660,7 +759,7 @@ function renderRank(){
       <div class="rank-info">
         <h3>${esc(it.t)}</h3>
         <div class="rank-meta"><span>${esc(it.g)} · ${it.y}</span>${trend}</div>
-        <div class="rank-meta" style="margin-top:8px"><span class="chip">IMDb ${it.imdb.toFixed(1)}</span><span class="chip">TMDB ${it.tmdb}%</span><span class="chip">Galera ${(readerAvg(it)*2).toFixed(1)}</span></div>
+        <div class="rank-meta" style="margin-top:8px">${it.imdb?`<span class="chip">IMDb ${(+it.imdb).toFixed(1)}</span>`:''}${it.tmdb?`<span class="chip">TMDB ${Math.round(it.tmdb)}%</span>`:''}<span class="chip">Galera ${galera(it)}</span></div>
       </div>
       <div class="rank-vote">
         <div class="rank-score">${score(it).toFixed(1)}<small> /10</small></div>
@@ -668,7 +767,7 @@ function renderRank(){
         <div class="hint">${my?'Sua nota: '+ratingHints[my]:votes.toLocaleString('pt-BR')+' votos da galera'}</div>
       </div>
     </li>`;
-  }).join('');
+  }).join('')||'<li class="card panel empty">Ainda não tem nada por aqui. A redação já está de olho!</li>';
 }
 $('#rankList').addEventListener('click',e=>{
   const b=e.target.closest('.rate button');if(!b)return;
@@ -696,8 +795,10 @@ renderRank();
     const all=[...movies,...series];
     let pool=b.dataset.k==='surpresa'?all:all.filter(x=>x.mood===b.dataset.k);
     if(pool.length>1&&last)pool=pool.filter(x=>x.id!==last);
-    const pick=pool[Math.floor(Math.random()*pool.length)];last=pick.id;
-    $('#moodResult').innerHTML=`${poster(pick)}<div><strong>${esc(pick.t)}</strong><br><small>${esc(pick.g)}</small><br><small>Nota da galera: ${(readerAvg(pick)*2).toFixed(1)}/10 · clica de novo pra outra</small></div>`;
+    const pick=pool[Math.floor(Math.random()*pool.length)];
+    if(!pick){$('#moodResult').innerHTML='<small>Ainda não tem título pra esse humor. Volta em breve!</small>';return}
+    last=pick.id;
+    $('#moodResult').innerHTML=`${poster(pick)}<div><strong>${esc(pick.t)}</strong><br><small>${esc(pick.g)}</small><br><small>${galera(pick)==='—'?'Ainda sem nota da galera':'Nota da galera: '+galera(pick)+'/10'} · clica de novo pra outra</small></div>`;
   });
 })();
 
@@ -711,8 +812,8 @@ function renderArt(){
   const vis=list.slice(0,shown);
   $('#artGrid').innerHTML=vis.length?vis.map(a=>`
     <button type="button" class="card art" data-open="${a.id}">
-      <div class="art-cover" style="background:linear-gradient(135deg,${a.c[0]},${a.c[1]})"><span class="tag ${tagColor[a.cat]}">${a.cat}</span><span aria-hidden="true">${a.emoji}</span></div>
-      <div class="art-body"><h3>${esc(a.t)}</h3><p>${esc(a.x)}</p><div class="art-foot"><span>${a.d}</span><span>${a.r} min de leitura</span></div></div>
+      <div class="art-cover" style="${bgStyle(a)}"><span class="tag ${tagColor[a.cat]||''}">${esc(a.cat)}</span>${a.img?'':`<span aria-hidden="true">${esc(a.emoji||'📰')}</span>`}</div>
+      <div class="art-body"><h3>${esc(a.t)}</h3><p>${esc(a.x)}</p><div class="art-foot"><span>${esc(a.d||'')}</span><span>${esc(a.r||'')} min de leitura</span></div></div>
     </button>`).join(''):'<p class="empty">Nada por aqui ainda. Volta logo!</p>';
   $('#moreBtn').style.display=list.length>shown?'inline-flex':'none';
 }
@@ -721,14 +822,19 @@ $('#moreBtn').onclick=()=>{shown+=3;renderArt()};
 renderChips();renderArt();
 
 /* ---------- entrevistas e coluna ---------- */
+function renderPeople(){
 $('#interviews').innerHTML=interviews.map((p,i)=>`
-  <article class="card iv reveal">
-    <div class="iv-who"><div class="avatar" style="background:${p.c}" aria-hidden="true">${p.i}</div><div><strong>${p.n}</strong><small>${p.r}</small></div></div>
+  <article class="card iv ${rv()}">
+    <div class="iv-who"><div class="avatar" style="background:${esc(p.c||'#FFD21F')}" aria-hidden="true">${esc(p.i||'')}</div><div><strong>${esc(p.n)}</strong><small>${esc(p.r||'')}</small></div></div>
     <blockquote>${esc(p.q)}</blockquote>
     <button class="btn alt" data-iv="${i}">Ler o papo completo</button>
   </article>`).join('');
 $('#nacList').innerHTML=nacional.map((n,i)=>`
-  <li class="reveal"><button type="button" data-nac="${n.id}"><span class="n">0${i+1}</span><span><h4>${esc(n.t)}</h4><small>${n.m}</small></span><span aria-hidden="true">→</span></button></li>`).join('');
+  <li class="${rv()}"><button type="button" data-nac="${esc(n.id||'')}"><span class="n">0${i+1}</span><span><h4>${esc(n.t)}</h4><small>${esc(n.m||'')}</small></span><span aria-hidden="true">→</span></button></li>`).join('');
+$('#entrevistas').style.display=interviews.length?'':'none';
+$('#nacional').style.display=nacional.length?'':'none';
+}
+renderPeople();
 
 /* ---------- modal ---------- */
 const mOv=$('#modalOv');let lastFocus=null;
@@ -754,7 +860,7 @@ $('#mReacts').addEventListener('click',e=>{
 });
 function openArticle(id){
   const a=articles.find(x=>x.id===id);if(!a)return;
-  openModal({title:a.t,tag:a.cat,tagCls:tagColor[a.cat],meta:`${a.d} · ${a.r} min de leitura · Redação Ovo Frito!`,body:[a.x,a.b,'Gostou? Deixa sua reação aí embaixo. A gente lê todas!'],emoji:a.emoji,c:a.c,key:a.id});
+  openModal({title:a.t,tag:a.cat,tagCls:tagColor[a.cat],meta:`${a.d} · ${a.r} min de leitura · Redação Ovo Frito!`,body:[a.x,...String(a.b||'').split(/\n\s*\n/).filter(Boolean),'Gostou? Deixa sua reação aí embaixo. A gente lê todas!'],emoji:a.emoji,c:a.c,key:a.id});
 }
 document.addEventListener('click',e=>{
   const art=e.target.closest('[data-open]');if(art)return openArticle(art.dataset.open);
@@ -766,23 +872,24 @@ document.addEventListener('click',e=>{
 
 /* ---------- resenha: concordo / discordo ---------- */
 (function(){
-  const base={yes:842,no:197};let mine=store.get('agree',null);
+  const B=()=>({yes:review.yes||0,no:review.no||0});let mine=store.get('agree:'+review.id,null);
   function paint(){
-    const y=base.yes+(mine==='yes'?1:0),n=base.no+(mine==='no'?1:0),t=y+n;
-    $('#agreeBar').style.width=(y/t*100)+'%';
-    $('#agreeTxt').textContent=`${Math.round(y/t*100)}% concordam (${t.toLocaleString('pt-BR')} votos)`;
+    const base=B(),y=base.yes+(mine==='yes'?1:0),n=base.no+(mine==='no'?1:0),t=y+n;
+    $('#agreeBar').style.width=(t?y/t*100:50)+'%';
+    $('#agreeTxt').textContent=t?`${Math.round(y/t*100)}% concordam (${t.toLocaleString('pt-BR')} votos)`:'Seja a primeira pessoa a votar!';
     $$('[data-agree]').forEach(b=>b.style.background=b.dataset.agree===mine?'var(--yolk)':'');
     $$('[data-agree]').forEach(b=>b.style.color=b.dataset.agree===mine?'#151515':'');
   }
-  $$('[data-agree]').forEach(b=>b.onclick=()=>{mine=b.dataset.agree;store.set('agree',mine);paint();toast(mine==='yes'?'Time ovo bem passado! 🍳':'Opinião polêmica anotada 👀')});
+  $$('[data-agree]').forEach(b=>b.onclick=()=>{mine=b.dataset.agree;store.set('agree:'+review.id,mine);paint();toast(mine==='yes'?'Time ovo bem passado! 🍳':'Opinião polêmica anotada 👀')});
+  window.__agree=()=>{mine=store.get('agree:'+review.id,null);paint()};
   paint();
 })();
 
 /* ---------- enquete ---------- */
 (function(){
-  $('#pollQ').textContent=poll.q;
-  let mine=store.get('poll',null);
+  let mine=store.get('poll:'+poll.id,null);
   function paint(){
+    $('#pollQ').textContent=poll.q;
     const total=poll.o.reduce((s,o)=>s+o.v+(mine===o.id?1:0),0);
     $('#pollOpts').innerHTML=poll.o.map(o=>{
       const v=o.v+(mine===o.id?1:0),p=Math.round(v/total*100);
@@ -794,8 +901,9 @@ document.addEventListener('click',e=>{
   }
   $('#pollOpts').addEventListener('click',e=>{
     const b=e.target.closest('.poll-opt');if(!b)return;
-    mine=b.dataset.id;store.set('poll',mine);paint();toast('Voto computado! 🗳️');
+    mine=b.dataset.id;store.set('poll:'+poll.id,mine);paint();toast('Voto computado! 🗳️');
   });
+  window.__poll=()=>{mine=store.get('poll:'+poll.id,null);paint()};
   paint();
 })();
 
@@ -857,13 +965,339 @@ $('#searchBtn').onclick=openSearch;
 $('#searchInput').addEventListener('input',e=>runSearch(e.target.value));
 sOv.addEventListener('click',e=>{if(e.target===sOv)closeSearch()});
 addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeSearch();closeModal()}
+  if(e.key==='Escape'){closeSearch();closeModal();closeLogin()}
   if(e.key==='/'&&!/input|textarea/i.test(document.activeElement.tagName)){e.preventDefault();openSearch()}
 });
 
+/* ---------- PAINEL DA REDAÇÃO ---------- */
+function sha256(msg){
+  const K=[],H0=[];
+  for(let p=2,n=0;n<64;p++){let ok=true;for(let d=2;d*d<=p;d++)if(p%d===0){ok=false;break}
+    if(ok){if(n<8)H0[n]=Math.floor((Math.sqrt(p)%1)*4294967296);K[n]=Math.floor((Math.cbrt(p)%1)*4294967296);n++}}
+  const b=new TextEncoder().encode(msg),l=b.length,w=new Uint32Array(((l+8>>6)+1)*16);
+  for(let i=0;i<l;i++)w[i>>2]|=b[i]<<(24-(i%4)*8);
+  w[l>>2]|=0x80<<(24-(l%4)*8);
+  w[w.length-1]=l*8;
+  const h=H0.slice(),r=(x,n)=>(x>>>n)|(x<<(32-n));
+  for(let o=0;o<w.length;o+=16){
+    const x=new Uint32Array(64);
+    for(let i=0;i<16;i++)x[i]=w[o+i];
+    for(let i=16;i<64;i++){const a=x[i-15],c=x[i-2];x[i]=(x[i-16]+(r(a,7)^r(a,18)^(a>>>3))+x[i-7]+(r(c,17)^r(c,19)^(c>>>10)))|0}
+    let [a,b2,c2,d,e,f,g,hh]=h;
+    for(let i=0;i<64;i++){
+      const t1=(hh+(r(e,6)^r(e,11)^r(e,25))+((e&f)^(~e&g))+K[i]+x[i])|0;
+      const t2=((r(a,2)^r(a,13)^r(a,22))+((a&b2)^(a&c2)^(b2&c2)))|0;
+      hh=g;g=f;f=e;e=(d+t1)|0;d=c2;c2=b2;b2=a;a=(t1+t2)|0;
+    }
+    [a,b2,c2,d,e,f,g,hh].forEach((v,i)=>h[i]=(h[i]+v)|0);
+  }
+  return h.map(v=>(v>>>0).toString(16).padStart(8,'0')).join('');
+}
+
+/* login (atenção: roda no navegador, serve pra organizar o trabalho e não é segurança de verdade) */
+const CRED0={u:'admin',h:'de43a50d8ee7818f0b54d1ebd90de26beb8023c4c33e48bba085b34a685481ec'};
+const getCred=()=>store.get('cred',CRED0);
+const loginOv=$('#loginOv'),adminOv=$('#adminOv');
+let isAdmin=false,fails=0,lockUntil=0;
+try{isAdmin=sessionStorage.getItem('ovofrito:adm')==='1'}catch(e){}
+function setAdmin(v){
+  isAdmin=v;
+  try{v?sessionStorage.setItem('ovofrito:adm','1'):sessionStorage.removeItem('ovofrito:adm')}catch(e){}
+  $('#adminFab').classList.toggle('show',v);
+}
+setAdmin(isAdmin);
+function openLogin(){if(isAdmin)return openAdmin();loginOv.classList.add('open');document.body.style.overflow='hidden';$('#lgUser').focus()}
+function closeLogin(){loginOv.classList.remove('open');if(!adminOv.classList.contains('open'))document.body.style.overflow=''}
+function openAdmin(){adminOv.classList.add('open');document.body.style.overflow='hidden';adminRender()}
+function closeAdmin(){adminOv.classList.remove('open');document.body.style.overflow=''}
+$('#openAdmin').onclick=e=>{e.preventDefault();openLogin()};
+$('#adminFab').onclick=openAdmin;
+$('#lgClose').onclick=closeLogin;
+$('#adClose').onclick=closeAdmin;
+$('#adLogout').onclick=()=>{setAdmin(false);closeAdmin();toast('Você saiu do painel.')};
+$('#loginForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  if(Date.now()<lockUntil){$('#lgErr').textContent='Muitas tentativas. Espera uns segundos e tenta de novo.';return}
+  const u=$('#lgUser').value.trim().toLowerCase(),p=$('#lgPass').value,c=getCred();
+  if(u===c.u&&sha256('ovofrito:'+u+':'+p)===c.h){
+    fails=0;setAdmin(true);e.target.reset();$('#lgErr').textContent='';closeLogin();openAdmin();toast('Bem-vinda(o) à redação! 🍳');
+  }else{
+    fails++;if(fails>=5){lockUntil=Date.now()+30000;fails=0}
+    $('#lgErr').textContent='Usuário ou senha incorretos.';
+  }
+});
+if(location.hash==='#admin')openLogin();
+
+/* TMDB / OMDb */
+const tmKey=()=>store.get('tmdbKey','');
+const omKey=()=>store.get('omdbKey','');
+async function tm(path,params={}){
+  const k=tmKey();
+  if(!k)throw new Error('Cadastre sua chave do TMDB em ⚙️ Configurações.');
+  const u=new URL('https://api.themoviedb.org/3'+path);
+  Object.entries({language:'pt-BR',...params}).forEach(([a,b])=>u.searchParams.set(a,b));
+  const opt={};
+  if(k.length>40)opt.headers={Authorization:'Bearer '+k,accept:'application/json'};else u.searchParams.set('api_key',k);
+  const r=await fetch(u,opt);
+  if(r.status===401)throw new Error('Chave do TMDB inválida.');
+  if(!r.ok)throw new Error('O TMDB respondeu com erro '+r.status+'.');
+  return r.json();
+}
+let genreMap=null;
+async function genres(){
+  if(genreMap)return genreMap;
+  const m={};
+  for(const t of ['movie','tv']){const d=await tm('/genre/'+t+'/list');(d.genres||[]).forEach(g=>m[g.id]=g.name)}
+  return genreMap=m;
+}
+function guessMood(ids){
+  const has=n=>ids.includes(n);
+  return has(27)?'susto':has(35)?'rir':(has(10749)||has(18))?'chorar':(has(9648)||has(53)||has(878)||has(10765)||has(14))?'pirar':'nada';
+}
+async function enrichImdb(it,id,kind){
+  const key=omKey();if(!key)return;
+  try{
+    const ex=await tm('/'+(kind==='movies'?'movie':'tv')+'/'+id+'/external_ids');
+    if(!ex.imdb_id)return;
+    const r=await fetch('https://www.omdbapi.com/?i='+ex.imdb_id+'&apikey='+encodeURIComponent(key));
+    const d=await r.json(),n=parseFloat(d.imdbRating);
+    if(n)it.imdb=n;
+  }catch(e){}
+}
+async function tmToItem(r,kind){
+  const gm=await genres(),ids=r.genre_ids||[],date=r.release_date||r.first_air_date||'';
+  const it={id:(kind==='movies'?'m':'s')+'_t'+r.id,t:r.title||r.name,g:ids.slice(0,2).map(i=>gm[i]).filter(Boolean).join(' · '),y:date.slice(0,4)||(kind==='movies'?'':'Série'),imdb:null,tmdb:Math.round((r.vote_average||0)*10)||null,emoji:'🎬',c:randGrad(),img:r.poster_path?'https://image.tmdb.org/t/p/w342'+r.poster_path:'',votes:0,avg:0,mood:guessMood(ids),prev:0};
+  await enrichImdb(it,r.id,kind);
+  return it;
+}
+const sortedBy=k=>COLL[k].slice().sort((a,b)=>score(b)-score(a));
+
+/* schemas do painel */
+const TABS=[['movies','🎬 Filmes'],['series','📺 Séries'],['articles','📰 Matérias'],['review','⭐ Resenha'],['ticker','⚡ Notas rápidas'],['poll','🗳️ Enquete'],['interviews','🎙️ Entrevistas'],['nacional','🇧🇷 Coluna Daqui'],['config','⚙️ Configurações']];
+const F=(k,l,t='text',x={})=>({k,l,t,...x});
+const moodOpts=moods.filter(m=>m.k!=='surpresa').map(m=>[m.k,m.e+' '+m.l]);
+const titleFields=[F('t','Título','text',{r:1}),F('g','Gêneros (ex.: Drama · Comédia)'),F('y','Ano (ou temporada)'),F('tmdb','Nota TMDB (0 a 100)','number'),F('imdb','Nota IMDb (0 a 10)','number'),F('mood','Humor da sugestão','select',{o:moodOpts}),F('emoji','Emoji (usado se não tiver pôster)'),F('img','Link da imagem do pôster (opcional)')];
+const today=()=>{const d=new Date();return d.getDate()+' '+d.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')};
+const blankTitle=p=>()=>({id:p+Date.now(),t:'',g:'',y:String(new Date().getFullYear()),imdb:null,tmdb:null,emoji:'🎬',c:randGrad(),img:'',votes:0,avg:0,mood:'nada',prev:0});
+const SCH={
+  movies:{name:'filme',coll:movies,fields:titleFields,title:i=>i.t,sub:i=>[i.y,i.g].filter(Boolean).join(' · '),blank:blankTitle('m'),order:false},
+  series:{name:'série',coll:series,fields:titleFields,title:i=>i.t,sub:i=>[i.y,i.g].filter(Boolean).join(' · '),blank:blankTitle('s'),order:false},
+  articles:{name:'matéria',coll:articles,top:true,order:true,title:i=>i.t,sub:i=>(i.cat||'')+' · '+(i.d||''),
+    fields:[F('cat','Categoria','select',{o:cats.filter(c=>c!=='Tudo').map(c=>[c,c])}),F('t','Título','text',{r:1}),F('x','Resumo (aparece no card)','textarea',{rows:2,r:1}),F('b','Texto da matéria (separe os parágrafos com uma linha em branco)','textarea',{rows:8}),F('d','Data (ex.: 7 out)'),F('r','Minutos de leitura','number'),F('emoji','Emoji da capa'),F('img','Link da imagem da capa (opcional)')],
+    blank:()=>({id:'a'+Date.now(),cat:'Notícia',t:'',x:'',b:'',d:today(),r:3,emoji:'📰',c:randGrad(),img:''})},
+  ticker:{name:'nota rápida',coll:ticker,order:true,title:i=>i.t,sub:i=>i.k||'',fields:[F('k','Selo (ex.: NOTA, SÉRIE)'),F('t','Texto','text',{r:1})],blank:()=>({k:'NOTA',t:''})},
+  interviews:{name:'entrevista',coll:interviews,order:true,title:i=>i.n,sub:i=>i.r||'',
+    fields:[F('n','Nome','text',{r:1}),F('r','Quem é (ex.: Roteirista de séries)'),F('q','Frase de destaque','textarea',{rows:2,r:1}),F('b','Texto completo','textarea',{rows:6}),F('i','Iniciais (2 letras)'),F('c','Cor do avatar','select',{o:[['#FFD21F','Amarelo'],['#2FD69A','Verde'],['#FF7AB8','Rosa'],['#7B5CFF','Violeta'],['#FF4A1C','Laranja']]})],
+    blank:()=>({n:'',r:'',q:'',b:'',i:'',c:'#FFD21F'})},
+  nacional:{name:'texto da coluna',coll:nacional,order:true,title:i=>i.t,sub:i=>i.m||'',fields:[F('t','Título','text',{r:1}),F('m','Quando e tempo de leitura (ex.: Quarta · 5 min)'),F('b','Texto','textarea',{rows:6})],blank:()=>({id:'n'+Date.now(),t:'',m:'Quarta · 5 min',b:''})}
+};
+let adTab='movies',adEdit=null,tmCache=[];
+
+function fieldHtml(f,v){
+  const val=v==null?'':v,id='f_'+f.k;let inp;
+  if(f.t==='textarea')inp=`<textarea id="${id}" name="${f.k}" rows="${f.rows||4}">${esc(val)}</textarea>`;
+  else if(f.t==='select')inp=`<select id="${id}" name="${f.k}">${f.o.map(([a,b])=>`<option value="${esc(a)}"${String(a)===String(val)?' selected':''}>${esc(b)}</option>`).join('')}</select>`;
+  else inp=`<input id="${id}" name="${f.k}" type="${f.t==='number'?'number':'text'}"${f.t==='number'?' step="any"':''} value="${esc(val)}">`;
+  return `<div class="field"><label for="${id}">${esc(f.l)}${f.r?' *':''}</label>${inp}</div>`;
+}
+function readForm(form,fields){
+  const fd=new FormData(form),vals={};
+  for(const f of fields){
+    let v=String(fd.get(f.k)==null?'':fd.get(f.k)).trim();
+    if(f.r&&!v)return {err:'Preenche o campo “'+f.l+'”.'};
+    if(f.t==='number'){v=v===''?null:parseFloat(v.replace(',','.'));if(Number.isNaN(v))v=null}
+    vals[f.k]=v;
+  }
+  return {vals};
+}
+function rowsHtml(c){
+  const S=SCH[c];
+  return S.coll.length?S.coll.map((it,i)=>`<li>
+    <div class="ad-thumb" style="${bgStyle(it)}">${it.img?'':esc(it.emoji||it.i||'')}</div>
+    <div class="ad-t"><strong>${esc(S.title(it)||'(sem título)')}</strong><small>${esc(S.sub(it))}</small></div>
+    <div class="ad-btns">${S.order?`<button type="button" data-act="up" data-i="${i}" aria-label="Subir">↑</button><button type="button" data-act="down" data-i="${i}" aria-label="Descer">↓</button>`:''}<button type="button" data-act="edit" data-i="${i}" aria-label="Editar">✏️</button><button type="button" data-act="del" data-i="${i}" aria-label="Excluir">🗑️</button></div>
+  </li>`).join(''):'<li class="empty">Nada por aqui ainda. Clica em “Adicionar”.</li>';
+}
+function listHtml(c){
+  const S=SCH[c],isT=c==='movies'||c==='series';
+  return `<h3>${esc(TABS.find(t=>t[0]===c)[1])}</h3>
+  ${isT?`<div class="card ad-box"><h4>🔎 Buscar no TMDB (filmes e séries de verdade)</h4>
+    <div class="ad-bar" style="margin-bottom:10px"><input id="tmQ" type="text" placeholder="Digite o nome e aperte Enter…" aria-label="Buscar no TMDB"><button type="button" class="btn" data-act="tmsearch">Buscar</button></div>
+    <ul class="ad-list" id="tmRes"></ul>
+    <button type="button" class="btn alt" data-act="trend">⚡ Trazer os mais populares da semana</button>
+    <p class="ad-note" style="margin:12px 0 0">Precisa da chave do TMDB (grátis) em ⚙️ Configurações. A nota do IMDb vem do OMDb, se você cadastrar essa chave também.</p></div>`:''}
+  <div class="ad-bar"><button type="button" class="btn" data-act="new">+ Adicionar ${esc(S.name)}</button></div>
+  <ul class="ad-list" id="adList">${rowsHtml(c)}</ul>`;
+}
+function formHtml(){
+  const S=SCH[adEdit.coll],it=adEdit.i<0?S.blank():S.coll[adEdit.i];
+  return `<form id="adForm" novalidate><h3>${adEdit.i<0?'Adicionar':'Editar'} ${esc(S.name)}</h3>${S.fields.map(f=>fieldHtml(f,it[f.k])).join('')}<div class="ad-bar"><button class="btn hot" type="submit">Salvar</button><button type="button" class="btn alt" data-act="cancel">Cancelar</button></div></form>`;
+}
+function reviewHtml(){
+  const fs=[F('emoji','Emoji da capa'),F('tag','Selo (ex.: Resenha · 7 min de leitura)'),F('t','Título','text',{r:1}),F('b','Texto (separe os parágrafos com uma linha em branco)','textarea',{rows:9,r:1}),F('n','Nota em ovos','select',{o:[0,1,2,3,4,5].map(n=>[n,n+(n===1?' ovo':' ovos')])})];
+  return `<form id="rvForm" novalidate><h3>⭐ Resenha do dia</h3><p class="ad-note">Ao publicar, a votação “concordo / nem a pau” recomeça do zero.</p>${fs.map(f=>fieldHtml(f,review[f.k])).join('')}<div class="ad-bar"><button class="btn hot" type="submit">Publicar resenha</button></div></form>`;
+}
+function pollHtml(){
+  return `<form id="pollForm" novalidate><h3>🗳️ Enquete da semana</h3><p class="ad-note">Publicar cria uma enquete nova, com os votos zerados.</p>
+  <div class="field"><label for="pq">Pergunta *</label><input id="pq" name="q" type="text" value="${esc(poll.q||'')}"></div>
+  <div class="field"><label for="po">Opções (uma por linha, no mínimo 2) *</label><textarea id="po" name="o" rows="6">${esc((poll.o||[]).map(o=>o.t).join('\n'))}</textarea></div>
+  <div class="ad-bar"><button class="btn hot" type="submit">Publicar enquete</button></div></form>`;
+}
+function configHtml(){
+  return `<h3>⚙️ Configurações</h3>
+  <form id="keysForm" class="card ad-box" novalidate><h4>Chaves das APIs</h4>
+    <p class="ad-note">Ficam salvas só neste navegador. A chave do TMDB é grátis (themoviedb.org → Configurações → API). A do OMDb é opcional e serve pra puxar a nota do IMDb (omdbapi.com).</p>
+    <div class="field"><label for="kTm">Chave do TMDB (API Key v3 ou Token de Leitura v4)</label><input id="kTm" name="tm" type="password" autocomplete="off" value="${esc(tmKey())}"></div>
+    <div class="field"><label for="kOm">Chave do OMDb (opcional)</label><input id="kOm" name="om" type="password" autocomplete="off" value="${esc(omKey())}"></div>
+    <button class="btn" type="submit">Salvar chaves</button></form>
+  <form id="passForm" class="card ad-box" novalidate><h4>Trocar usuário e senha</h4>
+    <p class="ad-note">A senha inicial é <b>OvoFrito@2026</b>. Troque assim que puder.</p>
+    <div class="field"><label for="pU">Usuário</label><input id="pU" name="u" type="text" autocomplete="username" value="${esc(getCred().u)}"></div>
+    <div class="field"><label for="pP1">Nova senha (mínimo 6 caracteres)</label><input id="pP1" name="p1" type="password" autocomplete="new-password"></div>
+    <div class="field"><label for="pP2">Repita a nova senha</label><input id="pP2" name="p2" type="password" autocomplete="new-password"></div>
+    <button class="btn" type="submit">Salvar acesso</button></form>
+  <div class="card ad-box"><h4>Backup e publicação</h4>
+    <p class="ad-note">Tudo que você edita fica salvo só neste navegador. Pra todo mundo ver: exporte o <b>content.json</b> e suba na mesma pasta do index.html no seu hospedagem. O site lê esse arquivo quando o visitante ainda não tem edições locais.</p>
+    <div class="ad-bar"><button type="button" class="btn" data-act="export">⬇️ Exportar content.json</button><label class="btn alt" style="cursor:pointer">⬆️ Importar<input type="file" id="impFile" accept="application/json,.json" hidden></label></div></div>
+  <div class="card ad-box"><h4>Zona de perigo</h4>
+    <div class="ad-bar"><button type="button" class="btn alt" data-act="clear">🧹 Apagar dados de exemplo</button><button type="button" class="btn alt" data-act="restore">♻️ Restaurar exemplos</button></div></div>`;
+}
+function adminRender(){
+  $('#adNav').innerHTML=TABS.map(([k,l])=>`<button type="button" data-tab="${k}" aria-current="${k===adTab}">${l}</button>`).join('');
+  const m=$('#adMain');
+  m.innerHTML=adEdit?formHtml():SCH[adTab]?listHtml(adTab):adTab==='review'?reviewHtml():adTab==='poll'?pollHtml():configHtml();
+  m.scrollTop=0;
+}
+function commit(){saveContent();renderAll();adminRender()}
+function renderAll(){
+  renderTicker();renderRank();renderChips();renderArt();renderPeople();renderReview();
+  if(window.__poll)window.__poll();
+  if(window.__agree)window.__agree();
+}
+function download(name,text){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.download=name;
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+async function tmSearch(){
+  const q=$('#tmQ').value.trim();if(!q)return;
+  const res=$('#tmRes');res.innerHTML='<li class="empty">Buscando…</li>';
+  try{
+    const d=await tm('/search/'+(adTab==='movies'?'movie':'tv'),{query:q,include_adult:'false'});
+    tmCache=(d.results||[]).slice(0,8);
+    res.innerHTML=tmCache.length?tmCache.map((r,j)=>`<li><div class="ad-thumb" style="${r.poster_path?`background:#222 center/cover url(https://image.tmdb.org/t/p/w92${r.poster_path})`:''}"></div><div class="ad-t"><strong>${esc(r.title||r.name)}</strong><small>${esc((r.release_date||r.first_air_date||'').slice(0,4))} · TMDB ${Math.round((r.vote_average||0)*10)}%</small></div><div class="ad-btns"><button type="button" data-act="tmadd" data-j="${j}">+ Adicionar</button></div></li>`).join(''):'<li class="empty">Não achei nada com esse nome.</li>';
+  }catch(err){res.innerHTML='';toast(err.message)}
+}
+async function importTrending(){
+  const kind=adTab,S=SCH[kind];
+  if(S.coll.length&&!confirm('Isso troca a lista atual de '+(kind==='movies'?'filmes':'séries')+' pelos mais populares da semana. As notas dos leitores dos títulos que continuarem são mantidas. Continuar?'))return;
+  toast('Buscando no TMDB… pode levar alguns segundos');
+  const d=await tm('/trending/'+(kind==='movies'?'movie':'tv')+'/week');
+  const old=sortedBy(kind),items=[];
+  for(const r of (d.results||[]).slice(0,kind==='movies'?8:6)){
+    const it=await tmToItem(r,kind),o=old.findIndex(x=>x.id===it.id);
+    if(o>=0){it.votes=old[o].votes;it.avg=old[o].avg;it.mood=old[o].mood;it.prev=o+1}
+    items.push(it);
+  }
+  S.coll.splice(0,S.coll.length,...items);
+  commit();toast('Lista atualizada com títulos de verdade! 🎬');
+}
+
+adminOv.addEventListener('click',async e=>{
+  const t=e.target.closest('[data-tab]');
+  if(t){adTab=t.dataset.tab;adEdit=null;return adminRender()}
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const act=b.dataset.act,i=+b.dataset.i,S=SCH[adTab];
+  try{
+    if(act==='new'){adEdit={coll:adTab,i:-1};adminRender()}
+    else if(act==='edit'){adEdit={coll:adTab,i};adminRender()}
+    else if(act==='cancel'){adEdit=null;adminRender()}
+    else if(act==='del'){
+      if(!confirm('Excluir “'+S.title(S.coll[i])+'”?'))return;
+      S.coll.splice(i,1);saveContent();renderAll();$('#adList').innerHTML=rowsHtml(adTab);
+    }
+    else if(act==='up'||act==='down'){
+      const j=act==='up'?i-1:i+1;if(j<0||j>=S.coll.length)return;
+      [S.coll[i],S.coll[j]]=[S.coll[j],S.coll[i]];saveContent();renderAll();$('#adList').innerHTML=rowsHtml(adTab);
+    }
+    else if(act==='tmsearch')await tmSearch();
+    else if(act==='tmadd'){
+      b.disabled=true;
+      try{
+        const it=await tmToItem(tmCache[+b.dataset.j],adTab),arr=S.coll,idx=arr.findIndex(x=>x.id===it.id);
+        if(idx>=0){it.votes=arr[idx].votes;it.avg=arr[idx].avg;arr[idx]=it}else arr.push(it);
+        saveContent();renderAll();$('#adList').innerHTML=rowsHtml(adTab);
+        toast('“'+it.t+'” entrou no ranking! 🎬');
+      }finally{b.disabled=false}
+    }
+    else if(act==='trend')await importTrending();
+    else if(act==='export'){download('content.json',JSON.stringify(collect(),null,2));toast('content.json baixado ⬇️')}
+    else if(act==='clear'){
+      if(!confirm('Apagar filmes, séries, matérias, notas, entrevistas e coluna de exemplo? Resenha e enquete ficam como estão.'))return;
+      Object.keys(COLL).forEach(k=>COLL[k].length=0);commit();toast('Pronto, tudo limpo. Hora de colocar conteúdo de verdade! 🍳');
+    }
+    else if(act==='restore'){
+      if(!confirm('Voltar tudo pros exemplos do início? Suas edições serão perdidas.'))return;
+      applyContent(JSON.parse(DEFAULT_SNAPSHOT));
+      try{localStorage.removeItem('ovofrito:content')}catch(err){}
+      renderAll();adminRender();toast('Exemplos restaurados ♻️');
+    }
+  }catch(err){toast(err.message||'Algo deu errado.')}
+});
+adminOv.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='tmQ'){e.preventDefault();tmSearch()}});
+adminOv.addEventListener('change',e=>{
+  if(e.target.id!=='impFile')return;
+  const file=e.target.files[0];if(!file)return;
+  const rd=new FileReader();
+  rd.onload=()=>{try{applyContent(JSON.parse(rd.result));commit();toast('Dados importados ✅')}catch(err){toast('Esse arquivo não parece um content.json válido.')}};
+  rd.readAsText(file);
+});
+adminOv.addEventListener('submit',e=>{
+  e.preventDefault();
+  const f=e.target,fd=new FormData(f);
+  if(f.id==='adForm'){
+    const S=SCH[adEdit.coll],{vals,err}=readForm(f,S.fields);
+    if(err)return toast(err);
+    if(adEdit.coll==='interviews'&&!vals.i)vals.i=vals.n.split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+    if(adEdit.i<0){const it=Object.assign(S.blank(),vals);S.top?S.coll.unshift(it):S.coll.push(it)}
+    else Object.assign(S.coll[adEdit.i],vals);
+    adEdit=null;commit();toast('Salvo! ✅');
+  }
+  else if(f.id==='rvForm'){
+    const fs=[F('emoji','Emoji'),F('tag','Selo'),F('t','Título','text',{r:1}),F('b','Texto','textarea',{r:1}),F('n','Nota','number')];
+    const {vals,err}=readForm(f,fs);if(err)return toast(err);
+    Object.assign(review,vals,{n:Math.max(0,Math.min(5,Math.round(vals.n||0))),id:'rv'+Date.now(),yes:0,no:0});
+    commit();toast('Resenha publicada! ⭐');
+  }
+  else if(f.id==='pollForm'){
+    const q=String(fd.get('q')||'').trim(),lines=String(fd.get('o')||'').split('\n').map(s=>s.trim()).filter(Boolean);
+    if(!q)return toast('Falta a pergunta da enquete.');
+    if(lines.length<2)return toast('Coloca pelo menos 2 opções (uma por linha).');
+    Object.keys(poll).forEach(k=>delete poll[k]);
+    Object.assign(poll,{id:'p'+Date.now(),q,o:lines.map((t,i)=>({id:'o'+i,t,v:0}))});
+    commit();toast('Enquete nova no ar! 🗳️');
+  }
+  else if(f.id==='keysForm'){
+    store.set('tmdbKey',String(fd.get('tm')||'').trim());store.set('omdbKey',String(fd.get('om')||'').trim());toast('Chaves salvas 🔑');
+  }
+  else if(f.id==='passForm'){
+    const u=String(fd.get('u')||'').trim().toLowerCase(),p1=String(fd.get('p1')||''),p2=String(fd.get('p2')||'');
+    if(u.length<3)return toast('O usuário precisa de pelo menos 3 letras.');
+    if(p1.length<6)return toast('A senha precisa ter pelo menos 6 caracteres.');
+    if(p1!==p2)return toast('As senhas não batem.');
+    store.set('cred',{u,h:sha256('ovofrito:'+u+':'+p1)});f.reset();toast('Acesso atualizado 🔐');
+  }
+});
+
+/* se o visitante ainda não tem edições locais, tenta ler o content.json publicado */
+if(!store.get('content',null)){
+  fetch('content.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(c=>{if(c){applyContent(c);renderAll()}}).catch(()=>{});
+}
+
 /* ---------- animação ao rolar ---------- */
 (function(){
-  const els=$$('.reveal:not(.in)');
+  const els=$$('.reveal:not(.in)');booted=true;
   if(!('IntersectionObserver' in window)){els.forEach(e=>e.classList.add('in'));return}
   const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}}),{threshold:.12});
   els.forEach(e=>io.observe(e));
