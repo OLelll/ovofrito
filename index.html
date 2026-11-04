@@ -564,7 +564,7 @@ footer .copy{border-top:2px solid #3a3733;padding-top:20px;font-size:.85rem;opac
   <div class="card admin">
     <div class="ad-head">
       <h2>🛠️ Painel da redação</h2>
-      <div class="ad-bar" style="margin:0"><button class="btn alt" id="adClose" type="button">Ver o site</button><button class="btn alt" id="adLogout" type="button">Sair</button></div>
+      <div class="ad-bar" style="margin:0"><button class="btn hot" id="adPublish" type="button">🚀 Publicar no site</button><button class="btn alt" id="adClose" type="button">Ver o site</button><button class="btn alt" id="adLogout" type="button">Sair</button></div>
     </div>
     <nav class="ad-nav" id="adNav" aria-label="Seções do painel"></nav>
     <div class="ad-main" id="adMain"></div>
@@ -1150,6 +1150,12 @@ function configHtml(){
     <div class="field"><label for="kTm">Chave do TMDB (API Key v3 ou Token de Leitura v4)</label><input id="kTm" name="tm" type="password" autocomplete="off" value="${esc(tmKey())}"></div>
     <div class="field"><label for="kOm">Chave do OMDb (opcional)</label><input id="kOm" name="om" type="password" autocomplete="off" value="${esc(omKey())}"></div>
     <button class="btn" type="submit">Salvar chaves</button></form>
+  <form id="ghForm" class="card ad-box" novalidate><h4>Publicação no GitHub Pages</h4>
+    <p class="ad-note">É isso que faz as suas edições aparecerem pra todo mundo. Crie em github.com/settings/personal-access-tokens um token “fine-grained” só pra este repositório, com permissão <b>Contents: Read and write</b>. Ele fica salvo só neste navegador.</p>
+    <div class="field"><label for="gRepo">Repositório</label><input id="gRepo" name="repo" type="text" value="${esc((store.get('gh',{}).repo)||'olelll/ovofrito')}"></div>
+    <div class="field"><label for="gBr">Branch</label><input id="gBr" name="branch" type="text" value="${esc((store.get('gh',{}).branch)||'main')}"></div>
+    <div class="field"><label for="gTok">Token de acesso</label><input id="gTok" name="token" type="password" autocomplete="off" value="${esc((store.get('gh',{}).token)||'')}"></div>
+    <button class="btn" type="submit">Salvar</button></form>
   <form id="passForm" class="card ad-box" novalidate><h4>Trocar usuário e senha</h4>
     <p class="ad-note">A senha inicial é <b>OvoFrito@2026</b>. Troque assim que puder.</p>
     <div class="field"><label for="pU">Usuário</label><input id="pU" name="u" type="text" autocomplete="username" value="${esc(getCred().u)}"></div>
@@ -1245,6 +1251,24 @@ adminOv.addEventListener('click',async e=>{
     }
   }catch(err){toast(err.message||'Algo deu errado.')}
 });
+async function publishSite(){
+  const gh=store.get('gh',{});
+  if(!gh.token||!gh.repo){adTab='config';adEdit=null;adminRender();return toast('Cadastre o token do GitHub em ⚙️ Configurações primeiro.')}
+  const btn=$('#adPublish');btn.disabled=true;btn.textContent='Publicando…';
+  try{
+    const api='https://api.github.com/repos/'+gh.repo+'/contents/content.json',H={Authorization:'Bearer '+gh.token,Accept:'application/vnd.github+json'};
+    let sha;
+    const g=await fetch(api+'?ref='+encodeURIComponent(gh.branch||'main'),{headers:H,cache:'no-store'});
+    if(g.ok)sha=(await g.json()).sha;
+    else if(g.status!==404)throw new Error(g.status===401||g.status===403?'Token sem permissão. Confere o Contents: Read and write.':'GitHub respondeu erro '+g.status+'.');
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(collect(),null,2))));
+    const r=await fetch(api,{method:'PUT',headers:{...H,'Content-Type':'application/json'},body:JSON.stringify({message:'Atualiza conteúdo pelo painel',content,branch:gh.branch||'main',...(sha?{sha}:{})})});
+    if(!r.ok)throw new Error(r.status===409||r.status===422?'Conflito ao salvar. Tenta de novo.':'Não consegui publicar (erro '+r.status+').');
+    toast('Publicado! Aparece pra todos em até 1 ou 2 minutos 🚀');
+  }catch(err){toast(err.message||'Falha ao publicar.')}
+  finally{btn.disabled=false;btn.textContent='🚀 Publicar no site'}
+}
+$('#adPublish').onclick=publishSite;
 adminOv.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='tmQ'){e.preventDefault();tmSearch()}});
 adminOv.addEventListener('change',e=>{
   if(e.target.id!=='impFile')return;
@@ -1281,6 +1305,9 @@ adminOv.addEventListener('submit',e=>{
   else if(f.id==='keysForm'){
     store.set('tmdbKey',String(fd.get('tm')||'').trim());store.set('omdbKey',String(fd.get('om')||'').trim());toast('Chaves salvas 🔑');
   }
+  else if(f.id==='ghForm'){
+    store.set('gh',{repo:String(fd.get('repo')||'').trim(),branch:String(fd.get('branch')||'').trim()||'main',token:String(fd.get('token')||'').trim()});toast('Publicação configurada 🚀');
+  }
   else if(f.id==='passForm'){
     const u=String(fd.get('u')||'').trim().toLowerCase(),p1=String(fd.get('p1')||''),p2=String(fd.get('p2')||'');
     if(u.length<3)return toast('O usuário precisa de pelo menos 3 letras.');
@@ -1292,7 +1319,7 @@ adminOv.addEventListener('submit',e=>{
 
 /* se o visitante ainda não tem edições locais, tenta ler o content.json publicado */
 if(!store.get('content',null)){
-  fetch('content.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(c=>{if(c){applyContent(c);renderAll()}}).catch(()=>{});
+  fetch('content.json?v='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(c=>{if(c){applyContent(c);renderAll()}}).catch(()=>{});
 }
 
 /* ---------- animação ao rolar ---------- */
