@@ -275,8 +275,19 @@ footer .copy{border-top:2px solid #3a3733;padding-top:20px;font-size:.85rem;opac
 .toast.show{transform:translate(-50%,0)}
 .to-top{position:fixed;right:18px;bottom:18px;z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
 .to-top.show{opacity:1;pointer-events:auto}
-.fab{position:fixed;left:18px;bottom:18px;z-index:40;display:none}
-.fab.show{display:inline-flex}
+.fab{position:fixed;left:18px;bottom:18px;z-index:95;display:none;gap:8px;flex-wrap:wrap;align-items:center;max-width:calc(100% - 84px)}
+#fbAdd{width:auto;padding:.7rem .9rem;border-radius:999px;font-weight:700;background:var(--card)}
+#pubStatus{font-size:.8rem;font-weight:700;background:var(--ink);color:var(--bg);padding:.25rem .7rem;border-radius:999px}
+#pubStatus:empty{display:none}
+.editing [data-ed]{outline:3px dashed var(--violet);outline-offset:4px;cursor:pointer}
+.editing [data-ed]:hover{outline-color:var(--hot)}
+.editing [data-t]{outline:2px dashed var(--hot);outline-offset:3px;cursor:text;min-height:1em}
+.editing [data-t]:focus{outline-style:solid}
+.editing .ticker-track{animation-play-state:paused}
+.drawer{position:fixed;right:0;top:0;bottom:0;z-index:90;width:min(430px,100%);border-radius:0;border-width:0 0 0 3px;box-shadow:-8px 0 0 rgba(0,0,0,.15);padding:64px 22px 90px;overflow:auto;transform:translateX(105%);transition:transform .3s}
+.drawer.open{transform:none}
+.drawer h3{font-size:1.5rem;margin-bottom:12px}
+.fab.show{display:flex}
 .admin{width:min(1120px,100%);height:min(88vh,860px);display:grid;grid-template-columns:210px 1fr;grid-template-rows:auto 1fr;overflow:hidden;animation:pop .3s}
 .ad-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 20px;border-bottom:3px solid var(--line);background:var(--yolk);color:#151515}
 .ad-head h2{font-size:1.5rem}
@@ -542,7 +553,16 @@ footer .copy{border-top:2px solid #3a3733;padding-top:20px;font-size:.85rem;opac
   </div>
 </div>
 
-<button type="button" class="btn fab" id="adminFab">🛠️ Painel</button>
+<div class="fab" id="adminFab">
+  <button type="button" class="btn" id="fbEdit" aria-pressed="false">✏️ Editar no site</button>
+  <select id="fbAdd" aria-label="Adicionar conteúdo">
+    <option value="">➕ Adicionar…</option>
+    <option value="movies">Filme</option><option value="series">Série</option><option value="articles">Matéria</option>
+    <option value="ticker">Nota rápida</option><option value="interviews">Entrevista</option><option value="nacional">Texto da coluna</option>
+  </select>
+  <button type="button" class="btn alt" id="fbPanel">🛠️ Painel</button>
+  <span id="pubStatus" role="status"></span>
+</div>
 
 <div class="overlay" id="loginOv" role="dialog" aria-modal="true" aria-labelledby="lgTitle">
   <div class="card modal" style="width:min(420px,100%)">
@@ -570,6 +590,11 @@ footer .copy{border-top:2px solid #3a3733;padding-top:20px;font-size:.85rem;opac
     <div class="ad-main" id="adMain"></div>
   </div>
 </div>
+
+<aside class="card drawer" id="edDrawer" aria-label="Editar item">
+  <button class="close" id="dwClose" type="button" aria-label="Fechar">✕</button>
+  <div id="dwBody"></div>
+</aside>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -675,18 +700,21 @@ const moods = [
 /* ---------- conteúdo editável (painel da redação) ---------- */
 const review={id:'rv0',emoji:'🛸',tag:'Resenha · 7 min de leitura',t:'“Ressaca Cósmica” é a bagunça mais bem organizada do ano',b:'Imagina uma festa que termina com uma nave desgovernada e um grupo de amigos tentando lembrar o que fez na noite anterior. Parece confuso, e é. Mas o filme conduz tudo com tanto carinho e piada boa que você nem liga de se perder no meio.\n\nO final divide opiniões. A gente adorou. E você?',n:4,yes:842,no:197};
 const COLL={movies,series,articles,ticker,interviews,nacional};
+const texts={};
 ticker.splice(0,ticker.length,...ticker.map(([k,t])=>({k,t})));
 poll.id='p0';
 let booted=false;
 const rv=()=>booted?'reveal in':'reveal';
-function collect(){const o={};Object.keys(COLL).forEach(k=>o[k]=COLL[k]);o.poll=poll;o.review=review;return o}
+function collect(){const o={};Object.keys(COLL).forEach(k=>o[k]=COLL[k]);o.poll=poll;o.review=review;o.texts=texts;return o}
 function applyContent(c){
   if(!c||typeof c!=='object')return;
+  Object.keys(texts).forEach(k=>delete texts[k]);
+  if(c.texts&&typeof c.texts==='object')Object.assign(texts,c.texts);
   Object.keys(COLL).forEach(k=>{if(Array.isArray(c[k]))COLL[k].splice(0,COLL[k].length,...c[k])});
   if(c.poll&&Array.isArray(c.poll.o)){Object.keys(poll).forEach(k=>delete poll[k]);Object.assign(poll,c.poll);poll.id=poll.id||'p0'}
   if(c.review&&typeof c.review==='object')Object.assign(review,c.review);
 }
-function saveContent(){store.set('content',collect())}
+function saveContent(){store.set('content',collect());schedulePublish()}
 const DEFAULT_SNAPSHOT=JSON.stringify(collect());
 applyContent(store.get('content',null));
 function renderReview(){
@@ -965,8 +993,8 @@ $('#searchBtn').onclick=openSearch;
 $('#searchInput').addEventListener('input',e=>runSearch(e.target.value));
 sOv.addEventListener('click',e=>{if(e.target===sOv)closeSearch()});
 addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeSearch();closeModal();closeLogin()}
-  if(e.key==='/'&&!/input|textarea/i.test(document.activeElement.tagName)){e.preventDefault();openSearch()}
+  if(e.key==='Escape'){closeSearch();closeModal();closeLogin();closeDrawer()}
+  if(e.key==='/'&&!document.activeElement.isContentEditable&&!/input|textarea|select/i.test(document.activeElement.tagName)){e.preventDefault();openSearch()}
 });
 
 /* ---------- PAINEL DA REDAÇÃO ---------- */
@@ -994,6 +1022,83 @@ function sha256(msg){
   return h.map(v=>(v>>>0).toString(16).padStart(8,'0')).join('');
 }
 
+let editing=false,pubTimer=null,publishing=false,pubPending=false;
+
+/* textos fixos editáveis (frases de apresentação) */
+function labelTexts(){
+  $$('.hero p.lead, .sec-head p, .news .wrap p').forEach((el,i)=>{el.dataset.t='t'+i;el.dataset.orig=el.textContent});
+}
+function applyTexts(){
+  $$('[data-t]').forEach(el=>{const v=texts[el.dataset.t];el.textContent=v!=null?v:el.dataset.orig});
+}
+labelTexts();applyTexts();
+
+/* marca cada card com o item que ele representa */
+function markEditable(){
+  const coll=kind==='movies'?movies:series,order=coll.slice().sort((a,b)=>score(b)-score(a));
+  $$('#rankList .rank-item').forEach((li,i)=>{const it=order[i];if(it)li.dataset.ed=kind+':'+coll.indexOf(it)});
+  $$('#artGrid .art').forEach(el=>{const i=articles.findIndex(a=>a.id===el.dataset.open);if(i>=0)el.dataset.ed='articles:'+i});
+  $$('#interviews .iv').forEach((el,i)=>el.dataset.ed='interviews:'+i);
+  $$('#nacList li').forEach((el,i)=>el.dataset.ed='nacional:'+i);
+  if(ticker.length)$$('#ticker span').forEach((el,i)=>el.dataset.ed='ticker:'+(i%ticker.length));
+  const rc=$('.review');if(rc)rc.dataset.ed='review';
+  const pp=$('#pollQ').closest('.panel');if(pp)pp.dataset.ed='poll';
+}
+const mo=new MutationObserver(markEditable);
+['#rankList','#artGrid','#interviews','#nacList','#ticker'].forEach(s=>mo.observe($(s),{childList:true}));
+markEditable();
+
+function setEditing(v){
+  editing=v;document.body.classList.toggle('editing',v);
+  const b=$('#fbEdit');b.setAttribute('aria-pressed',v);b.textContent=v?'✅ Sair da edição':'✏️ Editar no site';
+  $$('[data-t]').forEach(el=>v?el.setAttribute('contenteditable','true'):el.removeAttribute('contenteditable'));
+  if(v){markEditable();toast('Modo edição: clique num card ou num texto pra editar ✏️')}
+  else $('#edDrawer').classList.remove('open');
+}
+function openEditor(coll,i){
+  closeAdmin();
+  const body=$('#dwBody');
+  if(coll==='review')body.innerHTML=reviewHtml();
+  else if(coll==='poll')body.innerHTML=pollHtml();
+  else{
+    adEdit={coll,i};
+    body.innerHTML=formHtml()+(i>=0?`<div class="ad-bar" style="margin-top:14px"><button type="button" class="btn alt" data-act="dwdel" data-coll="${coll}" data-i="${i}">🗑️ Excluir</button></div>`:'');
+  }
+  $('#edDrawer').classList.add('open');$('#edDrawer').scrollTop=0;
+}
+function closeDrawer(){$('#edDrawer').classList.remove('open');adEdit=null}
+$('#fbEdit').onclick=()=>setEditing(!editing);
+$('#fbAdd').onchange=e=>{const v=e.target.value;e.target.value='';if(v){setEditing(true);openEditor(v,-1)}};
+$('#dwClose').onclick=closeDrawer;
+$('#edDrawer').addEventListener('click',e=>{
+  if(e.target.closest('[data-act="cancel"]'))return closeDrawer();
+  const b=e.target.closest('[data-act="dwdel"]');if(!b)return;
+  const S=SCH[b.dataset.coll],i=+b.dataset.i;
+  if(!confirm('Excluir “'+S.title(S.coll[i])+'”?'))return;
+  S.coll.splice(i,1);adEdit=null;commit();toast('Excluído 🗑️');
+});
+/* em modo edição, clicar num card abre o editor em vez de abrir a matéria */
+document.addEventListener('click',e=>{
+  if(!editing)return;
+  if(e.target.closest('#edDrawer,#adminFab,#adminOv,#loginOv,#searchOv,#modalOv,#toast'))return;
+  if(e.target.closest('[data-t]'))return;
+  const el=e.target.closest('[data-ed]');if(!el)return;
+  e.preventDefault();e.stopPropagation();
+  const v=el.dataset.ed;
+  if(v==='review'||v==='poll')openEditor(v,-1);else{const p=v.split(':');openEditor(p[0],+p[1])}
+},true);
+/* textos: salva quando você sai do campo */
+document.addEventListener('focusout',e=>{
+  const el=e.target;if(!editing||!el.matches||!el.matches('[data-t]'))return;
+  const cur=texts[el.dataset.t]!=null?texts[el.dataset.t]:el.dataset.orig,v=el.textContent.trim();
+  if(v===cur)return;
+  if(!v){el.textContent=cur;return}
+  texts[el.dataset.t]=v;saveContent();toast('Texto salvo ✅');
+});
+document.addEventListener('keydown',e=>{
+  if(editing&&e.key==='Enter'&&e.target.matches&&e.target.matches('[data-t]')){e.preventDefault();e.target.blur()}
+});
+
 /* login (atenção: roda no navegador, serve pra organizar o trabalho e não é segurança de verdade) */
 const CRED0={u:'admin',h:'de43a50d8ee7818f0b54d1ebd90de26beb8023c4c33e48bba085b34a685481ec'};
 const getCred=()=>store.get('cred',CRED0);
@@ -1004,6 +1109,7 @@ function setAdmin(v){
   isAdmin=v;
   try{v?sessionStorage.setItem('ovofrito:adm','1'):sessionStorage.removeItem('ovofrito:adm')}catch(e){}
   $('#adminFab').classList.toggle('show',v);
+  if(!v)setEditing(false);
 }
 setAdmin(isAdmin);
 function openLogin(){if(isAdmin)return openAdmin();loginOv.classList.add('open');document.body.style.overflow='hidden';$('#lgUser').focus()}
@@ -1011,7 +1117,7 @@ function closeLogin(){loginOv.classList.remove('open');if(!adminOv.classList.con
 function openAdmin(){adminOv.classList.add('open');document.body.style.overflow='hidden';adminRender()}
 function closeAdmin(){adminOv.classList.remove('open');document.body.style.overflow=''}
 $('#openAdmin').onclick=e=>{e.preventDefault();openLogin()};
-$('#adminFab').onclick=openAdmin;
+$('#fbPanel').onclick=openAdmin;
 $('#lgClose').onclick=closeLogin;
 $('#adClose').onclick=closeAdmin;
 $('#adLogout').onclick=()=>{setAdmin(false);closeAdmin();toast('Você saiu do painel.')};
@@ -1020,7 +1126,7 @@ $('#loginForm').addEventListener('submit',e=>{
   if(Date.now()<lockUntil){$('#lgErr').textContent='Muitas tentativas. Espera uns segundos e tenta de novo.';return}
   const u=$('#lgUser').value.trim().toLowerCase(),p=$('#lgPass').value,c=getCred();
   if(u===c.u&&sha256('ovofrito:'+u+':'+p)===c.h){
-    fails=0;setAdmin(true);e.target.reset();$('#lgErr').textContent='';closeLogin();openAdmin();toast('Bem-vinda(o) à redação! 🍳');
+    fails=0;setAdmin(true);e.target.reset();$('#lgErr').textContent='';closeLogin();openAdmin();toast('Bem-vinda(o) à redação! 🍳');if(store.get('gh',{}).token)loadRemote();
   }else{
     fails++;if(fails>=5){lockUntil=Date.now()+30000;fails=0}
     $('#lgErr').textContent='Usuário ou senha incorretos.';
@@ -1174,9 +1280,9 @@ function adminRender(){
   m.innerHTML=adEdit?formHtml():SCH[adTab]?listHtml(adTab):adTab==='review'?reviewHtml():adTab==='poll'?pollHtml():configHtml();
   m.scrollTop=0;
 }
-function commit(){saveContent();renderAll();adminRender()}
+function commit(){saveContent();renderAll();if(adminOv.classList.contains('open'))adminRender();$('#edDrawer').classList.remove('open')}
 function renderAll(){
-  renderTicker();renderRank();renderChips();renderArt();renderPeople();renderReview();
+  renderTicker();renderRank();renderChips();renderArt();renderPeople();renderReview();applyTexts();markEditable();
   if(window.__poll)window.__poll();
   if(window.__agree)window.__agree();
 }
@@ -1251,10 +1357,21 @@ adminOv.addEventListener('click',async e=>{
     }
   }catch(err){toast(err.message||'Algo deu errado.')}
 });
-async function publishSite(){
+function setPub(t){const el=$('#pubStatus');if(el)el.textContent=t}
+function schedulePublish(){
+  if(!isAdmin)return;
+  if(!store.get('gh',{}).token){setPub('💾 Salvo só neste navegador (falta o token)');return}
+  setPub('⏳ Salvando…');clearTimeout(pubTimer);pubTimer=setTimeout(()=>publishSite(true),1200);
+}
+async function publishSite(silent){
   const gh=store.get('gh',{});
-  if(!gh.token||!gh.repo){adTab='config';adEdit=null;adminRender();return toast('Cadastre o token do GitHub em ⚙️ Configurações primeiro.')}
-  const btn=$('#adPublish');btn.disabled=true;btn.textContent='Publicando…';
+  if(!gh.token||!gh.repo){
+    if(silent)return setPub('💾 Salvo só neste navegador (falta o token)');
+    adTab='config';adEdit=null;adminRender();return toast('Cadastre o token do GitHub em ⚙️ Configurações primeiro.');
+  }
+  if(publishing){pubPending=true;return}
+  publishing=true;
+  const btn=$('#adPublish');btn.disabled=true;btn.textContent='Publicando…';setPub('⏳ Publicando…');
   try{
     const api='https://api.github.com/repos/'+gh.repo+'/contents/content.json',H={Authorization:'Bearer '+gh.token,Accept:'application/vnd.github+json'};
     let sha;
@@ -1262,13 +1379,14 @@ async function publishSite(){
     if(g.ok)sha=(await g.json()).sha;
     else if(g.status!==404)throw new Error(g.status===401||g.status===403?'Token sem permissão. Confere o Contents: Read and write.':'GitHub respondeu erro '+g.status+'.');
     const content=btoa(unescape(encodeURIComponent(JSON.stringify(collect(),null,2))));
-    const r=await fetch(api,{method:'PUT',headers:{...H,'Content-Type':'application/json'},body:JSON.stringify({message:'Atualiza conteúdo pelo painel',content,branch:gh.branch||'main',...(sha?{sha}:{})})});
+    const r=await fetch(api,{method:'PUT',headers:{...H,'Content-Type':'application/json'},body:JSON.stringify({message:'Atualiza conteúdo pelo site',content,branch:gh.branch||'main',...(sha?{sha}:{})})});
     if(!r.ok)throw new Error(r.status===409||r.status===422?'Conflito ao salvar. Tenta de novo.':'Não consegui publicar (erro '+r.status+').');
-    toast('Publicado! Aparece pra todos em até 1 ou 2 minutos 🚀');
-  }catch(err){toast(err.message||'Falha ao publicar.')}
-  finally{btn.disabled=false;btn.textContent='🚀 Publicar no site'}
+    setPub('✅ Publicado. Aparece pra todos em 1 ou 2 min');
+    if(!silent)toast('Publicado! Aparece pra todos em até 1 ou 2 minutos 🚀');
+  }catch(err){setPub('⚠️ '+(err.message||'Falha ao publicar'));toast(err.message||'Falha ao publicar.')}
+  finally{publishing=false;btn.disabled=false;btn.textContent='🚀 Publicar no site';if(pubPending){pubPending=false;publishSite(true)}}
 }
-$('#adPublish').onclick=publishSite;
+$('#adPublish').onclick=()=>publishSite(false);
 adminOv.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='tmQ'){e.preventDefault();tmSearch()}});
 adminOv.addEventListener('change',e=>{
   if(e.target.id!=='impFile')return;
@@ -1277,7 +1395,7 @@ adminOv.addEventListener('change',e=>{
   rd.onload=()=>{try{applyContent(JSON.parse(rd.result));commit();toast('Dados importados ✅')}catch(err){toast('Esse arquivo não parece um content.json válido.')}};
   rd.readAsText(file);
 });
-adminOv.addEventListener('submit',e=>{
+function onAdSubmit(e){
   e.preventDefault();
   const f=e.target,fd=new FormData(f);
   if(f.id==='adForm'){
@@ -1315,12 +1433,16 @@ adminOv.addEventListener('submit',e=>{
     if(p1!==p2)return toast('As senhas não batem.');
     store.set('cred',{u,h:sha256('ovofrito:'+u+':'+p1)});f.reset();toast('Acesso atualizado 🔐');
   }
-});
+}
+adminOv.addEventListener('submit',onAdSubmit);
+$('#edDrawer').addEventListener('submit',onAdSubmit);
 
 /* se o visitante ainda não tem edições locais, tenta ler o content.json publicado */
-if(!store.get('content',null)){
-  fetch('content.json?v='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(c=>{if(c){applyContent(c);renderAll()}}).catch(()=>{});
+function loadRemote(){
+  return fetch('content.json?v='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(c=>{if(c){applyContent(c);renderAll()}}).catch(()=>{});
 }
+/* visitante sempre vê o que foi publicado; admin só busca se ainda não tem nada local */
+if(!isAdmin||!store.get('content',null))loadRemote();
 
 /* ---------- animação ao rolar ---------- */
 (function(){
