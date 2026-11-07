@@ -577,7 +577,7 @@ main{transition:opacity .3s}
       <h3 id="lgTitle">Área da redação 🍳</h3>
       <p style="color:var(--muted);margin-bottom:16px">Entre pra editar o conteúdo do site.</p>
       <form id="loginForm" novalidate>
-        <div class="field"><label for="lgUser">E-mail</label><input type="email" id="lgUser" autocomplete="username"></div>
+        <div class="field"><label for="lgUser">Usuário</label><input type="text" id="lgUser" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
         <div class="field"><label for="lgPass">Senha</label><input type="password" id="lgPass" autocomplete="current-password"></div>
         <span class="err" id="lgErr" role="alert"></span>
         <button class="btn" type="submit" style="margin-top:6px">Entrar</button>
@@ -1006,6 +1006,7 @@ addEventListener('keydown',e=>{
 /* ---------- PAINEL DA REDAÇÃO ---------- */
 const SB_URL='https://axazzmqbnpexnnezcthp.supabase.co';
 const SB_KEY='sb_publishable_glOkzjOROWcXY6IUsQD8lQ_EgbEEj_v'; /* chave pública: pode ficar no site */
+const SB_LOGIN_DOMAIN='ovofrito.test'; /* quem digita só "admin" entra como admin@ovofrito.test (domínio reservado, ninguém pode registrar) */
 const KEYS=['movies','series','articles','ticker','interviews','nacional','poll','review','texts'];
 let sbSession=store.get('sb',null),refreshing=null;
 let synced={},saving=false,savePending=false,saveTimer=null;
@@ -1023,7 +1024,7 @@ async function sbSignIn(email,pass){
   let r;
   try{r=await sbFetch('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password:pass}})}
   catch(e){throw new Error('Não consegui falar com o servidor. Confere a internet e tenta de novo.')}
-  if(!r.ok)throw new Error(r.status===400||r.status===401||r.status===422?'E-mail ou senha incorretos.':'O servidor deu erro ('+r.status+'). Tenta de novo daqui a pouco.');
+  if(!r.ok)throw new Error(r.status===400||r.status===401||r.status===422?'Usuário ou senha incorretos.':'O servidor deu erro ('+r.status+'). Tenta de novo daqui a pouco.');
   startSession(r.data);
 }
 function sbToken(){
@@ -1151,8 +1152,9 @@ $('#pnLogout').onclick=()=>{sbSignOut();setAdmin(false);closeAdmin();setPub('');
 $('#loginForm').addEventListener('submit',async e=>{
   e.preventDefault();
   if(Date.now()<lockUntil){$('#lgErr').textContent='Muitas tentativas. Espera uns segundos e tenta de novo.';return}
-  const form=e.target,email=$('#lgUser').value.trim().toLowerCase(),pass=$('#lgPass').value,btn=form.querySelector('button[type=submit]');
-  if(!email||!pass){$('#lgErr').textContent='Preenche o e-mail e a senha.';return}
+  const form=e.target,raw=$('#lgUser').value.trim().toLowerCase(),pass=$('#lgPass').value,btn=form.querySelector('button[type=submit]');
+  if(!raw||!pass){$('#lgErr').textContent='Preenche o usuário e a senha.';return}
+  const email=raw.includes('@')?raw:raw+'@'+SB_LOGIN_DOMAIN;
   btn.disabled=true;$('#lgErr').textContent='';
   try{
     await sbSignIn(email,pass);
@@ -1290,7 +1292,7 @@ function configHtml(){
     <div class="field"><label for="kOm">Chave do OMDb (opcional)</label><input id="kOm" name="om" type="password" autocomplete="off" value="${esc(omKey())}"></div>
     <button class="btn" type="submit">Salvar chaves</button></form>
   <div class="card pn-box"><h4>Seu acesso</h4>
-    <p class="pn-note">O login é o e-mail e a senha do usuário que você criou no Supabase. Pra trocar a senha: Supabase → Authentication → Users → seu usuário → “Send password recovery”.</p></div>
+    <p class="pn-note">O login é o usuário (ex.: admin) e a senha da conta criada no Supabase. A troca de senha é feita no Supabase, não aqui.</p></div>
   <div class="card pn-box"><h4>Backup</h4>
     <p class="pn-note">Tudo que você edita já é salvo no banco e todo mundo vê na hora. Exportar e importar servem só como cópia de segurança.</p>
     <div class="pn-bar"><button type="button" class="btn" data-act="export">⬇️ Exportar backup</button><label class="btn alt" style="cursor:pointer">⬆️ Importar<input type="file" id="impFile" accept="application/json,.json" hidden></label></div></div>
