@@ -289,32 +289,32 @@ footer .copy{border-top:2px solid #3a3733;padding-top:20px;font-size:.85rem;opac
 .drawer h3{font-size:1.5rem;margin-bottom:12px}
 .fab.show{display:flex}
 .admin{width:min(1120px,100%);height:min(88vh,860px);display:grid;grid-template-columns:210px 1fr;grid-template-rows:auto minmax(0,1fr);overflow:hidden}
-.ad-head{grid-row:1;grid-column:1/-1}
-.ad-nav{grid-row:2;grid-column:1;min-height:0}
-.ad-main{grid-row:2;grid-column:2;min-height:0;min-width:0}
-.ad-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 20px;border-bottom:3px solid var(--line);background:var(--yolk);color:#151515}
-.ad-head h2{font-size:1.5rem}
-.ad-nav{display:flex;flex-direction:column;gap:6px;padding:14px;border-right:3px solid var(--line);overflow:auto}
-.ad-nav button{text-align:left;padding:.6rem .8rem;border:2px solid transparent;border-radius:12px;font-weight:700}
-.ad-nav button:hover{border-color:var(--line)}
-.ad-nav button[aria-current="true"]{background:var(--ink);color:var(--bg)}
-.ad-main{padding:22px;overflow:auto}
-.ad-main h3{font-size:1.6rem;margin-bottom:12px}
-.ad-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-.ad-bar input{flex:1 1 200px;width:auto}
-.ad-list{list-style:none;display:grid;gap:10px;margin-bottom:20px}
-.ad-list li{display:flex;gap:12px;align-items:center;padding:10px;border:3px solid var(--line);border-radius:14px;background:var(--bg)}
-.ad-thumb{width:46px;height:62px;flex:none;border:2px solid var(--line);border-radius:8px;display:grid;place-items:center;font-size:1.3rem;overflow:hidden;color:#151515;font-weight:700}
-.ad-t{flex:1;min-width:0}
-.ad-t strong,.ad-t small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ad-t small{color:var(--muted);font-size:.82rem}
-.ad-btns{display:flex;gap:6px}
-.ad-btns button{min-width:38px;height:38px;padding:0 .6rem;border:2px solid var(--line);border-radius:10px;background:var(--card);font-weight:700}
-.ad-btns button:hover{background:var(--yolk);color:#151515}
-.ad-box{padding:16px;margin-bottom:20px;box-shadow:none}
-.ad-box h4{font-size:1.15rem;margin-bottom:8px}
-.ad-note{padding:.7rem 1rem;border-radius:12px;border:2px dashed var(--line);font-size:.88rem;color:var(--muted);margin-bottom:14px}
-@media(max-width:760px){.admin{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;height:92vh}.ad-nav{flex-direction:row;border-right:0;border-bottom:3px solid var(--line)}.ad-nav button{white-space:nowrap}}
+.pn-head{grid-row:1;grid-column:1/-1}
+.pn-nav{grid-row:2;grid-column:1;min-height:0}
+.pn-main{grid-row:2;grid-column:2;min-height:0;min-width:0}
+.pn-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 20px;border-bottom:3px solid var(--line);background:var(--yolk);color:#151515}
+.pn-head h2{font-size:1.5rem}
+.pn-nav{display:flex;flex-direction:column;gap:6px;padding:14px;border-right:3px solid var(--line);overflow:auto}
+.pn-nav button{text-align:left;padding:.6rem .8rem;border:2px solid transparent;border-radius:12px;font-weight:700}
+.pn-nav button:hover{border-color:var(--line)}
+.pn-nav button[aria-current="true"]{background:var(--ink);color:var(--bg)}
+.pn-main{padding:22px;overflow:auto}
+.pn-main h3{font-size:1.6rem;margin-bottom:12px}
+.pn-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.pn-bar input{flex:1 1 200px;width:auto}
+.pn-list{list-style:none;display:grid;gap:10px;margin-bottom:20px}
+.pn-list li{display:flex;gap:12px;align-items:center;padding:10px;border:3px solid var(--line);border-radius:14px;background:var(--bg)}
+.pn-thumb{width:46px;height:62px;flex:none;border:2px solid var(--line);border-radius:8px;display:grid;place-items:center;font-size:1.3rem;overflow:hidden;color:#151515;font-weight:700}
+.pn-t{flex:1;min-width:0}
+.pn-t strong,.pn-t small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pn-t small{color:var(--muted);font-size:.82rem}
+.pn-btns{display:flex;gap:6px}
+.pn-btns button{min-width:38px;height:38px;padding:0 .6rem;border:2px solid var(--line);border-radius:10px;background:var(--card);font-weight:700}
+.pn-btns button:hover{background:var(--yolk);color:#151515}
+.pn-box{padding:16px;margin-bottom:20px;box-shadow:none}
+.pn-box h4{font-size:1.15rem;margin-bottom:8px}
+.pn-note{padding:.7rem 1rem;border-radius:12px;border:2px dashed var(--line);font-size:.88rem;color:var(--muted);margin-bottom:14px}
+@media(max-width:760px){.admin{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;height:92vh}.pn-nav{flex-direction:row;border-right:0;border-bottom:3px solid var(--line)}.pn-nav button{white-space:nowrap}}
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .6s,transform .6s}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}html{scroll-behavior:auto}}
@@ -588,12 +588,12 @@ main{transition:opacity .3s}
 
 <div class="overlay" id="adminOv" role="dialog" aria-modal="true" aria-label="Painel da redação">
   <div class="card admin">
-    <div class="ad-head">
+    <div class="pn-head">
       <h2>🛠️ Painel da redação</h2>
-      <div class="ad-bar" style="margin:0"><button class="btn hot" id="adPublish" type="button">🚀 Publicar no site</button><button class="btn alt" id="adClose" type="button">Ver o site</button><button class="btn alt" id="adLogout" type="button">Sair</button></div>
+      <div class="pn-bar" style="margin:0"><button class="btn hot" id="pnPublish" type="button">🚀 Publicar no site</button><button class="btn alt" id="pnClose" type="button">Ver o site</button><button class="btn alt" id="pnLogout" type="button">Sair</button></div>
     </div>
-    <nav class="ad-nav" id="adNav" aria-label="Seções do painel"></nav>
-    <div class="ad-main" id="adMain"></div>
+    <nav class="pn-nav" id="pnNav" aria-label="Seções do painel"></nav>
+    <div class="pn-main" id="pnMain"></div>
   </div>
 </div>
 
@@ -1093,7 +1093,7 @@ function openEditor(coll,i){
   else if(coll==='poll')body.innerHTML=pollHtml();
   else{
     adEdit={coll,i};
-    body.innerHTML=formHtml()+(i>=0?`<div class="ad-bar" style="margin-top:14px"><button type="button" class="btn alt" data-act="dwdel" data-coll="${coll}" data-i="${i}">🗑️ Excluir</button></div>`:'');
+    body.innerHTML=formHtml()+(i>=0?`<div class="pn-bar" style="margin-top:14px"><button type="button" class="btn alt" data-act="dwdel" data-coll="${coll}" data-i="${i}">🗑️ Excluir</button></div>`:'');
   }
   $('#edDrawer').classList.add('open');$('#edDrawer').scrollTop=0;
 }
@@ -1146,8 +1146,8 @@ function closeAdmin(){adminOv.classList.remove('open');document.body.style.overf
 $('#openAdmin').onclick=e=>{e.preventDefault();openLogin()};
 $('#fbPanel').onclick=openAdmin;
 $('#lgClose').onclick=closeLogin;
-$('#adClose').onclick=closeAdmin;
-$('#adLogout').onclick=()=>{sbSignOut();setAdmin(false);closeAdmin();setPub('');toast('Você saiu do painel.')};
+$('#pnClose').onclick=closeAdmin;
+$('#pnLogout').onclick=()=>{sbSignOut();setAdmin(false);closeAdmin();setPub('');toast('Você saiu do painel.')};
 $('#loginForm').addEventListener('submit',async e=>{
   e.preventDefault();
   if(Date.now()<lockUntil){$('#lgErr').textContent='Muitas tentativas. Espera uns segundos e tenta de novo.';return}
@@ -1252,59 +1252,59 @@ function readForm(form,fields){
 function rowsHtml(c){
   const S=SCH[c];
   return S.coll.length?S.coll.map((it,i)=>`<li>
-    <div class="ad-thumb" style="${bgStyle(it)}">${it.img?'':esc(it.emoji||it.i||'')}</div>
-    <div class="ad-t"><strong>${esc(S.title(it)||'(sem título)')}</strong><small>${esc(S.sub(it))}</small></div>
-    <div class="ad-btns">${S.order?`<button type="button" data-act="up" data-i="${i}" aria-label="Subir">↑</button><button type="button" data-act="down" data-i="${i}" aria-label="Descer">↓</button>`:''}<button type="button" data-act="edit" data-i="${i}" aria-label="Editar">✏️</button><button type="button" data-act="del" data-i="${i}" aria-label="Excluir">🗑️</button></div>
+    <div class="pn-thumb" style="${bgStyle(it)}">${it.img?'':esc(it.emoji||it.i||'')}</div>
+    <div class="pn-t"><strong>${esc(S.title(it)||'(sem título)')}</strong><small>${esc(S.sub(it))}</small></div>
+    <div class="pn-btns">${S.order?`<button type="button" data-act="up" data-i="${i}" aria-label="Subir">↑</button><button type="button" data-act="down" data-i="${i}" aria-label="Descer">↓</button>`:''}<button type="button" data-act="edit" data-i="${i}" aria-label="Editar">✏️</button><button type="button" data-act="del" data-i="${i}" aria-label="Excluir">🗑️</button></div>
   </li>`).join(''):'<li class="empty">Nada por aqui ainda. Clica em “Adicionar”.</li>';
 }
 function listHtml(c){
   const S=SCH[c],isT=c==='movies'||c==='series';
   return `<h3>${esc(TABS.find(t=>t[0]===c)[1])}</h3>
-  ${isT?`<div class="card ad-box"><h4>🔎 Buscar no TMDB (filmes e séries de verdade)</h4>
-    <div class="ad-bar" style="margin-bottom:10px"><input id="tmQ" type="text" placeholder="Digite o nome e aperte Enter…" aria-label="Buscar no TMDB"><button type="button" class="btn" data-act="tmsearch">Buscar</button></div>
-    <ul class="ad-list" id="tmRes"></ul>
+  ${isT?`<div class="card pn-box"><h4>🔎 Buscar no TMDB (filmes e séries de verdade)</h4>
+    <div class="pn-bar" style="margin-bottom:10px"><input id="tmQ" type="text" placeholder="Digite o nome e aperte Enter…" aria-label="Buscar no TMDB"><button type="button" class="btn" data-act="tmsearch">Buscar</button></div>
+    <ul class="pn-list" id="tmRes"></ul>
     <button type="button" class="btn alt" data-act="trend">⚡ Trazer os mais populares da semana</button>
-    <p class="ad-note" style="margin:12px 0 0">Precisa da chave do TMDB (grátis) em ⚙️ Configurações. A nota do IMDb vem do OMDb, se você cadastrar essa chave também.</p></div>`:''}
-  <div class="ad-bar"><button type="button" class="btn" data-act="new">+ Adicionar ${esc(S.name)}</button></div>
-  <ul class="ad-list" id="adList">${rowsHtml(c)}</ul>`;
+    <p class="pn-note" style="margin:12px 0 0">Precisa da chave do TMDB (grátis) em ⚙️ Configurações. A nota do IMDb vem do OMDb, se você cadastrar essa chave também.</p></div>`:''}
+  <div class="pn-bar"><button type="button" class="btn" data-act="new">+ Adicionar ${esc(S.name)}</button></div>
+  <ul class="pn-list" id="pnList">${rowsHtml(c)}</ul>`;
 }
 function formHtml(){
   const S=SCH[adEdit.coll],it=adEdit.i<0?S.blank():S.coll[adEdit.i];
-  return `<form id="adForm" novalidate><h3>${adEdit.i<0?'Adicionar':'Editar'} ${esc(S.name)}</h3>${S.fields.map(f=>fieldHtml(f,it[f.k])).join('')}<div class="ad-bar"><button class="btn hot" type="submit">Salvar</button><button type="button" class="btn alt" data-act="cancel">Cancelar</button></div></form>`;
+  return `<form id="pnForm" novalidate><h3>${adEdit.i<0?'Adicionar':'Editar'} ${esc(S.name)}</h3>${S.fields.map(f=>fieldHtml(f,it[f.k])).join('')}<div class="pn-bar"><button class="btn hot" type="submit">Salvar</button><button type="button" class="btn alt" data-act="cancel">Cancelar</button></div></form>`;
 }
 function reviewHtml(){
   const fs=[F('emoji','Emoji da capa'),F('tag','Selo (ex.: Resenha · 7 min de leitura)'),F('t','Título','text',{r:1}),F('b','Texto (separe os parágrafos com uma linha em branco)','textarea',{rows:9,r:1}),F('n','Nota em ovos','select',{o:[0,1,2,3,4,5].map(n=>[n,n+(n===1?' ovo':' ovos')])})];
-  return `<form id="rvForm" novalidate><h3>⭐ Resenha do dia</h3><p class="ad-note">Ao publicar, a votação “concordo / nem a pau” recomeça do zero.</p>${fs.map(f=>fieldHtml(f,review[f.k])).join('')}<div class="ad-bar"><button class="btn hot" type="submit">Publicar resenha</button></div></form>`;
+  return `<form id="rvForm" novalidate><h3>⭐ Resenha do dia</h3><p class="pn-note">Ao publicar, a votação “concordo / nem a pau” recomeça do zero.</p>${fs.map(f=>fieldHtml(f,review[f.k])).join('')}<div class="pn-bar"><button class="btn hot" type="submit">Publicar resenha</button></div></form>`;
 }
 function pollHtml(){
-  return `<form id="pollForm" novalidate><h3>🗳️ Enquete da semana</h3><p class="ad-note">Publicar cria uma enquete nova, com os votos zerados.</p>
+  return `<form id="pollForm" novalidate><h3>🗳️ Enquete da semana</h3><p class="pn-note">Publicar cria uma enquete nova, com os votos zerados.</p>
   <div class="field"><label for="pq">Pergunta *</label><input id="pq" name="q" type="text" value="${esc(poll.q||'')}"></div>
   <div class="field"><label for="po">Opções (uma por linha, no mínimo 2) *</label><textarea id="po" name="o" rows="6">${esc((poll.o||[]).map(o=>o.t).join('\n'))}</textarea></div>
-  <div class="ad-bar"><button class="btn hot" type="submit">Publicar enquete</button></div></form>`;
+  <div class="pn-bar"><button class="btn hot" type="submit">Publicar enquete</button></div></form>`;
 }
 function configHtml(){
   return `<h3>⚙️ Configurações</h3>
-  <form id="keysForm" class="card ad-box" novalidate><h4>Chaves das APIs</h4>
-    <p class="ad-note">Ficam salvas só neste navegador. A chave do TMDB é grátis (themoviedb.org → Configurações → API). A do OMDb é opcional e serve pra puxar a nota do IMDb (omdbapi.com).</p>
+  <form id="keysForm" class="card pn-box" novalidate><h4>Chaves das APIs</h4>
+    <p class="pn-note">Ficam salvas só neste navegador. A chave do TMDB é grátis (themoviedb.org → Configurações → API). A do OMDb é opcional e serve pra puxar a nota do IMDb (omdbapi.com).</p>
     <div class="field"><label for="kTm">Chave do TMDB (API Key v3 ou Token de Leitura v4)</label><input id="kTm" name="tm" type="password" autocomplete="off" value="${esc(tmKey())}"></div>
     <div class="field"><label for="kOm">Chave do OMDb (opcional)</label><input id="kOm" name="om" type="password" autocomplete="off" value="${esc(omKey())}"></div>
     <button class="btn" type="submit">Salvar chaves</button></form>
-  <div class="card ad-box"><h4>Seu acesso</h4>
-    <p class="ad-note">O login é o e-mail e a senha do usuário que você criou no Supabase. Pra trocar a senha: Supabase → Authentication → Users → seu usuário → “Send password recovery”.</p></div>
-  <div class="card ad-box"><h4>Backup</h4>
-    <p class="ad-note">Tudo que você edita já é salvo no banco e todo mundo vê na hora. Exportar e importar servem só como cópia de segurança.</p>
-    <div class="ad-bar"><button type="button" class="btn" data-act="export">⬇️ Exportar backup</button><label class="btn alt" style="cursor:pointer">⬆️ Importar<input type="file" id="impFile" accept="application/json,.json" hidden></label></div></div>
-  <div class="card ad-box"><h4>Zona de perigo</h4>
-    <div class="ad-bar"><button type="button" class="btn alt" data-act="clear">🧹 Apagar dados de exemplo</button><button type="button" class="btn alt" data-act="restore">♻️ Restaurar exemplos</button></div></div>`;
+  <div class="card pn-box"><h4>Seu acesso</h4>
+    <p class="pn-note">O login é o e-mail e a senha do usuário que você criou no Supabase. Pra trocar a senha: Supabase → Authentication → Users → seu usuário → “Send password recovery”.</p></div>
+  <div class="card pn-box"><h4>Backup</h4>
+    <p class="pn-note">Tudo que você edita já é salvo no banco e todo mundo vê na hora. Exportar e importar servem só como cópia de segurança.</p>
+    <div class="pn-bar"><button type="button" class="btn" data-act="export">⬇️ Exportar backup</button><label class="btn alt" style="cursor:pointer">⬆️ Importar<input type="file" id="impFile" accept="application/json,.json" hidden></label></div></div>
+  <div class="card pn-box"><h4>Zona de perigo</h4>
+    <div class="pn-bar"><button type="button" class="btn alt" data-act="clear">🧹 Apagar dados de exemplo</button><button type="button" class="btn alt" data-act="restore">♻️ Restaurar exemplos</button></div></div>`;
 }
 function adminRender(){
-  $('#adNav').innerHTML=TABS.map(([k,l])=>`<button type="button" data-tab="${k}" aria-current="${k===adTab}">${l}</button>`).join('');
-  const m=$('#adMain');
+  $('#pnNav').innerHTML=TABS.map(([k,l])=>`<button type="button" data-tab="${k}" aria-current="${k===adTab}">${l}</button>`).join('');
+  const m=$('#pnMain');
   try{
     m.innerHTML=adEdit?formHtml():SCH[adTab]?listHtml(adTab):adTab==='review'?reviewHtml():adTab==='poll'?pollHtml():configHtml();
   }catch(err){
     console.error(err);
-    m.innerHTML='<h3>Ops 🍳</h3><p class="ad-note">Não consegui montar esta tela: '+esc(err&&err.message||'erro desconhecido')+'</p><div class="ad-bar"><button type="button" class="btn alt" data-act="resetlocal">🧹 Limpar dados deste navegador</button></div>';
+    m.innerHTML='<h3>Ops 🍳</h3><p class="pn-note">Não consegui montar esta tela: '+esc(err&&err.message||'erro desconhecido')+'</p><div class="pn-bar"><button type="button" class="btn alt" data-act="resetlocal">🧹 Limpar dados deste navegador</button></div>';
   }
   m.scrollTop=0;
 }
@@ -1326,7 +1326,7 @@ async function tmSearch(){
   try{
     const d=await tm('/search/'+(adTab==='movies'?'movie':'tv'),{query:q,include_adult:'false'});
     tmCache=(d.results||[]).slice(0,8);
-    res.innerHTML=tmCache.length?tmCache.map((r,j)=>`<li><div class="ad-thumb" style="${r.poster_path?`background:#222 center/cover url(https://image.tmdb.org/t/p/w92${r.poster_path})`:''}"></div><div class="ad-t"><strong>${esc(r.title||r.name)}</strong><small>${esc((r.release_date||r.first_air_date||'').slice(0,4))} · TMDB ${Math.round((r.vote_average||0)*10)}%</small></div><div class="ad-btns"><button type="button" data-act="tmadd" data-j="${j}">+ Adicionar</button></div></li>`).join(''):'<li class="empty">Não achei nada com esse nome.</li>';
+    res.innerHTML=tmCache.length?tmCache.map((r,j)=>`<li><div class="pn-thumb" style="${r.poster_path?`background:#222 center/cover url(https://image.tmdb.org/t/p/w92${r.poster_path})`:''}"></div><div class="pn-t"><strong>${esc(r.title||r.name)}</strong><small>${esc((r.release_date||r.first_air_date||'').slice(0,4))} · TMDB ${Math.round((r.vote_average||0)*10)}%</small></div><div class="pn-btns"><button type="button" data-act="tmadd" data-j="${j}">+ Adicionar</button></div></li>`).join(''):'<li class="empty">Não achei nada com esse nome.</li>';
   }catch(err){res.innerHTML='';toast(err.message)}
 }
 async function importTrending(){
@@ -1355,11 +1355,11 @@ adminOv.addEventListener('click',async e=>{
     else if(act==='cancel'){adEdit=null;adminRender()}
     else if(act==='del'){
       if(!confirm('Excluir “'+S.title(S.coll[i])+'”?'))return;
-      S.coll.splice(i,1);saveContent();renderAll();$('#adList').innerHTML=rowsHtml(adTab);
+      S.coll.splice(i,1);saveContent();renderAll();$('#pnList').innerHTML=rowsHtml(adTab);
     }
     else if(act==='up'||act==='down'){
       const j=act==='up'?i-1:i+1;if(j<0||j>=S.coll.length)return;
-      [S.coll[i],S.coll[j]]=[S.coll[j],S.coll[i]];saveContent();renderAll();$('#adList').innerHTML=rowsHtml(adTab);
+      [S.coll[i],S.coll[j]]=[S.coll[j],S.coll[i]];saveContent();renderAll();$('#pnList').innerHTML=rowsHtml(adTab);
     }
     else if(act==='resetlocal'){
       if(!confirm('Isso apaga só o que ficou guardado neste navegador (cópia do conteúdo, chaves do TMDB). O que está no banco não muda. Continuar?'))return;
@@ -1372,7 +1372,7 @@ adminOv.addEventListener('click',async e=>{
       try{
         const it=await tmToItem(tmCache[+b.dataset.j],adTab),arr=S.coll,idx=arr.findIndex(x=>x.id===it.id);
         if(idx>=0){it.votes=arr[idx].votes;it.avg=arr[idx].avg;arr[idx]=it}else arr.push(it);
-        saveContent();renderAll();$('#adList').innerHTML=rowsHtml(adTab);
+        saveContent();renderAll();$('#pnList').innerHTML=rowsHtml(adTab);
         toast('“'+it.t+'” entrou no ranking! 🎬');
       }finally{b.disabled=false}
     }
@@ -1399,7 +1399,7 @@ async function publishSite(silent){
   if(!isAdmin)return;
   if(saving){savePending=true;return}
   saving=true;
-  const btn=$('#adPublish');btn.disabled=true;btn.textContent='Salvando…';
+  const btn=$('#pnPublish');btn.disabled=true;btn.textContent='Salvando…';
   try{
     const c=collect(),rows=[];
     KEYS.forEach(k=>{const j=JSON.stringify(c[k]);if(j!==synced[k])rows.push({key:k,value:c[k],j})});
@@ -1419,7 +1419,7 @@ async function publishSite(silent){
   }
   finally{saving=false;btn.disabled=false;btn.textContent='🚀 Publicar no site';if(savePending){savePending=false;publishSite(true)}}
 }
-$('#adPublish').onclick=()=>publishSite(false);
+$('#pnPublish').onclick=()=>publishSite(false);
 adminOv.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='tmQ'){e.preventDefault();tmSearch()}});
 adminOv.addEventListener('change',e=>{
   if(e.target.id!=='impFile')return;
@@ -1431,7 +1431,7 @@ adminOv.addEventListener('change',e=>{
 function onAdSubmit(e){
   e.preventDefault();
   const f=e.target,fd=new FormData(f);
-  if(f.id==='adForm'){
+  if(f.id==='pnForm'){
     const S=SCH[adEdit.coll],{vals,err}=readForm(f,S.fields);
     if(err)return toast(err);
     if(adEdit.coll==='interviews'&&!vals.i)vals.i=vals.n.split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
