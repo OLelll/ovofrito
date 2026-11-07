@@ -129,6 +129,8 @@ header.site{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:
 .rate button:hover{transform:scale(1.25) rotate(-8deg)}
 .rank-vote .hint{font-size:.76rem;color:var(--muted);min-height:1.2em}
 .note-src{margin-top:20px;font-size:.88rem;color:var(--muted)}
+.credit{font-size:.8rem;opacity:.7;margin-bottom:18px;max-width:780px}
+.credit a{text-decoration:underline}
 @media(max-width:760px){
   .rank-item{grid-template-columns:48px 70px 1fr;gap:12px;padding:14px}
   .rank-num{font-size:2.3rem}
@@ -399,7 +401,7 @@ main{transition:opacity .3s}
       <button role="tab" id="tabSeries" aria-selected="false" data-kind="series">📺 Séries</button>
     </div>
     <ol class="rank-list" id="rankList"></ol>
-    <p class="note-src">* Títulos, notas e votos desta página são exemplos fictícios, só pra mostrar como o ranking funciona. Na versão final, os dados do IMDb e do TMDB entram por API.</p>
+    <p class="note-src" id="noteSrc">* Títulos, notas e votos desta página são exemplos fictícios, só pra mostrar como o ranking funciona.</p>
   </div>
 </section>
 
@@ -535,6 +537,7 @@ main{transition:opacity .3s}
       <div><h4>Participe</h4><ul><li><a href="#participe">Enquete</a></li><li><a href="#participe">Indique um título</a></li><li><a href="#ranking">Avalie filmes</a></li></ul></div>
       <div><h4>Fale com a gente</h4><ul><li><a href="mailto:oi@ovofrito.example">oi@ovofrito.example</a></li><li><a href="#topo">Sugira uma pauta</a></li><li><a href="#topo">Anuncie</a></li></ul></div>
     </div>
+    <p class="credit">Dados de filmes e séries: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>. Notas do IMDb via <a href="https://www.omdbapi.com" target="_blank" rel="noopener">OMDb</a>. This product uses the TMDB API but is not endorsed or certified by TMDB. (Este produto usa a API do TMDB, mas não é endossado nem certificado por ele.)</p>
     <div class="copy"><span>© <span id="year"></span> Ovo Frito! Todos os direitos reservados (e uns ovos também).</span><span>Feito com 🍳 e muita pipoca · <a href="#admin" id="openAdmin">Redação 🔒</a></span></div>
   </div>
 </footer>
@@ -784,6 +787,7 @@ function score(it){
   if(ext.length)parts.push(ext.reduce((a,b)=>a+b,0)/ext.length);
   return parts.length?parts.reduce((a,b)=>a+b,0)/parts.length:0;
 }
+const EX_IDS=new Set(['movies','series'].flatMap(k=>JSON.parse(DEFAULT_SNAPSHOT)[k].map(x=>x.id)));
 function renderRank(){
   const list=(kind==='movies'?movies:series).slice().sort((a,b)=>score(b)-score(a));
   $('#rankList').innerHTML=list.map((it,i)=>{
@@ -807,6 +811,8 @@ function renderRank(){
       </div>
     </li>`;
   }).join('')||'<li class="card panel empty">Ainda não tem nada por aqui. A redação já está de olho!</li>';
+  const fake=[...movies,...series].some(x=>EX_IDS.has(x.id));
+  $('#noteSrc').textContent=fake?'* Títulos, notas e votos desta página são exemplos fictícios, só pra mostrar como o ranking funciona.':'As notas do IMDb e do TMDB vêm dos próprios sites e mudam quando a redação atualiza a lista.';
 }
 $('#rankList').addEventListener('click',e=>{
   const b=e.target.closest('.rate button');if(!b)return;
