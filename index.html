@@ -275,6 +275,10 @@ footer .copy{border-top:2px solid #3a3733;padding-top:20px;font-size:.85rem;opac
 .toast.show{transform:translate(-50%,0)}
 .to-top{position:fixed;right:18px;bottom:18px;z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
 .to-top.show{opacity:1;pointer-events:auto}
+.pw{position:relative}
+.pw input{padding-right:3.4rem}
+.pw button{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:10px;font-size:1.15rem;line-height:1}
+.pw button:hover{background:var(--yolk)}
 .fab{position:fixed;left:18px;bottom:18px;z-index:95;display:none;gap:8px;flex-wrap:wrap;align-items:center;max-width:calc(100% - 84px)}
 #fbAdd{width:auto;padding:.7rem .9rem;border-radius:999px;font-weight:700;background:var(--card)}
 #pubStatus{font-size:.8rem;font-weight:700;background:var(--ink);color:var(--bg);padding:.25rem .7rem;border-radius:999px}
@@ -578,8 +582,9 @@ main{transition:opacity .3s}
       <p style="color:var(--muted);margin-bottom:16px">Entre pra editar o conteúdo do site.</p>
       <form id="loginForm" novalidate>
         <div class="field"><label for="lgUser">Usuário</label><input type="text" id="lgUser" autocomplete="username" autocapitalize="none" spellcheck="false"></div>
-        <div class="field"><label for="lgPass">Senha</label><input type="password" id="lgPass" autocomplete="current-password"></div>
-        <span class="err" id="lgErr" role="alert"></span>
+        <div class="field"><label for="lgPass">Senha</label><div class="pw"><input type="password" id="lgPass" autocomplete="current-password" autocapitalize="none" spellcheck="false"><button type="button" id="lgEye" aria-label="Mostrar senha" aria-pressed="false">👁️</button></div></div>
+        <small id="lgWho" style="display:block;color:var(--muted);margin-bottom:8px"></small>
+        <span class="err" id="lgErr" role="alert" style="display:block;margin-bottom:8px"></span>
         <button class="btn" type="submit" style="margin-top:6px">Entrar</button>
       </form>
     </div>
@@ -1024,7 +1029,13 @@ async function sbSignIn(email,pass){
   let r;
   try{r=await sbFetch('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password:pass}})}
   catch(e){throw new Error('Não consegui falar com o servidor. Confere a internet e tenta de novo.')}
-  if(!r.ok)throw new Error(r.status===400||r.status===401||r.status===422?'Usuário ou senha incorretos.':'O servidor deu erro ('+r.status+'). Tenta de novo daqui a pouco.');
+  if(!r.ok){
+    const code=(r.data&&(r.data.error_code||r.data.error))||'',msg=(r.data&&(r.data.msg||r.data.message||r.data.error_description))||'';
+    if(code==='email_not_confirmed')throw new Error('Essa conta ainda não foi confirmada no Supabase. Abra o usuário lá e confirme, ou apague e crie de novo marcando "Auto Confirm User". ['+code+']');
+    if(r.status===429||code==='over_request_rate_limit')throw new Error('O servidor pediu pra esperar um pouco antes de tentar de novo. ['+(code||r.status)+']');
+    if(r.status===400||r.status===401||r.status===422)throw new Error('Usuário ou senha incorretos. Use o 👁️ pra conferir a senha. ['+(code||r.status)+']');
+    throw new Error('O servidor deu erro ('+r.status+(msg?': '+msg:'')+'). Tenta de novo daqui a pouco.');
+  }
   startSession(r.data);
 }
 function sbToken(){
@@ -1141,7 +1152,7 @@ function setAdmin(v){
 }
 setAdmin(isAdmin);
 function openLogin(){if(isAdmin)return openAdmin();loginOv.classList.add('open');document.body.style.overflow='hidden';$('#lgUser').focus()}
-function closeLogin(){loginOv.classList.remove('open');if(!adminOv.classList.contains('open'))document.body.style.overflow=''}
+function closeLogin(){loginOv.classList.remove('open');$('#lgPass').type='password';$('#lgEye').textContent='👁️';$('#lgEye').setAttribute('aria-pressed','false');if(!adminOv.classList.contains('open'))document.body.style.overflow=''}
 function openAdmin(){adminOv.classList.add('open');document.body.style.overflow='hidden';adminRender()}
 function closeAdmin(){adminOv.classList.remove('open');document.body.style.overflow=''}
 $('#openAdmin').onclick=e=>{e.preventDefault();openLogin()};
@@ -1167,6 +1178,15 @@ $('#loginForm').addEventListener('submit',async e=>{
 });
 /* sessão guardada de um acesso anterior: confere em segundo plano */
 if(isAdmin)sbIsAdmin().then(ok=>{if(!ok){sbSignOut();setAdmin(false)}}).catch(()=>{if(!sbSession){setAdmin(false);toast('Sua sessão expirou. Entre de novo pela Redação 🔒')}});
+const loginEmail=()=>{const raw=$('#lgUser').value.trim().toLowerCase();return !raw?'':raw.includes('@')?raw:raw+'@'+SB_LOGIN_DOMAIN};
+$('#lgUser').addEventListener('input',()=>{const m=loginEmail();$('#lgWho').textContent=m?'Conta usada no login: '+m:''});
+$('#lgEye').onclick=()=>{
+  const i=$('#lgPass'),show=i.type==='password';
+  i.type=show?'text':'password';
+  $('#lgEye').textContent=show?'🙈':'👁️';
+  $('#lgEye').setAttribute('aria-pressed',show);
+  $('#lgEye').setAttribute('aria-label',show?'Esconder senha':'Mostrar senha');
+};
 if(location.hash==='#admin')openLogin();
 
 /* TMDB / OMDb */
