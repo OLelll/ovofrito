@@ -315,7 +315,10 @@ footer .copy{border-top:2px solid #3a3733;padding-top:20px;font-size:.85rem;opac
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .6s,transform .6s}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}html{scroll-behavior:auto}}
+html.loading main{opacity:0}
+main{transition:opacity .3s}
 </style>
+<script>try{if(!localStorage.getItem("ovofrito:content")){document.documentElement.classList.add("loading");setTimeout(function(){document.documentElement.classList.remove("loading")},5000)}}catch(e){}</script>
 </head>
 <body>
 
@@ -571,7 +574,7 @@ footer .copy{border-top:2px solid #3a3733;padding-top:20px;font-size:.85rem;opac
       <h3 id="lgTitle">Área da redação 🍳</h3>
       <p style="color:var(--muted);margin-bottom:16px">Entre pra editar o conteúdo do site.</p>
       <form id="loginForm" novalidate>
-        <div class="field"><label for="lgUser">Usuário</label><input type="text" id="lgUser" autocomplete="username"></div>
+        <div class="field"><label for="lgUser">E-mail</label><input type="email" id="lgUser" autocomplete="username"></div>
         <div class="field"><label for="lgPass">Senha</label><input type="password" id="lgPass" autocomplete="current-password"></div>
         <span class="err" id="lgErr" role="alert"></span>
         <button class="btn" type="submit" style="margin-top:6px">Entrar</button>
@@ -998,31 +1001,56 @@ addEventListener('keydown',e=>{
 });
 
 /* ---------- PAINEL DA REDAÇÃO ---------- */
-function sha256(msg){
-  const K=[],H0=[];
-  for(let p=2,n=0;n<64;p++){let ok=true;for(let d=2;d*d<=p;d++)if(p%d===0){ok=false;break}
-    if(ok){if(n<8)H0[n]=Math.floor((Math.sqrt(p)%1)*4294967296);K[n]=Math.floor((Math.cbrt(p)%1)*4294967296);n++}}
-  const b=new TextEncoder().encode(msg),l=b.length,w=new Uint32Array(((l+8>>6)+1)*16);
-  for(let i=0;i<l;i++)w[i>>2]|=b[i]<<(24-(i%4)*8);
-  w[l>>2]|=0x80<<(24-(l%4)*8);
-  w[w.length-1]=l*8;
-  const h=H0.slice(),r=(x,n)=>(x>>>n)|(x<<(32-n));
-  for(let o=0;o<w.length;o+=16){
-    const x=new Uint32Array(64);
-    for(let i=0;i<16;i++)x[i]=w[o+i];
-    for(let i=16;i<64;i++){const a=x[i-15],c=x[i-2];x[i]=(x[i-16]+(r(a,7)^r(a,18)^(a>>>3))+x[i-7]+(r(c,17)^r(c,19)^(c>>>10)))|0}
-    let [a,b2,c2,d,e,f,g,hh]=h;
-    for(let i=0;i<64;i++){
-      const t1=(hh+(r(e,6)^r(e,11)^r(e,25))+((e&f)^(~e&g))+K[i]+x[i])|0;
-      const t2=((r(a,2)^r(a,13)^r(a,22))+((a&b2)^(a&c2)^(b2&c2)))|0;
-      hh=g;g=f;f=e;e=(d+t1)|0;d=c2;c2=b2;b2=a;a=(t1+t2)|0;
-    }
-    [a,b2,c2,d,e,f,g,hh].forEach((v,i)=>h[i]=(h[i]+v)|0);
-  }
-  return h.map(v=>(v>>>0).toString(16).padStart(8,'0')).join('');
+const SB_URL='https://axazzmqbnpexnnezcthp.supabase.co';
+const SB_KEY='sb_publishable_glOkzjOROWcXY6IUsQD8lQ_EgbEEj_v'; /* chave pública: pode ficar no site */
+const KEYS=['movies','series','articles','ticker','interviews','nacional','poll','review','texts'];
+let sbSession=store.get('sb',null),refreshing=null;
+let synced={},saving=false,savePending=false,saveTimer=null;
+function saveSession(x){sbSession=x;store.set('sb',x)}
+async function sbFetch(path,o={}){
+  const h=Object.assign({apikey:SB_KEY},o.headers||{});
+  if(o.token)h.Authorization='Bearer '+o.token;
+  if(o.body!==undefined)h['Content-Type']='application/json';
+  const r=await fetch(SB_URL+path,{method:o.method||'GET',headers:h,body:o.body!==undefined?JSON.stringify(o.body):undefined,cache:'no-store'});
+  let data=null;try{data=await r.json()}catch(e){}
+  return {ok:r.ok,status:r.status,data};
 }
+function startSession(d){saveSession({access_token:d.access_token,refresh_token:d.refresh_token,expires_at:Math.floor(Date.now()/1000)+(d.expires_in||3600)})}
+async function sbSignIn(email,pass){
+  let r;
+  try{r=await sbFetch('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password:pass}})}
+  catch(e){throw new Error('Não consegui falar com o servidor. Confere a internet e tenta de novo.')}
+  if(!r.ok)throw new Error(r.status===400||r.status===401||r.status===422?'E-mail ou senha incorretos.':'O servidor deu erro ('+r.status+'). Tenta de novo daqui a pouco.');
+  startSession(r.data);
+}
+function sbToken(){
+  if(!sbSession)return Promise.reject(new Error('Você não está logado.'));
+  if(sbSession.expires_at-60>Date.now()/1000)return Promise.resolve(sbSession.access_token);
+  if(refreshing)return refreshing;
+  refreshing=(async()=>{
+    try{
+      const r=await sbFetch('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:{refresh_token:sbSession.refresh_token}});
+      if(!r.ok){
+        if(r.status===400||r.status===401||r.status===422){saveSession(null);throw new Error('Sua sessão expirou. Entre de novo.')}
+        throw new Error('Sem conexão com o servidor.');
+      }
+      startSession(r.data);return sbSession.access_token;
+    }finally{refreshing=null}
+  })();
+  return refreshing;
+}
+async function sbIsAdmin(){
+  const t=await sbToken();
+  const r=await sbFetch('/rest/v1/rpc/is_admin',{method:'POST',body:{},token:t});
+  return r.ok&&r.data===true;
+}
+function sbSignOut(){
+  const t=sbSession&&sbSession.access_token;saveSession(null);
+  if(t)sbFetch('/auth/v1/logout',{method:'POST',token:t}).catch(()=>{});
+}
+function markSynced(keys){const c=collect();(keys||KEYS).forEach(k=>{synced[k]=JSON.stringify(c[k])})}
 
-let editing=false,pubTimer=null,publishing=false,pubPending=false;
+let editing=false;
 
 /* textos fixos editáveis (frases de apresentação) */
 function labelTexts(){
@@ -1099,15 +1127,11 @@ document.addEventListener('keydown',e=>{
   if(editing&&e.key==='Enter'&&e.target.matches&&e.target.matches('[data-t]')){e.preventDefault();e.target.blur()}
 });
 
-/* login (atenção: roda no navegador, serve pra organizar o trabalho e não é segurança de verdade) */
-const CRED0={u:'admin',h:'de43a50d8ee7818f0b54d1ebd90de26beb8023c4c33e48bba085b34a685481ec'};
-const getCred=()=>store.get('cred',CRED0);
+/* login: e-mail e senha do Supabase (a checagem de verdade é feita no banco) */
 const loginOv=$('#loginOv'),adminOv=$('#adminOv');
-let isAdmin=false,fails=0,lockUntil=0;
-try{isAdmin=sessionStorage.getItem('ovofrito:adm')==='1'}catch(e){}
+let isAdmin=!!sbSession,fails=0,lockUntil=0;
 function setAdmin(v){
   isAdmin=v;
-  try{v?sessionStorage.setItem('ovofrito:adm','1'):sessionStorage.removeItem('ovofrito:adm')}catch(e){}
   $('#adminFab').classList.toggle('show',v);
   if(!v)setEditing(false);
 }
@@ -1120,18 +1144,24 @@ $('#openAdmin').onclick=e=>{e.preventDefault();openLogin()};
 $('#fbPanel').onclick=openAdmin;
 $('#lgClose').onclick=closeLogin;
 $('#adClose').onclick=closeAdmin;
-$('#adLogout').onclick=()=>{setAdmin(false);closeAdmin();toast('Você saiu do painel.')};
-$('#loginForm').addEventListener('submit',e=>{
+$('#adLogout').onclick=()=>{sbSignOut();setAdmin(false);closeAdmin();setPub('');toast('Você saiu do painel.')};
+$('#loginForm').addEventListener('submit',async e=>{
   e.preventDefault();
   if(Date.now()<lockUntil){$('#lgErr').textContent='Muitas tentativas. Espera uns segundos e tenta de novo.';return}
-  const u=$('#lgUser').value.trim().toLowerCase(),p=$('#lgPass').value,c=getCred();
-  if(u===c.u&&sha256('ovofrito:'+u+':'+p)===c.h){
-    fails=0;setAdmin(true);e.target.reset();$('#lgErr').textContent='';closeLogin();openAdmin();toast('Bem-vinda(o) à redação! 🍳');if(store.get('gh',{}).token)loadRemote();
-  }else{
-    fails++;if(fails>=5){lockUntil=Date.now()+30000;fails=0}
-    $('#lgErr').textContent='Usuário ou senha incorretos.';
-  }
+  const form=e.target,email=$('#lgUser').value.trim().toLowerCase(),pass=$('#lgPass').value,btn=form.querySelector('button[type=submit]');
+  if(!email||!pass){$('#lgErr').textContent='Preenche o e-mail e a senha.';return}
+  btn.disabled=true;$('#lgErr').textContent='';
+  try{
+    await sbSignIn(email,pass);
+    if(!(await sbIsAdmin())){sbSignOut();throw new Error('Esse usuário não tem permissão de admin.')}
+    fails=0;setAdmin(true);form.reset();closeLogin();openAdmin();toast('Bem-vinda(o) à redação! 🍳');loadRemote();
+  }catch(err){
+    if(/incorretos/.test(err.message)){fails++;if(fails>=5){lockUntil=Date.now()+30000;fails=0}}
+    $('#lgErr').textContent=err.message;
+  }finally{btn.disabled=false}
 });
+/* sessão guardada de um acesso anterior: confere em segundo plano */
+if(isAdmin)sbIsAdmin().then(ok=>{if(!ok){sbSignOut();setAdmin(false)}}).catch(()=>{if(!sbSession){setAdmin(false);toast('Sua sessão expirou. Entre de novo pela Redação 🔒')}});
 if(location.hash==='#admin')openLogin();
 
 /* TMDB / OMDb */
@@ -1256,21 +1286,11 @@ function configHtml(){
     <div class="field"><label for="kTm">Chave do TMDB (API Key v3 ou Token de Leitura v4)</label><input id="kTm" name="tm" type="password" autocomplete="off" value="${esc(tmKey())}"></div>
     <div class="field"><label for="kOm">Chave do OMDb (opcional)</label><input id="kOm" name="om" type="password" autocomplete="off" value="${esc(omKey())}"></div>
     <button class="btn" type="submit">Salvar chaves</button></form>
-  <form id="ghForm" class="card ad-box" novalidate><h4>Publicação no GitHub Pages</h4>
-    <p class="ad-note">É isso que faz as suas edições aparecerem pra todo mundo. Crie em github.com/settings/personal-access-tokens um token “fine-grained” só pra este repositório, com permissão <b>Contents: Read and write</b>. Ele fica salvo só neste navegador.</p>
-    <div class="field"><label for="gRepo">Repositório</label><input id="gRepo" name="repo" type="text" value="${esc((store.get('gh',{}).repo)||'olelll/ovofrito')}"></div>
-    <div class="field"><label for="gBr">Branch</label><input id="gBr" name="branch" type="text" value="${esc((store.get('gh',{}).branch)||'main')}"></div>
-    <div class="field"><label for="gTok">Token de acesso</label><input id="gTok" name="token" type="password" autocomplete="off" value="${esc((store.get('gh',{}).token)||'')}"></div>
-    <button class="btn" type="submit">Salvar</button></form>
-  <form id="passForm" class="card ad-box" novalidate><h4>Trocar usuário e senha</h4>
-    <p class="ad-note">A senha inicial é <b>OvoFrito@2026</b>. Troque assim que puder.</p>
-    <div class="field"><label for="pU">Usuário</label><input id="pU" name="u" type="text" autocomplete="username" value="${esc(getCred().u)}"></div>
-    <div class="field"><label for="pP1">Nova senha (mínimo 6 caracteres)</label><input id="pP1" name="p1" type="password" autocomplete="new-password"></div>
-    <div class="field"><label for="pP2">Repita a nova senha</label><input id="pP2" name="p2" type="password" autocomplete="new-password"></div>
-    <button class="btn" type="submit">Salvar acesso</button></form>
-  <div class="card ad-box"><h4>Backup e publicação</h4>
-    <p class="ad-note">Tudo que você edita fica salvo só neste navegador. Pra todo mundo ver: exporte o <b>content.json</b> e suba na mesma pasta do index.html no seu hospedagem. O site lê esse arquivo quando o visitante ainda não tem edições locais.</p>
-    <div class="ad-bar"><button type="button" class="btn" data-act="export">⬇️ Exportar content.json</button><label class="btn alt" style="cursor:pointer">⬆️ Importar<input type="file" id="impFile" accept="application/json,.json" hidden></label></div></div>
+  <div class="card ad-box"><h4>Seu acesso</h4>
+    <p class="ad-note">O login é o e-mail e a senha do usuário que você criou no Supabase. Pra trocar a senha: Supabase → Authentication → Users → seu usuário → “Send password recovery”.</p></div>
+  <div class="card ad-box"><h4>Backup</h4>
+    <p class="ad-note">Tudo que você edita já é salvo no banco e todo mundo vê na hora. Exportar e importar servem só como cópia de segurança.</p>
+    <div class="ad-bar"><button type="button" class="btn" data-act="export">⬇️ Exportar backup</button><label class="btn alt" style="cursor:pointer">⬆️ Importar<input type="file" id="impFile" accept="application/json,.json" hidden></label></div></div>
   <div class="card ad-box"><h4>Zona de perigo</h4>
     <div class="ad-bar"><button type="button" class="btn alt" data-act="clear">🧹 Apagar dados de exemplo</button><button type="button" class="btn alt" data-act="restore">♻️ Restaurar exemplos</button></div></div>`;
 }
@@ -1344,7 +1364,7 @@ adminOv.addEventListener('click',async e=>{
       }finally{b.disabled=false}
     }
     else if(act==='trend')await importTrending();
-    else if(act==='export'){download('content.json',JSON.stringify(collect(),null,2));toast('content.json baixado ⬇️')}
+    else if(act==='export'){download('ovofrito-backup.json',JSON.stringify(collect(),null,2));toast('Backup baixado ⬇️')}
     else if(act==='clear'){
       if(!confirm('Apagar filmes, séries, matérias, notas, entrevistas e coluna de exemplo? Resenha e enquete ficam como estão.'))return;
       Object.keys(COLL).forEach(k=>COLL[k].length=0);commit();toast('Pronto, tudo limpo. Hora de colocar conteúdo de verdade! 🍳');
@@ -1352,39 +1372,39 @@ adminOv.addEventListener('click',async e=>{
     else if(act==='restore'){
       if(!confirm('Voltar tudo pros exemplos do início? Suas edições serão perdidas.'))return;
       applyContent(JSON.parse(DEFAULT_SNAPSHOT));
-      try{localStorage.removeItem('ovofrito:content')}catch(err){}
-      renderAll();adminRender();toast('Exemplos restaurados ♻️');
+      saveContent();renderAll();adminRender();toast('Exemplos restaurados ♻️');
     }
   }catch(err){toast(err.message||'Algo deu errado.')}
 });
 function setPub(t){const el=$('#pubStatus');if(el)el.textContent=t}
 function schedulePublish(){
   if(!isAdmin)return;
-  if(!store.get('gh',{}).token){setPub('💾 Salvo só neste navegador (falta o token)');return}
-  setPub('⏳ Salvando…');clearTimeout(pubTimer);pubTimer=setTimeout(()=>publishSite(true),1200);
+  store.set('dirty',true);setPub('⏳ Salvando…');
+  clearTimeout(saveTimer);saveTimer=setTimeout(()=>publishSite(true),800);
 }
 async function publishSite(silent){
-  const gh=store.get('gh',{});
-  if(!gh.token||!gh.repo){
-    if(silent)return setPub('💾 Salvo só neste navegador (falta o token)');
-    adTab='config';adEdit=null;adminRender();return toast('Cadastre o token do GitHub em ⚙️ Configurações primeiro.');
-  }
-  if(publishing){pubPending=true;return}
-  publishing=true;
-  const btn=$('#adPublish');btn.disabled=true;btn.textContent='Publicando…';setPub('⏳ Publicando…');
+  if(!isAdmin)return;
+  if(saving){savePending=true;return}
+  saving=true;
+  const btn=$('#adPublish');btn.disabled=true;btn.textContent='Salvando…';
   try{
-    const api='https://api.github.com/repos/'+gh.repo+'/contents/content.json',H={Authorization:'Bearer '+gh.token,Accept:'application/vnd.github+json'};
-    let sha;
-    const g=await fetch(api+'?ref='+encodeURIComponent(gh.branch||'main'),{headers:H,cache:'no-store'});
-    if(g.ok)sha=(await g.json()).sha;
-    else if(g.status!==404)throw new Error(g.status===401||g.status===403?'Token sem permissão. Confere o Contents: Read and write.':'GitHub respondeu erro '+g.status+'.');
-    const content=btoa(unescape(encodeURIComponent(JSON.stringify(collect(),null,2))));
-    const r=await fetch(api,{method:'PUT',headers:{...H,'Content-Type':'application/json'},body:JSON.stringify({message:'Atualiza conteúdo pelo site',content,branch:gh.branch||'main',...(sha?{sha}:{})})});
-    if(!r.ok)throw new Error(r.status===409||r.status===422?'Conflito ao salvar. Tenta de novo.':'Não consegui publicar (erro '+r.status+').');
-    setPub('✅ Publicado. Aparece pra todos em 1 ou 2 min');
-    if(!silent)toast('Publicado! Aparece pra todos em até 1 ou 2 minutos 🚀');
-  }catch(err){setPub('⚠️ '+(err.message||'Falha ao publicar'));toast(err.message||'Falha ao publicar.')}
-  finally{publishing=false;btn.disabled=false;btn.textContent='🚀 Publicar no site';if(pubPending){pubPending=false;publishSite(true)}}
+    const c=collect(),rows=[];
+    KEYS.forEach(k=>{const j=JSON.stringify(c[k]);if(j!==synced[k])rows.push({key:k,value:c[k],j})});
+    if(rows.length){
+      const t=await sbToken();
+      const r=await sbFetch('/rest/v1/content?on_conflict=key',{method:'POST',token:t,headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:rows.map(x=>({key:x.key,value:x.value}))});
+      if(!r.ok)throw new Error(r.status===401||r.status===403?'Sem permissão pra salvar. Entre de novo pela Redação.':'Não consegui salvar (erro '+r.status+'). Suas edições continuam neste navegador.');
+      rows.forEach(x=>{synced[x.key]=x.j});
+    }
+    store.set('dirty',false);
+    setPub('✅ Salvo. Todo mundo já vê');
+    if(!silent)toast('Publicado! Todo mundo já vê 🚀');
+  }catch(err){
+    const m=err&&err.message?err.message:'Falha ao salvar.';
+    setPub('⚠️ '+m);toast(m);
+    if(!sbSession){setAdmin(false)}
+  }
+  finally{saving=false;btn.disabled=false;btn.textContent='🚀 Publicar no site';if(savePending){savePending=false;publishSite(true)}}
 }
 $('#adPublish').onclick=()=>publishSite(false);
 adminOv.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='tmQ'){e.preventDefault();tmSearch()}});
@@ -1392,7 +1412,7 @@ adminOv.addEventListener('change',e=>{
   if(e.target.id!=='impFile')return;
   const file=e.target.files[0];if(!file)return;
   const rd=new FileReader();
-  rd.onload=()=>{try{applyContent(JSON.parse(rd.result));commit();toast('Dados importados ✅')}catch(err){toast('Esse arquivo não parece um content.json válido.')}};
+  rd.onload=()=>{try{applyContent(JSON.parse(rd.result));commit();toast('Dados importados ✅')}catch(err){toast('Esse arquivo não parece um backup válido.')}};
   rd.readAsText(file);
 });
 function onAdSubmit(e){
@@ -1423,26 +1443,25 @@ function onAdSubmit(e){
   else if(f.id==='keysForm'){
     store.set('tmdbKey',String(fd.get('tm')||'').trim());store.set('omdbKey',String(fd.get('om')||'').trim());toast('Chaves salvas 🔑');
   }
-  else if(f.id==='ghForm'){
-    store.set('gh',{repo:String(fd.get('repo')||'').trim(),branch:String(fd.get('branch')||'').trim()||'main',token:String(fd.get('token')||'').trim()});toast('Publicação configurada 🚀');
-  }
-  else if(f.id==='passForm'){
-    const u=String(fd.get('u')||'').trim().toLowerCase(),p1=String(fd.get('p1')||''),p2=String(fd.get('p2')||'');
-    if(u.length<3)return toast('O usuário precisa de pelo menos 3 letras.');
-    if(p1.length<6)return toast('A senha precisa ter pelo menos 6 caracteres.');
-    if(p1!==p2)return toast('As senhas não batem.');
-    store.set('cred',{u,h:sha256('ovofrito:'+u+':'+p1)});f.reset();toast('Acesso atualizado 🔐');
-  }
 }
 adminOv.addEventListener('submit',onAdSubmit);
 $('#edDrawer').addEventListener('submit',onAdSubmit);
 
-/* se o visitante ainda não tem edições locais, tenta ler o content.json publicado */
-function loadRemote(){
-  return fetch('content.json?v='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(c=>{if(c){applyContent(c);renderAll()}}).catch(()=>{});
+/* conteúdo vem do banco; o que foi guardado no navegador só evita o "piscar" enquanto carrega */
+async function loadRemote(){
+  try{
+    if(isAdmin&&store.get('dirty',false)){publishSite(true);return false} /* edição que não chegou ao banco: não sobrescreve */
+    const r=await sbFetch('/rest/v1/content?select=key,value');
+    if(!r.ok||!Array.isArray(r.data))return false;
+    if(!r.data.length)return true; /* banco ainda vazio: mantém os exemplos */
+    const c={};r.data.forEach(x=>{c[x.key]=x.value});
+    applyContent(c);store.set('content',collect());renderAll();
+    markSynced(r.data.map(x=>x.key).filter(k=>KEYS.includes(k)));
+    return true;
+  }catch(e){return false}
+  finally{document.documentElement.classList.remove('loading')}
 }
-/* visitante sempre vê o que foi publicado; admin só busca se ainda não tem nada local */
-if(!isAdmin||!store.get('content',null))loadRemote();
+loadRemote();
 
 /* ---------- animação ao rolar ---------- */
 (function(){
