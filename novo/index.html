@@ -83,10 +83,10 @@ h1,h2,h3,h4{font-family:var(--display);line-height:1;font-weight:900}
 
 /* barra superior, cabeçalho e menu */
 .topbar{background:var(--chapa);color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:9px 0;line-height:1.4}
-.topbar .wrap{display:flex;justify-content:space-between;gap:20px;align-items:center}
+.topbar .wrap{display:flex;justify-content:space-between;gap:24px;align-items:center}
 .topbar b{color:var(--gema);font-weight:500}
 .topbar button{text-transform:uppercase;letter-spacing:.08em;font-size:11px;font-family:var(--mono);color:#fff;border-bottom:1px solid var(--gema)}
-.topbar .l{flex:1}
+
 header.site{background:var(--bg);position:sticky;top:0;z-index:50}
 .mast{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;padding:26px 0 20px}
 .mast .tagl{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;line-height:1.4;color:var(--ink)}
@@ -119,37 +119,53 @@ header.site{background:var(--bg);position:sticky;top:0;z-index:50}
   .topbar .l{font-size:10px}
 }
 
-/* hero */
-.hero{padding:48px 0 56px}
-.hero-grid{display:grid;grid-template-columns:7fr 5fr;gap:56px;align-items:start}
-.hero h1{font-stretch:78%;text-transform:uppercase;font-size:clamp(3.4rem,9vw,7.6rem);line-height:.9;letter-spacing:-.005em;margin:18px 0 26px}
-.hero p.lead{font-size:23px;line-height:1.4;font-style:italic;max-width:640px;margin-bottom:28px}
-.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
-.hero-art{position:relative;margin-top:44px;height:200px}
-.hero-art .ph{position:absolute;inset:0}
-.hero-art .stamp{position:absolute;left:20px;bottom:20px;z-index:2}
-.hero-art svg{position:absolute;right:28px;top:50%;transform:translateY(-50%);width:150px;height:150px;z-index:1}
-.mood{border-top:4px solid var(--rule);padding-top:14px}
-.mood h3{font-stretch:78%;text-transform:uppercase;font-size:44px;line-height:.92;margin-bottom:10px}
-.mood p{font-size:17px;line-height:1.4;color:var(--muted);margin-bottom:18px}
+/* hero: manchete, Na chapa e chamadas, como no design system */
+.hero{padding:0 0 56px}
+.hero p.lead{font-style:italic;font-size:17px;line-height:1.4;color:var(--muted);text-align:center;padding:14px 0 26px;max-width:none}
+.hero-grid{display:grid;grid-template-columns:8fr 4fr;gap:40px;align-items:start}
+.hl-in{display:block;cursor:pointer}
+.hl-img{aspect-ratio:16/10;width:100%;position:relative;background-size:cover;background-position:center;overflow:hidden}
+.hl-img.ph span{font-size:6rem}
+.hl-cap{font-family:var(--mono);font-size:12px;color:var(--muted);margin:8px 0 0}
+.hl h1{font-stretch:78%;text-transform:uppercase;font-size:clamp(3rem,7.6vw,6.8rem);line-height:.9;letter-spacing:-.005em;margin:14px 0 18px}
+.hl-in:hover h1 .mk{background:var(--chapa);color:var(--gema)}
+.hl .deck{font-size:23px;line-height:1.35;font-style:italic;max-width:760px}
+.hl .meta{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:16px;padding-top:12px;border-top:2px solid var(--rule);max-width:760px}
+.nachapa{border-top:4px solid var(--rule);padding-top:14px}
+.nachapa h3{font-stretch:78%;text-transform:uppercase;font-size:44px;line-height:.92;margin-bottom:14px}
+.nachapa ul{list-style:none;border-top:1px solid var(--rule)}
+.nachapa li{padding:14px 0;border-bottom:1px solid var(--hair)}
+.nachapa .mono{color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:11px}
+.nachapa .t{font-family:var(--display);font-stretch:85%;font-weight:800;font-size:20px;line-height:1.1;margin-top:4px}
+.mood{border-top:0;padding:18px;margin-top:22px;background:var(--soft)}
+.mood h3{font-family:var(--mono);font-weight:400;font-stretch:100%;font-size:11px;letter-spacing:.08em;text-transform:uppercase;line-height:1.4;margin-bottom:6px}
+.mood p{font-size:15px;line-height:1.35;color:var(--muted);margin-bottom:12px}
 .mood-opts{display:flex;flex-wrap:wrap;gap:8px}
-.mood-opts button{padding:9px 14px;border:1px solid var(--ink);font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.mood-opts button{padding:8px 12px;border:1px solid var(--ink);font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
 .mood-opts button:hover{background:var(--gemapale);color:var(--chapa)}
 .mood-opts button[aria-pressed="true"]{background:var(--chapa);color:#fff;border-color:var(--chapa)}
 [data-theme="dark"] .mood-opts button[aria-pressed="true"]{background:var(--ink);color:var(--chapa)}
-.mood-result{margin-top:22px;min-height:104px;background:var(--soft);padding:16px;display:flex;gap:16px;align-items:center;font-size:17px;line-height:1.35}
-.mood-result .poster{width:64px;flex:none}
-.mood-result .ph span{font-size:1.4rem}
-.mood-result small{color:var(--muted);font-size:15px}
-.mood-result strong{font-family:var(--display);font-stretch:85%;font-weight:800;font-size:22px;line-height:1.1}
-@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:36px}.hero{padding-top:28px}.hero-art{height:150px}}
+.mood-result{margin-top:14px;min-height:0;background:var(--bg);padding:12px;display:flex;gap:12px;align-items:center;font-size:16px;line-height:1.35;border:1px solid var(--hair)}
+.mood-result .poster{width:54px;flex:none}
+.mood-result .ph span{font-size:1.2rem}
+.mood-result small{color:var(--muted);font-size:14px}
+.mood-result strong{font-family:var(--display);font-stretch:85%;font-weight:800;font-size:19px;line-height:1.1}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:4px solid var(--rule);margin-top:56px;padding-top:20px}
+.trio .it{padding:0 40px 0 0;text-align:left;cursor:pointer;display:block}
+.trio .it+.it{padding-left:40px;border-left:1px solid var(--hair)}
+.trio .t{font-family:var(--display);font-stretch:85%;font-weight:800;font-size:30px;line-height:1.1;margin:10px 0;letter-spacing:-.005em;display:block}
+.trio .it:hover .t{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px;text-decoration-color:var(--gema)}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:34px}.trio{grid-template-columns:1fr;gap:26px}.trio .it,.trio .it+.it{padding:0;border-left:0}.hero p.lead{text-align:left;padding:12px 0 18px}}
 
-/* na chapa (notas rápidas) */
-.ticker{background:var(--chapa);color:#fff;overflow:hidden;padding:14px 0;white-space:nowrap;font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+/* na chapa: marquee dentro da barra superior */
+.ticker{display:flex;align-items:center;gap:14px;flex:1;min-width:0;overflow:hidden;white-space:nowrap}
+.ticker .nc{color:var(--gema);font-weight:500;flex:none}
+.tk-wrap{overflow:hidden;flex:1;min-width:0}
 .ticker-track{display:inline-flex;gap:3rem;animation:slide 60s linear infinite}
 .ticker:hover .ticker-track{animation-play-state:paused}
-.ticker-track b{color:var(--gema);margin-right:.6rem;font-weight:800}
+.ticker-track b{color:var(--gema);margin-right:.6rem;font-weight:500}
 @keyframes slide{to{transform:translateX(-50%)}}
+.topbar .dt{flex:none}
 
 /* ranking */
 #ranking,#rankingFull{background:var(--band);color:#F3F1EB;--ink:#F3F1EB;--muted:#bdb8aa;--rule:var(--gema);--hair:#3a3630}
@@ -232,10 +248,16 @@ header.site{background:var(--bg);position:sticky;top:0;z-index:50}
 .agree small{font-family:var(--mono);font-size:12px;color:var(--muted);flex-basis:100%}
 @media(max-width:900px){.review{grid-template-columns:1fr}.review-visual{min-height:240px}.review-body{padding:26px 22px}}
 
-/* entrevistas */
-.interviews{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--rule)}
-.iv{padding:30px 32px 32px 0;display:flex;flex-direction:column;gap:20px;border:0;border-right:1px solid var(--hair);background:transparent}
-.iv+.iv{padding-left:32px}.iv:last-child{border-right:0}
+/* papo reto: uma entrevista em destaque e as outras em duas colunas */
+.interviews{display:grid;grid-template-columns:1fr 1fr;gap:0 48px;border-top:0}
+.iv{padding:28px 0 30px;display:flex;flex-direction:column;gap:18px;border:0;border-top:1px solid var(--rule);background:transparent}
+.iv-feat{grid-column:1/-1;display:grid;grid-template-columns:5fr 7fr;gap:48px;align-items:center;border-top:0;padding-top:0}
+.iv-feat .poster{aspect-ratio:4/5}
+.iv-feat .ph span{font-size:6rem}
+.iv-feat blockquote{font-stretch:78%;text-transform:uppercase;font-weight:900;font-size:clamp(2.4rem,5.4vw,5rem);line-height:.92;letter-spacing:-.005em}
+.iv-feat blockquote::before{content:none}
+.iv-feat .by{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:18px;padding-top:12px;border-top:2px solid var(--rule)}
+.iv-feat .sum{font-size:20px;line-height:1.45;margin-top:20px;max-width:640px}
 .iv-who{display:flex;gap:14px;align-items:center}
 .avatar{width:54px;height:54px;border-radius:50%;border:2px solid var(--chapa);display:grid;place-items:center;font-family:var(--display);font-stretch:78%;font-weight:900;font-size:1.3rem;color:var(--chapa);background:var(--gema)}
 .iv-who strong{font-family:var(--display);font-weight:800;font-size:18px;line-height:1.1;display:block}
@@ -243,7 +265,17 @@ header.site{background:var(--bg);position:sticky;top:0;z-index:50}
 .iv blockquote{font-family:var(--display);font-stretch:85%;font-weight:800;font-size:28px;line-height:1.08;letter-spacing:-.005em}
 .iv blockquote::before{content:"“";display:block;font-stretch:78%;font-weight:900;font-size:80px;line-height:.6;height:34px;color:var(--gema)}
 .iv .btn{align-self:flex-start;margin-top:auto}
-@media(max-width:960px){.interviews{grid-template-columns:1fr}.iv,.iv+.iv{padding:26px 0;border-right:0;border-bottom:1px solid var(--hair)}}
+@media(max-width:960px){.interviews{grid-template-columns:1fr}.iv-feat{grid-template-columns:1fr;gap:26px}}
+/* mais críticas (resenhas recentes) */
+.crit{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:4px solid var(--rule);margin-top:48px;padding-top:20px}
+.crit .it{padding:0 40px 0 0;text-align:left;display:block}
+.crit .it+.it{padding-left:40px;border-left:1px solid var(--hair)}
+.crit .t{font-family:var(--display);font-stretch:85%;font-weight:800;font-size:26px;line-height:1.1;margin:10px 0;display:block}
+.crit .it:hover .t{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px;text-decoration-color:var(--gema)}
+.crit .ch{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);flex-basis:100%}
+@media(max-width:900px){.crit{grid-template-columns:1fr;gap:24px}.crit .it,.crit .it+.it{padding:0;border-left:0}}
+/* link ativo no menu */
+.menu a.on{border-bottom-color:var(--gema)}
 
 /* coluna daqui */
 .nacional{background:var(--bg)}
@@ -314,7 +346,7 @@ input:focus,textarea:focus,select:focus{outline:var(--focus);outline-offset:2px}
 
 /* rodapé */
 footer{background:var(--band);color:#F3F1EB;padding:56px 0 0;position:relative;overflow:hidden;--ink:#F3F1EB}
-.foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:30px;margin-bottom:34px}
+.foot-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1.4fr;gap:30px;margin-bottom:34px}
 footer h4{font-family:var(--mono);font-weight:400;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#bdb8aa;margin-bottom:12px}
 footer ul{list-style:none;display:grid;gap:8px;font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
 footer a{text-decoration:none}footer a:hover{color:var(--gema)}
@@ -406,6 +438,18 @@ footer .copy a{text-decoration:underline}
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}html{scroll-behavior:auto}}
+/* home: top 5 em colunas, com pôster */
+.rk-grid{list-style:none;display:grid;grid-template-columns:repeat(5,1fr);gap:44px 28px}
+.rk-card{display:flex;flex-direction:column;min-width:0}
+.rk-n{font-family:var(--display);font-stretch:78%;font-weight:900;font-size:120px;line-height:.78;margin-bottom:14px;color:transparent;-webkit-text-stroke:2px #F3F1EB}
+.rk-card:first-child .rk-n{color:var(--gema);-webkit-text-stroke:0}
+.rk-card .poster{border-color:#4a453d;width:100%}
+.rk-card .ph span{font-size:2.2rem}
+.rk-card h3{font-stretch:85%;font-weight:800;font-size:22px;line-height:1.1;margin:14px 0 10px;letter-spacing:-.005em}
+.rk-card .rate{margin:0 0 8px}
+.rk-card .mono{color:#bdb8aa;font-size:12px;line-height:1.5}
+@media(max-width:1100px){.rk-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.rk-grid{grid-template-columns:repeat(2,1fr);gap:34px 18px}.rk-n{font-size:84px}}
 /* ranking completo: vira uma tela própria (#ranking-completo) */
 #rankingFull{display:none;min-height:80vh}
 body.view-rank #rankingFull{display:block}
@@ -447,7 +491,7 @@ main{transition:opacity .3s}
 </head>
 <body>
 
-<div class="topbar"><div class="wrap"><span class="l">Semana de <b id="weekRange">—</b> · Ranking atualizado toda segunda. Seu voto vale na hora.</span><button type="button" id="themeBtn" aria-label="Alternar entre modo claro e modo chapa (escuro)">Modo chapa</button></div></div>
+<div class="topbar"><div class="wrap"><span class="dt" id="weekRange">—</span><div class="ticker" aria-label="Na chapa: notas rápidas"><b class="nc">Na chapa</b><div class="tk-wrap"><div class="ticker-track" id="ticker"></div></div></div><button type="button" id="themeBtn" aria-label="Alternar entre modo claro e modo chapa (escuro)">Modo chapa</button></div></div>
 
 <header class="site">
   <div class="wrap mast">
@@ -475,38 +519,29 @@ main{transition:opacity .3s}
 <main id="topo">
 <!-- HERO -->
 <section class="hero">
-  <div class="wrap hero-grid">
-    <div>
-      <span class="tag h">Cinema + séries + papo reto</span>
-      <h1>Sem ideia do que ver? A gente <span class="mk">frita</span> isso pra você</h1>
-      <p class="lead">Resenhas sem enrolação, notas rápidas, entrevistas e um ranking feito com a sua nota. Aqui você descobre o que assistir e ainda briga (com carinho) sobre o final.</p>
-      <div class="hero-cta">
-        <a class="btn hot" href="#ranking">Ver o ranking da semana</a>
-        <a class="btn alt" href="#participe">Dar minha opinião</a>
-      </div>
-      <div class="hero-art" aria-hidden="true">
-        <div class="ph"></div>
-        <svg viewBox="0 0 64 64"><path d="M32 6c8 0 12 6 18 8 8 3 10 11 7 19-2 6 1 10-3 16-4 6-11 5-17 7-8 2-14-2-20-8-6-7-4-14-3-21 1-8 6-12 12-15 2-1 4-6 6-6z" fill="#fff"/><circle cx="31" cy="33" r="12" fill="#FFC400"/></svg>
-        <span class="stamp">Feito pela galera</span>
-      </div>
+  <div class="wrap">
+    <p class="lead">Resenhas sem enrolação, notas rápidas, entrevistas e um ranking feito com a sua nota. Aqui você descobre o que assistir e ainda briga (com carinho) sobre o final.</p>
+    <div class="hero-grid">
+      <article class="hl" id="heroLead"></article>
+      <aside>
+        <div class="nachapa"><h3>Na chapa</h3><ul id="ncList"></ul></div>
+        <div class="mood" aria-labelledby="moodTitle">
+          <h3 id="moodTitle">Que clima hoje?</h3>
+          <p>Escolhe seu humor e a gente sugere algo do ranking.</p>
+          <div class="mood-opts" id="moodOpts" role="group" aria-label="Escolha seu humor"></div>
+          <div class="mood-result" id="moodResult" aria-live="polite"><small>Toca num humor aí em cima.</small></div>
+        </div>
+      </aside>
     </div>
-    <aside class="mood" aria-labelledby="moodTitle">
-      <h3 id="moodTitle">Que clima hoje?</h3>
-      <p>Escolhe seu humor e a gente sugere algo do ranking.</p>
-      <div class="mood-opts" id="moodOpts" role="group" aria-label="Escolha seu humor"></div>
-      <div class="mood-result" id="moodResult" aria-live="polite"><small>Toca num humor aí em cima.</small></div>
-    </aside>
+    <div class="trio" id="heroTrio"></div>
   </div>
 </section>
-
-<!-- NA CHAPA: NOTAS RÁPIDAS -->
-<div class="ticker" aria-label="Na chapa: notas rápidas"><div class="ticker-track" id="ticker"></div></div>
 
 <!-- RANKING -->
 <section id="ranking">
   <div class="wrap">
     <div class="sec-head reveal">
-      <h2>Em alta <em>agora</em></h2>
+      <h2>Ranking da <em>semana</em></h2>
       <p>A posição mistura a nota da galera (50%) com IMDb e TMDB (50%). Dá sua nota nos pontos de gema e veja o ranking mexer.</p>
     </div>
     <div class="rk-bar">
@@ -516,7 +551,7 @@ main{transition:opacity .3s}
       </div>
       <p class="rk-upd" id="rkUpd" aria-live="polite"></p>
     </div>
-    <ol class="rank-list" id="rankList"></ol>
+    <ol class="rk-grid" id="rankList"></ol>
     <div class="rk-all" id="rkAll"><a class="btn hot" href="#ranking-completo">Ver ranking completo</a><span id="rkCount"></span></div>
     <p class="note-src" id="noteSrc">* Títulos, notas e votos desta página são exemplos fictícios, só pra mostrar como o ranking funciona.</p>
   </div>
@@ -581,6 +616,7 @@ main{transition:opacity .3s}
         </div>
       </div>
     </article>
+    <div class="crit" id="moreCrit"></div>
   </div>
 </section>
 
@@ -667,12 +703,10 @@ main{transition:opacity .3s}
 <footer>
   <div class="wrap">
     <div class="foot-grid">
-      <div>
-        <p style="max-width:320px">Cinema e séries com a cara de quem assiste. Feito por cinéfilos, avaliado por cinéfilos.</p>
-      </div>
-      <div><h4>Seções</h4><ul><li><a href="#ranking">Ranking</a></li><li><a href="#materias">Matérias</a></li><li><a href="#resenha">Ao ponto</a></li><li><a href="#nacional">Coluna Daqui</a></li></ul></div>
-      <div><h4>Participe</h4><ul><li><a href="#participe">Enquete</a></li><li><a href="#participe">Indique um título</a></li><li><a href="#ranking">Avalie filmes</a></li></ul></div>
-      <div><h4>Fale com a gente</h4><ul><li><a href="mailto:oi@ovofrito.example">oi@ovofrito.example</a></li><li><a href="#topo">Sugira uma pauta</a></li><li><a href="#topo">Anuncie</a></li></ul></div>
+      <div><h4>Seções</h4><ul><li><a href="#ranking">Ranking</a></li><li><a href="#materias">Matérias</a></li><li><a href="#resenha">Ao ponto</a></li><li><a href="#entrevistas">Papo reto</a></li></ul></div>
+      <div><h4>Redação</h4><ul><li><a href="#nacional">Coluna Daqui</a></li><li><a href="mailto:oi@ovofrito.example">Fale com a gente</a></li><li><a href="#topo">Sugira uma pauta</a></li></ul></div>
+      <div><h4>Participe</h4><ul><li><a href="#participe">Enquete</a></li><li><a href="#participe">Indica aí</a></li><li><a href="#ranking">Avalie filmes</a></li></ul></div>
+      <div><h4>Créditos</h4><p class="mono" style="color:#bdb8aa">Cinema e séries com a cara de quem assiste. Dados de filmes e séries: TMDB. Projeto acadêmico de Jornalismo.</p></div>
     </div>
     <p class="credit">Dados de filmes e séries: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>. Notas do IMDb via <a href="https://www.omdbapi.com" target="_blank" rel="noopener">OMDb</a>. This product uses the TMDB API but is not endorsed or certified by TMDB. (Este produto usa a API do TMDB, mas não é endossado nem certificado por ele.)</p>
     <div class="copy"><span>© <span id="year"></span> Ovo Frito. Projeto acadêmico de Jornalismo.</span><span><a href="#admin" id="openAdmin">Redação</a></span></div>
@@ -900,6 +934,11 @@ setTheme(store.get('theme', matchMedia('(prefers-color-scheme: dark)').matches?'
 $('#themeBtn').onclick=()=>setTheme(root.getAttribute('data-theme')==='dark'?'light':'dark');
 $('#burger').onclick=e=>{const m=$('.navbar');const o=m.classList.toggle('open');e.currentTarget.setAttribute('aria-expanded',o);e.currentTarget.textContent=o?'Fechar':'Menu'};
 $$('#menu a').forEach(a=>a.onclick=()=>{$('.navbar').classList.remove('open');$('#burger').setAttribute('aria-expanded','false');$('#burger').textContent='Menu'});
+(function(){
+  const links=$$('#menu a'),secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+  function spy(){if(document.body.classList.contains('view-rank'))return;let cur=-1;secs.forEach((el,i)=>{if(el&&el.getBoundingClientRect().top<140)cur=i});links.forEach((a,i)=>a.classList.toggle('on',i===cur))}
+  addEventListener('scroll',spy,{passive:true});spy();
+})();
 const toTop=$('#toTop');toTop.onclick=()=>scrollTo({top:0,behavior:'smooth'});
 addEventListener('scroll',()=>toTop.classList.toggle('show',scrollY>700),{passive:true});
 $('#year').textContent=new Date().getFullYear();
@@ -909,18 +948,35 @@ $('#year').textContent=new Date().getFullYear();
   const d=new Date(),dow=(d.getDay()+6)%7;
   const a=new Date(d);a.setDate(d.getDate()-dow);const b=new Date(a);b.setDate(a.getDate()+6);
   const f=x=>x.getDate()+' de '+x.toLocaleDateString('pt-BR',{month:'short'}).replace('.','');
-  $('#weekRange').textContent=f(a)+' a '+f(b);
+  const T=new Date();$('#weekRange').textContent=['dom','seg','ter','qua','qui','sex','sáb'][T.getDay()]+', '+String(T.getDate()).padStart(2,'0')+' '+T.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')+' '+T.getFullYear();
 })();
 
 /* ---------- ticker ---------- */
 function renderTicker(){
   const html=ticker.map(({k,t})=>`<span>${k?`<b>${esc(k)}</b>`:''}${esc(t)}</span>`).join('');
   $('#ticker').innerHTML=html+html;
-  $('.ticker').style.display=ticker.length?'':'none';
+  $('.ticker').style.visibility=ticker.length?'':'hidden';
+  if(typeof renderHero==='function')renderHero();
 }
 renderTicker();
 
 /* ---------- ranking ---------- */
+function lastWords(t,n){const w=String(t).trim().split(/\s+/);if(w.length<3)return [esc(t),''];const k=Math.min(n,Math.max(1,Math.floor(w.length/2)));return [esc(w.slice(0,-k).join(' ')),esc(w.slice(-k).join(' '))]}
+function artCover(a,cls){return a.img?`<div class="${cls}" style="background-image:url('${imgUrl(a)}')"></div>`:`<div class="${cls} ph ${phv(a)}" aria-hidden="true"><span>${esc(inits(a.t))}</span></div>`}
+function renderHero(){
+  const a=articles[0],hl=$('#heroLead');if(!hl)return;
+  if(a){const [h,t]=lastWords(a.t,2);
+    hl.innerHTML=`<div class="hl-in" data-open="${esc(a.id)}" role="button" tabindex="0">${artCover(a,'hl-img')}<p class="hl-cap">${esc(a.d||'')} · ${esc(a.r||'')} min de leitura</p><span class="tag ${tagColor[a.cat]||''}" style="margin-top:18px">${esc(catLabel(a.cat))}</span><h1>${h}${t?` <span class="mk">${t}</span>`:''}</h1><p class="deck">${esc(a.x)}</p><p class="meta">Redação Ovo Frito</p></div>`;
+  }else hl.innerHTML='';
+  $('#heroTrio').innerHTML=articles.slice(1,4).map(b=>`<div class="it" data-open="${esc(b.id)}" role="button" tabindex="0"><span class="tag ${tagColor[b.cat]||''}">${esc(catLabel(b.cat))}</span><span class="t">${esc(b.t)}</span><span class="mono" style="color:var(--muted)">${esc(b.d||'')} · ${esc(b.r||'')} min</span></div>`).join('');
+  $('#heroTrio').style.display=articles.length>1?'':'none';
+  $('#ncList').innerHTML=ticker.slice(0,5).map(n=>`<li><div class="mono">${esc(n.k||'Nota')}</div><div class="t">${esc(n.t)}</div></li>`).join('');
+  $('.nachapa').style.display=ticker.length?'':'none';
+  const rs=articles.filter(x=>x.cat==='Resenha').slice(0,3);
+  $('#moreCrit').innerHTML=rs.map(b=>`<div class="it" data-open="${esc(b.id)}" role="button" tabindex="0"><span class="tag ${tagColor[b.cat]||''}">Resenha</span><span class="t">${esc(b.t)}</span><span class="mono" style="color:var(--muted)">${esc(b.d||'')} · ${esc(b.r||'')} min</span></div>`).join('');
+  $('#moreCrit').style.display=rs.length?'':'none';
+}
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('[role=button][data-open]')){e.preventDefault();e.target.click()}});
 let kind='movies';
 const myRates=store.get('rates',{});
 const ratingHints=['','Cru','Mole','Ao ponto','Crocante','Dourado'];
@@ -992,8 +1048,13 @@ function renderRank(){
       </div>
     </li>`;
   };
+  const cardHtml=(it,i)=>{
+    const pos=i+1,my=myRates[it.id]||0;
+    const stars=[5,4,3,2,1].map(n=>`<button type="button" class="${my===n?'on':''}" data-id="${it.id}" data-n="${n}" aria-label="Dar nota ${n} de 5 para ${esc(it.t)}"></button>`).join('');
+    return `<li class="rk-card"><span class="rk-n" aria-label="Posição ${pos}">${pos}</span>${poster(it)}<h3><button type="button" class="rk-open" data-tt="${esc(it.id)}">${esc(it.t)}</button></h3><div class="rate" role="group" aria-label="Sua nota para ${esc(it.t)}">${stars}</div><p class="mono">${my?'Sua nota: '+ratingHints[my]+'<br>':''}Galera ${galera(it)}${it.imdb?' / IMDb '+(+it.imdb).toFixed(1):''}${it.tmdb?' / TMDB '+Math.round(it.tmdb)+'%':''}</p><button type="button" class="rk-more" data-tt="${esc(it.id)}">Detalhes</button></li>`;
+  };
   const none='<li class="empty">Ainda não tem nada por aqui. A redação já está de olho!</li>';
-  $('#rankList').innerHTML=list.slice(0,5).map(rowHtml).join('')||none;
+  $('#rankList').innerHTML=list.slice(0,5).map(cardHtml).join('')||none;
   $('#rankListFull').innerHTML=list.slice(0,25).map(rowHtml).join('')||none;
   $('#rkAll').style.display=list.length>5?'':'none';
   $('#rkCount').textContent=list.length>5?'Mais '+(Math.min(list.length,25)-5)+' '+(kind==='movies'?'filmes':'séries')+' na lista completa':'';
@@ -1006,9 +1067,9 @@ function rankClick(e){
   const b=e.target.closest('.rate button');if(!b)return;
   const id=b.dataset.id,n=+b.dataset.n;
   myRates[id]=n;store.set('rates',myRates);
-  const before=$$('#rankList .rank-item h3').map(h=>h.textContent);
+  const before=$$('#rankList .rk-card h3').map(h=>h.textContent);
   renderRank();
-  const after=$$('#rankList .rank-item h3').map(h=>h.textContent);
+  const after=$$('#rankList .rk-card h3').map(h=>h.textContent);
   const name=[...movies,...series].find(x=>x.id===id).t;
   toast(before.join()!==after.join()?`Seu voto mexeu no ranking: “${name}”`:`Voto registrado: ${ratingHints[n]} pra “${name}”`);
 }
@@ -1062,16 +1123,18 @@ function renderArt(){
 }
 $('#chips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;curCat=b.dataset.c;shown=6;renderChips();renderArt()});
 $('#moreBtn').onclick=()=>{shown+=3;renderArt()};
-renderChips();renderArt();
+renderChips();renderArt();renderHero();
 
 /* ---------- entrevistas e coluna ---------- */
 function renderPeople(){
-$('#interviews').innerHTML=interviews.map((p,i)=>`
-  <article class="iv ${rv()}">
+$('#interviews').innerHTML=interviews.map((p,i)=>{
+  if(i===0){const [h,t]=lastWords('“'+p.q+'”',3);
+    return `<article class="iv iv-feat ${rv()}"><div class="poster ph ${['','b','c'][hashN(p.n)%3]}" aria-hidden="true"><span>${esc(p.i||inits(p.n))}</span></div><div><span class="tag v">Papo reto</span><blockquote style="margin-top:16px">${h}${t?` <span class="mk">${t}</span>`:''}</blockquote><p class="sum">${esc(String(p.b||'').split(/(?<=[.!?])\s/)[0]||'')}</p><p class="by">${esc(p.n)} / ${esc(p.r||'')}</p><button class="btn alt" data-iv="${i}" style="margin-top:20px">Ler o papo completo</button></div></article>`}
+  return `<article class="iv ${rv()}">
     <div class="iv-who"><div class="avatar" aria-hidden="true">${esc(p.i||'')}</div><div><strong>${esc(p.n)}</strong><small>${esc(p.r||'')}</small></div></div>
     <blockquote>${esc(p.q)}</blockquote>
     <button class="btn alt" data-iv="${i}">Ler o papo completo</button>
-  </article>`).join('');
+  </article>`}).join('');
 $('#nacList').innerHTML=nacional.map((n,i)=>`
   <li class="${rv()}"><button type="button" data-nac="${esc(n.id||'')}"><span class="n">${i+1}</span><span><h4>${esc(n.t)}</h4><small>${esc(n.m||'')}</small></span><span aria-hidden="true">→</span></button></li>`).join('');
 $('#entrevistas').style.display=interviews.length?'':'none';
@@ -1285,7 +1348,8 @@ labelTexts();applyTexts();
 /* marca cada card com o item que ele representa */
 function markEditable(){
   const coll=kind==='movies'?movies:series,order=coll.slice().sort((a,b)=>score(b)-score(a));
-  ['#rankList','#rankListFull'].forEach(sel=>$$(sel+' .rank-item').forEach((li,i)=>{const it=order[i];if(it)li.dataset.ed=kind+':'+coll.indexOf(it)}));
+  ['#rankList','#rankListFull'].forEach(sel=>$$(sel+' .rank-item, '+sel+' .rk-card').forEach((li,i)=>{const it=order[i];if(it)li.dataset.ed=kind+':'+coll.indexOf(it)}));
+  $$('.hero [data-open]').forEach(el=>{const i=articles.findIndex(a=>a.id===el.dataset.open);if(i>=0)el.dataset.ed='articles:'+i});
   $$('#artGrid .art').forEach(el=>{const i=articles.findIndex(a=>a.id===el.dataset.open);if(i>=0)el.dataset.ed='articles:'+i});
   $$('#interviews .iv').forEach((el,i)=>el.dataset.ed='interviews:'+i);
   $$('#nacList li').forEach((el,i)=>el.dataset.ed='nacional:'+i);
@@ -1294,7 +1358,7 @@ function markEditable(){
   const pp=$('#pollQ').closest('.panel');if(pp)pp.dataset.ed='poll';
 }
 const mo=new MutationObserver(markEditable);
-['#rankList','#rankListFull','#artGrid','#interviews','#nacList','#ticker'].forEach(s=>mo.observe($(s),{childList:true}));
+['#heroLead','#heroTrio','#rankList','#rankListFull','#artGrid','#interviews','#nacList','#ticker'].forEach(s=>mo.observe($(s),{childList:true}));
 markEditable();
 
 function setEditing(v){
@@ -1508,6 +1572,7 @@ function listHtml(c){
   ${isT?`<div class="card pn-box"><h4>🔎 Buscar no TMDB (filmes e séries de verdade)</h4>
     <div class="pn-bar" style="margin-bottom:10px"><input id="tmQ" type="text" placeholder="Digite o nome e aperte Enter…" aria-label="Buscar no TMDB"><button type="button" class="btn" data-act="tmsearch">Buscar</button></div>
     <ul class="pn-list" id="tmRes"></ul>
+    <p class="pn-note" id="tmMsg" role="status" style="display:none"></p>
     <div class="pn-bar" style="margin:0"><button type="button" class="btn alt" data-act="trend">⚡ Trazer os 25 mais populares da semana</button><button type="button" class="btn alt" data-act="fill">📝 Completar sinopse, prêmios e onde assistir</button></div>
     <p class="pn-note" style="margin:12px 0 0">Precisa da chave do TMDB (grátis) em ⚙️ Configurações. A nota do IMDb vem do OMDb, se você cadastrar essa chave também.</p></div>`:''}
   <div class="pn-bar"><button type="button" class="btn" data-act="new">+ Adicionar ${esc(S.name)}</button></div>
@@ -1590,6 +1655,7 @@ async function fillDetails(){
   }
   commit();toast(n+' título'+(n>1?'s':'')+' atualizado'+(n>1?'s':'')+' com sinopse e onde assistir.');
 }
+function pnMsg(t,bad){const el=$('#tmMsg');if(!el)return;el.style.display=t?'':'none';el.textContent=t||'';el.style.borderColor=bad?'var(--pimenta)':''}
 async function importTrending(){
   const kind=adTab,S=SCH[kind];
   if(S.coll.length&&!confirm('Isso troca a lista atual de '+(kind==='movies'?'filmes':'séries')+' pelos 25 mais populares da semana. As notas dos leitores dos títulos que continuarem são mantidas. Continuar?'))return;
@@ -1598,11 +1664,13 @@ async function importTrending(){
   for(const pg of [1,2]){const d=await tm('/trending/'+(kind==='movies'?'movie':'tv')+'/week',{page:pg});res.push(...(d.results||[]))}
   const old=sortedBy(kind),items=[],picks=res.slice(0,25);
   for(let k=0;k<picks.length;k+=5){
-    const part=await Promise.all(picks.slice(k,k+5).map(r=>tmToItem(r,kind)));
+    pnMsg('Buscando detalhes… '+Math.min(k+5,picks.length)+' de '+picks.length);
+    const part=(await Promise.all(picks.slice(k,k+5).map(r=>tmToItem(r,kind).catch(()=>null)))).filter(Boolean);
     part.forEach(it=>{const o=old.findIndex(x=>x.id===it.id);if(o>=0){it.votes=old[o].votes;it.avg=old[o].avg;it.mood=old[o].mood;it.prev=o+1}items.push(it)});
   }
   S.coll.splice(0,S.coll.length,...items);
-  commit();toast('Lista atualizada com títulos de verdade! 🎬');
+  if(!items.length)throw new Error('O TMDB não devolveu nenhum título. Tenta de novo em instantes.');
+  commit();pnMsg(items.length+' '+(kind==='movies'?'filmes':'séries')+' importados. Salvando no banco…');toast('Lista atualizada: '+items.length+' títulos de verdade!');
 }
 
 adminOv.addEventListener('click',async e=>{
@@ -1649,7 +1717,7 @@ adminOv.addEventListener('click',async e=>{
       applyContent(JSON.parse(DEFAULT_SNAPSHOT));
       saveContent();renderAll();adminRender();toast('Exemplos restaurados ♻️');
     }
-  }catch(err){toast(err.message||'Algo deu errado.')}
+  }catch(err){toast(err.message||'Algo deu errado.');pnMsg('Não deu certo: '+(err.message||'erro desconhecido'),true)}
 });
 function setPub(t){const el=$('#pubStatus');if(el)el.textContent=t}
 function schedulePublish(){
