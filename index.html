@@ -579,7 +579,7 @@ main{transition:opacity .3s}
   <div class="wrap">
     <div class="sec-head reveal">
       <h2>Ranking da <em>semana</em></h2>
-      <p>A posição mistura a nota da galera (50%) com IMDb e TMDB (50%). Dá sua nota nos pontos de gema e veja o ranking mexer.</p>
+      <p>A posição mistura a nota da galera (50%) com IMDb e TMDB (50%). Dê sua nota nas frigideirinhas e veja o ranking mexer.</p>
     </div>
     <div class="rk-bar">
       <div class="tabs" role="tablist" aria-label="Tipo de título">
@@ -601,7 +601,7 @@ main{transition:opacity .3s}
     <div class="sec-head">
       <h2>Ranking <em>completo</em></h2>
     </div>
-    <p class="rk-intro">Os 25 mais bem avaliados de cada lista. A posição mistura a nota da galera com IMDb e TMDB. Dá sua nota nos pontos de gema e veja o ranking mexer.</p>
+    <p class="rk-intro">Os 25 mais bem avaliados de cada lista. A posição mistura a nota da galera com IMDb e TMDB. Dê sua nota nas frigideirinhas (precisa de conta) e veja o ranking mexer.</p>
     <div class="rk-bar">
       <div class="tabs" role="tablist" aria-label="Tipo de título">
         <button role="tab" aria-selected="true" data-kind="movies">Filmes</button>
@@ -1029,12 +1029,12 @@ function renderHero(){
 }
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('[role=button][data-open]')){e.preventDefault();e.target.click()}});
 let kind='movies';
-const myRates=store.get('rates',{});
+let myRates={},crowd={};
 const ratingHints=['','Cru','Mole','Ao ponto','Crocante','Dourado'];
 function readerAvg(it){
-  const r=myRates[it.id],v=it.votes||0;
-  if(!v&&!r)return null;
-  return r?((it.avg||0)*v+r)/(v+1):it.avg;
+  const c=crowd[it.id]||{n:0,sum:0},v=it.votes||0,tot=v+c.n;
+  if(!tot)return null;
+  return ((it.avg||0)*v+c.sum)/tot;
 }
 const galera=it=>{const r=readerAvg(it);return r==null?'—':(r*2).toFixed(1)};
 function score(it){
@@ -1085,7 +1085,7 @@ function renderRank(){
     const trend=diff>0?`<span class="trend up">▲ ${diff}</span>`:diff<0?`<span class="trend down">▼ ${-diff}</span>`:(it.prev?`<span class="trend">= igual</span>`:`<span class="trend up">NOVO</span>`);
     const my=myRates[it.id]||0;
     const stars=[5,4,3,2,1].map(n=>`<button type="button" class="${my===n?'on':''}" data-id="${it.id}" data-n="${n}" aria-label="Dar nota ${n} de 5 para ${esc(it.t)}"></button>`).join('');
-    const votes=it.votes+(my?1:0);
+    const votes=(it.votes||0)+(crowd[it.id]?crowd[it.id].n:0);
     return `<li class="rank-item reveal in">
       <div class="rank-num ${pos>9?'big2':''}" aria-label="Posição ${pos}">${pos}</div>
       ${poster(it)}
@@ -1098,7 +1098,7 @@ function renderRank(){
       <div class="rank-vote">
         <div class="rank-score">${score(it).toFixed(1)}<small> /10</small></div>
         <div class="rate" role="group" aria-label="Sua nota para ${esc(it.t)}">${stars}</div>
-        <div class="hint">${my?'Sua nota: '+ratingHints[my]:votes.toLocaleString('pt-BR')+' votos da galera'}</div>
+        <div class="hint">${my?'Sua nota: '+ratingHints[my]+' · '+votes.toLocaleString('pt-BR')+' votos':votes.toLocaleString('pt-BR')+' votos da galera'+(sbSession?'':' · entre pra votar')}</div>
       </div>
     </li>`;
   };
@@ -1116,11 +1116,31 @@ function renderRank(){
   const fake=[...movies,...series].some(x=>EX_IDS.has(x.id));
   $('#noteSrc').textContent=fake?'* Títulos, notas e votos desta página são exemplos fictícios, só pra mostrar como o ranking funciona.':'As notas do IMDb e do TMDB vêm dos próprios sites e mudam quando a redação atualiza a lista.';
 }
+let voting=false;
+async function fetchCrowd(){
+  try{const r=await sbFetch('/rest/v1/rpc/public_stats',{method:'POST',body:{}});if(r.ok&&r.data&&r.data.ratings){crowd=r.data.ratings;renderRank()}}catch(e){}
+}
+async function pullMine(){
+  if(!sbSession){if(Object.keys(myRates).length){myRates={};renderRank()}return}
+  try{const t=await sbToken(),r=await sbFetch('/rest/v1/rpc/my_ratings',{method:'POST',token:t,body:{}});if(r.ok&&r.data&&typeof r.data==='object'){myRates=r.data;renderRank()}}catch(e){}
+}
 function rankClick(e){
   const o=e.target.closest('[data-tt]');if(o)return openTitle(o.dataset.tt);
   const b=e.target.closest('.rate button');if(!b)return;
   const id=b.dataset.id,n=+b.dataset.n;
-  myRates[id]=n;store.set('rates',myRates);
+  if(!sbSession){toast('Entre ou crie uma conta pra dar sua nota 🍳');openAcc('in');return}
+  if(voting)return;voting=true;
+  const prev=myRates[id]||0,c0=crowd[id]?{...crowd[id]}:null;
+  const c=crowd[id]||(crowd[id]={n:0,sum:0});
+  if(prev){c.sum-=prev}else{c.n++}
+  c.sum+=n;myRates[id]=n;
+  sbToken().then(t=>sbFetch('/rest/v1/rpc/rate',{method:'POST',token:t,body:{p_item:id,p_stars:n}})).then(r=>{
+    if(!r.ok)throw new Error('x')
+  }).catch(()=>{
+    if(prev)myRates[id]=prev;else delete myRates[id];
+    if(c0)crowd[id]=c0;else delete crowd[id];
+    renderRank();toast('Não consegui registrar seu voto. Tenta de novo daqui a pouco.');
+  }).finally(()=>{voting=false});
   const before=$$('#rankList .rk-card h3').map(h=>h.textContent);
   renderRank();
   const after=$$('#rankList .rk-card h3').map(h=>h.textContent);
@@ -1339,7 +1359,7 @@ const SB_URL='https://axazzmqbnpexnnezcthp.supabase.co';
 const SB_KEY='sb_publishable_glOkzjOROWcXY6IUsQD8lQ_EgbEEj_v'; /* chave pública: pode ficar no site */
 const SB_LOGIN_DOMAIN='ovofrito.test'; /* quem digita só "admin" entra como admin@ovofrito.test (domínio reservado, ninguém pode registrar) */
 const KEYS=['movies','series','articles','ticker','interviews','nacional','poll','review','texts'];
-let sbSession=store.get('sb',null),refreshing=null;
+var sbSession=store.get('sb',null);let refreshing=null;
 let synced={},saving=false,savePending=false,saveTimer=null;
 function saveSession(x){sbSession=x;store.set('sb',x)}
 async function sbFetch(path,o={}){
@@ -1525,6 +1545,7 @@ function onAuth(){
   const b=$('#accBtn');
   b.textContent=sbSession&&myName()?myName():'Entrar';
   b.setAttribute('aria-label',sbSession?'Minha conta':'Entrar ou criar conta');
+  pullMine();
   if(sbSession&&!listsPulled)pullLists();
   if(!sbSession)listsPulled=false;
 }
@@ -1548,29 +1569,29 @@ function paintAcc(){
   }
   const up=accMode==='signup';
   b.innerHTML=`<h3 id="accTitle">${up?'Criar conta':'Entrar'}</h3>
-  <p style="color:var(--muted);margin-bottom:12px">Guarde suas listas (ver mais tarde, com a família, com a namorada...) e leve pra qualquer aparelho.</p>
+  <p style="color:var(--muted);margin-bottom:12px">Dê suas notas nas frigideirinhas e guarde listas (ver mais tarde, com a família, com a namorada...) em qualquer aparelho.</p>
   <div class="acc-tabs" role="tablist"><button type="button" role="tab" data-m="in" aria-selected="${!up}">Entrar</button><button type="button" role="tab" data-m="signup" aria-selected="${up}">Criar conta</button></div>
   <form id="acForm" novalidate>
-    <div class="field"><label for="acUser">Usuário ou e-mail</label><input type="text" id="acUser" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="80"></div>
+    <div class="field"><label for="acUser">${up?'E-mail':'E-mail ou usuário'}</label><input type="text" id="acUser" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="80"></div>
     <div class="field"><label for="acPass">Senha</label><input type="password" id="acPass" autocomplete="${up?'new-password':'current-password'}" maxlength="72"></div>
-    ${up?'<small style="display:block;color:var(--muted);margin-bottom:8px">Use um nome de usuário (3 a 20 letras ou números) ou seu e-mail. Senha com pelo menos 6 caracteres. Só com usuário, não dá pra recuperar a senha se esquecer.</small>':''}
+    ${up?'<small style="display:block;color:var(--muted);margin-bottom:8px">Senha com pelo menos 6 caracteres. Vamos mandar um e-mail pra você confirmar a conta antes de entrar.</small>':''}
     <span class="err" id="acErr" role="alert" style="display:block;margin-bottom:8px"></span>
     <button class="btn" type="submit">${up?'Criar minha conta':'Entrar'}</button>
   </form>`;
   $$('#accBody .acc-tabs button').forEach(x=>x.onclick=()=>{accMode=x.dataset.m;paintAcc();$('#acUser').focus()});
   $('#acForm').onsubmit=accSubmit;
 }
-function accEmail(raw){raw=raw.trim().toLowerCase();if(raw.includes('@'))return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(raw)?raw:'';return /^[a-z0-9_.-]{3,20}$/.test(raw)?raw+'@'+SB_LOGIN_DOMAIN:''}
+function accEmail(raw,up){raw=raw.trim().toLowerCase();if(raw.includes('@'))return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(raw)?raw:'';if(up)return '';return /^[a-z0-9_.-]{3,20}$/.test(raw)?raw+'@'+SB_LOGIN_DOMAIN:''}
 async function accSubmit(e){
   e.preventDefault();
   const up=accMode==='signup',raw=$('#acUser').value,pass=$('#acPass').value,err=$('#acErr'),btn=e.target.querySelector('button[type=submit]');
-  const email=accEmail(raw);err.textContent='';
-  if(!email){err.textContent='Usuário: 3 a 20 letras, números, ponto ou traço. Ou um e-mail válido.';return}
+  const email=accEmail(raw,up);err.textContent='';
+  if(!email){err.textContent=up?'Digite um e-mail válido. Vamos mandar um link pra confirmar.':'Digite seu e-mail (ou o usuário da redação).';return}
   if(pass.length<6){err.textContent='A senha precisa ter pelo menos 6 caracteres.';return}
   btn.disabled=true;
   try{
     if(up){
-      let r;try{r=await sbFetch('/auth/v1/signup',{method:'POST',body:{email,password:pass}})}catch(x){throw new Error('Não consegui falar com o servidor. Confere a internet.')}
+      let r;try{r=await sbFetch('/auth/v1/signup?redirect_to='+encodeURIComponent(location.origin+location.pathname),{method:'POST',body:{email,password:pass}})}catch(x){throw new Error('Não consegui falar com o servidor. Confere a internet.')}
       if(!r.ok){
         const c=(r.data&&(r.data.error_code||r.data.error))||'';
         if(c==='user_already_exists'||/already/i.test(JSON.stringify(r.data||'')))throw new Error('Esse usuário já existe. Tenta entrar ou escolhe outro nome.');
@@ -1580,8 +1601,7 @@ async function accSubmit(e){
         throw new Error('Não deu pra criar a conta ('+(c||r.status)+').');
       }
       if(r.data&&r.data.access_token)startSession(r.data);
-      else if(email.endsWith('@'+SB_LOGIN_DOMAIN)){await sbSignIn(email,pass)}
-      else{accBodyMsg('Quase lá! Mandamos um e-mail de confirmação para '+email+'. Clique no link e depois volte aqui pra entrar.');return}
+      else{accBodyMsg('Quase lá! Mandamos um e-mail de confirmação para '+email+'. Clique no link dele (olhe também o spam) e você já volta pro site logada(o).');return}
     }else{await sbSignIn(email,pass)}
     store.set('me',email.split('@')[0]);
     let adm=false;try{adm=await sbIsAdmin()}catch(x){}
@@ -1663,6 +1683,17 @@ listsOv.addEventListener('click',e=>{
 $('#lsClose').onclick=closeLists;
 $('#listsBtn').onclick=openLists;$('#menuLists').onclick=e=>{e.preventDefault();$('.navbar').classList.remove('open');$('#burger').setAttribute('aria-expanded','false');$('#burger').textContent='Menu';openLists()};
 onAuth();
+(function(){
+  const h=location.hash;if(!/access_token=/.test(h))return;
+  const q=new URLSearchParams(h.slice(1)),at=q.get('access_token');if(!at)return;
+  try{
+    startSession({access_token:at,refresh_token:q.get('refresh_token'),expires_in:+q.get('expires_in')||3600});
+    const em=JSON.parse(atob(at.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).email||'';
+    store.set('me',em.split('@')[0]);store.set('isAdm',false);
+    history.replaceState(null,'',location.pathname+location.search);
+    onAuth();toast('E-mail confirmado! Bem-vinda(o) 🍳');
+  }catch(e){}
+})();
 
 /* TMDB / OMDb */
 const tmKey=()=>store.get('tmdbKey','');
@@ -2012,7 +2043,7 @@ async function loadRemote(){
   }catch(e){return false}
   finally{document.documentElement.classList.remove('loading')}
 }
-loadRemote();
+loadRemote();fetchCrowd();pullMine();
 
 /* ---------- animação ao rolar ---------- */
 (function(){
