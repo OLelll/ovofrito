@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ovo Frito — Cinema e séries sem enrolação (prévia do novo visual)</title>
+<title>Ovo Frito — Cinema e séries sem enrolação</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
@@ -486,6 +486,40 @@ body.view-rank .hero,body.view-rank .ticker,body.view-rank main>section:not(#ran
 html.loading main{opacity:0}
 main{transition:opacity .3s}
 
+.m-only{display:none}
+@media(max-width:900px){.m-only{display:block}#listsBtn{display:none}}
+/* frigideirinhas */
+:root{--pan-o:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Ccircle cx='11' cy='16' r='8.2' fill='none' stroke='black' stroke-width='3.4'/%3E%3Cpath d='M18 10 L26 3.5' stroke='black' stroke-width='3.6' stroke-linecap='round'/%3E%3C/svg%3E");--pan-f:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Ccircle cx='11' cy='16' r='9.6' fill='black'/%3E%3Cpath d='M18 10 L26 3.5' stroke='black' stroke-width='3.6' stroke-linecap='round'/%3E%3C/svg%3E")}
+.dots i,.dots i.on{border:0;border-radius:0;background:var(--ink);opacity:.35;-webkit-mask:var(--pan-o) center/contain no-repeat;mask:var(--pan-o) center/contain no-repeat}
+.dots i.on{opacity:1;-webkit-mask-image:var(--pan-f);mask-image:var(--pan-f);background:var(--chapa)}
+[data-theme="dark"] .dots i.on{background:var(--gema)}
+.dots{gap:3px}.dots i{width:22px;height:22px}
+.meter .dots i{width:30px;height:30px}
+.rate{gap:0}
+.rate button{width:34px;height:34px}
+.rate button::before,.rate button:hover::before{width:30px;height:30px;border:0;border-radius:0;background:#F3F1EB;opacity:.55;-webkit-mask:var(--pan-o) center/contain no-repeat;mask:var(--pan-o) center/contain no-repeat;transition:transform .12s,opacity .12s}
+.rate button:hover::before,.rate button:hover ~ button::before,.rate button.on::before,.rate button.on ~ button::before{background:var(--gema);opacity:1;border:0;-webkit-mask-image:var(--pan-f);mask-image:var(--pan-f)}
+.rate button:hover::before{transform:scale(1.18) rotate(-8deg)}
+/* conta e listas */
+.tools .acc-btn{white-space:nowrap}
+.acc-tabs{display:flex;margin-bottom:18px;border:2px solid var(--chapa)}
+.acc-tabs button{flex:1;padding:11px;font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.acc-tabs button[aria-selected="true"]{background:var(--gema);color:var(--chapa)}
+.acc-links{display:grid;gap:10px;margin:16px 0}
+.ls-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+.ls-tabs button,.lchips button{padding:8px 12px;border:1px solid var(--ink);font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.ls-tabs button[aria-selected="true"],.lchips button.on{background:var(--gema);color:var(--chapa);border-color:var(--chapa)}
+.ls-tabs button small{font-family:var(--mono);margin-left:4px;opacity:.7}
+.lchips{display:flex;gap:6px;flex-wrap:wrap}
+.ls-rows{list-style:none;display:grid;gap:8px;margin:12px 0 18px}
+.ls-rows li{display:flex;gap:12px;align-items:center;padding:10px;border:1px solid var(--hair)}
+.ls-rows .lt{flex:1;min-width:0}.ls-rows .lt strong{display:block}.ls-rows .lt small{font-family:var(--mono);color:var(--muted)}
+.ls-rows button{padding:8px 10px;border:1px solid var(--ink);font-weight:700;font-size:13px}
+.ls-new{display:flex;gap:8px;flex-wrap:wrap}.ls-new input{flex:1 1 180px}
+.ls-note{font-size:.88rem;color:var(--muted);margin:8px 0}
+.td .lchips{margin:6px 0 10px}
+@media(max-width:640px){.tools{gap:5px}.tools .icon-btn{padding:0 7px;font-size:11px;letter-spacing:.02em;min-height:36px}.mast{gap:6px}.mast .wm{font-size:21px}}
+
 </style>
 <script>try{if(!localStorage.getItem("ovofrito:content")){document.documentElement.classList.add("loading");setTimeout(function(){document.documentElement.classList.remove("loading")},5000)}}catch(e){}</script>
 </head>
@@ -498,6 +532,8 @@ main{transition:opacity .3s}
     <span class="tagl">Cinema e séries<br>sem enrolação</span>
     <a href="#topo" class="wm" aria-label="Ovo Frito — página inicial">Ovo Frit<i></i></a>
     <div class="tools">
+      <button class="icon-btn acc-btn" id="listsBtn" type="button">Listas</button>
+      <button class="icon-btn acc-btn" id="accBtn" type="button">Entrar</button>
       <button class="icon-btn" id="searchBtn" aria-label="Buscar">Buscar</button>
       <button class="icon-btn burger" id="burger" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu">Menu</button>
     </div>
@@ -509,8 +545,9 @@ main{transition:opacity .3s}
         <li><a href="#materias">Matérias</a></li>
         <li><a href="#resenha">Ao ponto</a></li>
         <li><a href="#entrevistas">Papo reto</a></li>
-        <li><a href="#nacional">Coluna Daqui</a></li>
+        <li><a href="#nacional">Coluna Descascando</a></li>
         <li><a href="#participe">Participe</a></li>
+        <li class="m-only"><a href="#participe" id="menuLists">Minhas listas</a></li>
       </ul>
     </nav>
   </div>
@@ -631,11 +668,11 @@ main{transition:opacity .3s}
   </div>
 </section>
 
-<!-- COLUNA DAQUI -->
+<!-- COLUNA DESCASCANDO -->
 <section id="nacional" class="nacional">
   <div class="wrap">
     <div class="sec-head reveal">
-      <h2>Coluna <em>Daqui</em></h2>
+      <h2>Coluna <em>Descascando</em></h2>
       <p>Cinema brasileiro de ponta a ponta: do sertão ao centrão, dos curtas aos blockbusters. Toda quarta, um papo novo.</p>
     </div>
     <div class="nac-grid">
@@ -704,7 +741,7 @@ main{transition:opacity .3s}
   <div class="wrap">
     <div class="foot-grid">
       <div><h4>Seções</h4><ul><li><a href="#ranking">Ranking</a></li><li><a href="#materias">Matérias</a></li><li><a href="#resenha">Ao ponto</a></li><li><a href="#entrevistas">Papo reto</a></li></ul></div>
-      <div><h4>Redação</h4><ul><li><a href="#nacional">Coluna Daqui</a></li><li><a href="mailto:oi@ovofrito.example">Fale com a gente</a></li><li><a href="#topo">Sugira uma pauta</a></li></ul></div>
+      <div><h4>Redação</h4><ul><li><a href="#nacional">Coluna Descascando</a></li><li><a href="mailto:oi@ovofrito.example">Fale com a gente</a></li><li><a href="#topo">Sugira uma pauta</a></li></ul></div>
       <div><h4>Participe</h4><ul><li><a href="#participe">Enquete</a></li><li><a href="#participe">Indica aí</a></li><li><a href="#ranking">Avalie filmes</a></li></ul></div>
       <div><h4>Créditos</h4><p class="mono" style="color:#bdb8aa">Cinema e séries com a cara de quem assiste. Dados de filmes e séries: TMDB. Projeto acadêmico de Jornalismo.</p></div>
     </div>
@@ -754,6 +791,20 @@ main{transition:opacity .3s}
   </select>
   <button type="button" class="btn alt" id="fbPanel">🛠️ Painel</button>
   <span id="pubStatus" role="status"></span>
+</div>
+
+<div class="overlay" id="accOv" role="dialog" aria-modal="true" aria-labelledby="accTitle">
+  <div class="card modal" style="width:min(440px,100%)">
+    <button class="close" id="accClose" type="button" aria-label="Fechar">✕</button>
+    <div class="modal-body" id="accBody"></div>
+  </div>
+</div>
+
+<div class="overlay" id="listsOv" role="dialog" aria-modal="true" aria-labelledby="lsTitle">
+  <div class="card modal" style="width:min(640px,100%)">
+    <button class="close" id="lsClose" type="button" aria-label="Fechar">✕</button>
+    <div class="modal-body" id="lsBody"></div>
+  </div>
 </div>
 
 <div class="overlay" id="loginOv" role="dialog" aria-modal="true" aria-labelledby="lgTitle">
@@ -849,7 +900,7 @@ const ticker = [
 
 const cats = ['Tudo','Notícia','Resenha','Lista','Nacional','Séries'];
 const tagColor = {Notícia:'h',Resenha:'v',Lista:'m',Nacional:'p',Séries:'s'};
-const catLabel=c=>c==='Nacional'?'Daqui':c;
+const catLabel=c=>c==='Nacional'?'Descascando':c;
 const articles = [
  {id:'a1',cat:'Lista',t:'7 filmes curtinhos pra ver quando você só tem 90 minutos',x:'Sem tempo, mas com vontade? Separamos sete filmes que cabem na sua noite sem pedir maratona.',d:'6 out',r:5,emoji:'⏱️',c:['#FFD21F','#FF7AB8'],b:'Filme bom não precisa ser longo. Esses sete entregam história, emoção e risada em menos de uma hora e meia. O primeiro da lista é perfeito pra quem tem preguiça de começar, e o último a gente só recomenda se você aguenta chorar no escuro.'},
  {id:'a2',cat:'Notícia',t:'Trailer de “Silêncio no Porão 3” já tem gente com medo de dormir',x:'O novo terror promete mais um sobressalto por minuto. A galera nas redes já avisou: vai ver de luz acesa.',d:'6 out',r:3,emoji:'😱',c:['#151515','#7B5CFF'],b:'O trailer saiu na segunda e já virou meme. A produção diz que gravou várias cenas num porão de verdade, sem efeito especial. Se for verdade, a equipe merece um abraço (e um terapeuta).'},
@@ -1019,6 +1070,9 @@ function openTitle(id){
       <h4>Onde assistir</h4>
       ${wh||whr?`${wh?`<p><strong>Streaming:</strong> ${esc(wh)}</p>`:''}${whr?`<p><strong>Alugar ou comprar:</strong> ${esc(whr)}</p>`:''}`:'<p class="none">Sem informação de onde assistir no Brasil.</p>'}
       <div class="links">${link?`<a class="btn hot" href="${esc(link)}" target="_blank" rel="noopener noreferrer">Ver onde assistir</a>`:''}${tmu?`<a class="btn alt" href="${esc(tmu)}" target="_blank" rel="noopener noreferrer">Ver no TMDB</a>`:''}</div>
+      <h4>Guardar numa lista</h4>
+      <div class="lchips" id="tLists">${listChips(it.id)}</div>
+      ${sbSession?'':'<p class="src">As listas ficam neste aparelho. <button type="button" class="lk" data-acc="signup" style="text-decoration:underline">Crie uma conta</button> pra levar pra qualquer lugar.</p>'}
       ${wh||whr?'<p class="src">Onde assistir: dados do JustWatch, via TMDB. Pode mudar sem aviso.</p>':''}
     </div></div>`;
   $('#titleOv').classList.add('open');document.body.style.overflow='hidden';$('#tClose').focus();
@@ -1159,7 +1213,10 @@ function openModal({title,tag,tagCls,meta,body,emoji,c,key}){
 function closeModal(){mOv.classList.remove('open');document.body.style.overflow='';lastFocus&&lastFocus.focus&&lastFocus.focus()}
 $('#mClose').onclick=closeModal;
 $('#tClose').onclick=closeTitle;
-$('#titleOv').addEventListener('click',e=>{if(e.target.id==='titleOv')closeTitle()});
+$('#titleOv').addEventListener('click',e=>{if(e.target.id==='titleOv')closeTitle();
+  const lb=e.target.closest('[data-lt]');if(lb){toggleInList(lb.dataset.lt,lb.dataset.tid);$('#tLists').innerHTML=listChips(lb.dataset.tid);return}
+  const ab=e.target.closest('[data-acc]');if(ab){closeTitle();openAcc(ab.dataset.acc)}
+});
 mOv.addEventListener('click',e=>{if(e.target===mOv)closeModal()});
 $('#mReacts').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
@@ -1175,7 +1232,7 @@ document.addEventListener('click',e=>{
   const iv=e.target.closest('[data-iv]');
   if(iv){const p=interviews[+iv.dataset.iv];return openModal({title:p.n+': “'+p.q.slice(0,52)+'…”',tag:'Papo reto',tagCls:'v',meta:p.r+' · Papo exclusivo',body:[p.q,p.b,'Quer ver mais entrevistas assim? Manda sua sugestão de convidado pela seção Participe.'],emoji:'🎙️',c:[p.c,'#7B5CFF'],key:'iv'+p.i});}
   const nc=e.target.closest('[data-nac]');
-  if(nc){const n=nacional.find(x=>x.id===nc.dataset.nac);return openModal({title:n.t,tag:'Coluna Daqui',tagCls:'p',meta:'Marlene Tavares · '+n.m,body:[n.b,'Tem um filme brasileiro que você acha que todo mundo devia ver? Indica na seção Participe!'],emoji:'🇧🇷',c:['#2FD69A','#FFD21F'],key:n.id});}
+  if(nc){const n=nacional.find(x=>x.id===nc.dataset.nac);return openModal({title:n.t,tag:'Coluna Descascando',tagCls:'p',meta:'Marlene Tavares · '+n.m,body:[n.b,'Tem um filme brasileiro que você acha que todo mundo devia ver? Indica na seção Participe!'],emoji:'🇧🇷',c:['#2FD69A','#FFD21F'],key:n.id});}
 });
 
 /* ---------- resenha: concordo / discordo ---------- */
@@ -1273,7 +1330,7 @@ $('#searchBtn').onclick=openSearch;
 $('#searchInput').addEventListener('input',e=>runSearch(e.target.value));
 sOv.addEventListener('click',e=>{if(e.target===sOv)closeSearch()});
 addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeSearch();closeModal();closeTitle();closeLogin();closeDrawer()}
+  if(e.key==='Escape'){closeSearch();closeModal();closeTitle();closeLogin();closeDrawer();closeAcc();closeLists()}
   if(e.key==='/'&&!document.activeElement.isContentEditable&&!/input|textarea|select/i.test(document.activeElement.tagName)){e.preventDefault();openSearch()}
 });
 
@@ -1329,7 +1386,7 @@ async function sbIsAdmin(){
   return r.ok&&r.data===true;
 }
 function sbSignOut(){
-  const t=sbSession&&sbSession.access_token;saveSession(null);
+  const t=sbSession&&sbSession.access_token;saveSession(null);store.set('isAdm',false);setTimeout(()=>window.onAuth&&onAuth(),0);
   if(t)sbFetch('/auth/v1/logout',{method:'POST',token:t}).catch(()=>{});
 }
 function markSynced(keys){const c=collect();(keys||KEYS).forEach(k=>{synced[k]=JSON.stringify(c[k])})}
@@ -1414,7 +1471,7 @@ document.addEventListener('keydown',e=>{
 
 /* login: e-mail e senha do Supabase (a checagem de verdade é feita no banco) */
 const loginOv=$('#loginOv'),adminOv=$('#adminOv');
-let isAdmin=!!sbSession,fails=0,lockUntil=0;
+let isAdmin=!!sbSession&&store.get('isAdm',false),fails=0,lockUntil=0;
 function setAdmin(v){
   isAdmin=v;
   $('#adminFab').classList.toggle('show',v);
@@ -1440,14 +1497,14 @@ $('#loginForm').addEventListener('submit',async e=>{
   try{
     await sbSignIn(email,pass);
     if(!(await sbIsAdmin())){sbSignOut();throw new Error('Esse usuário não tem permissão de admin.')}
-    fails=0;setAdmin(true);form.reset();closeLogin();openAdmin();toast('Bem-vinda(o) à redação! 🍳');loadRemote();
+    fails=0;store.set('isAdm',true);setAdmin(true);onAuth();form.reset();closeLogin();openAdmin();toast('Bem-vinda(o) à redação! 🍳');loadRemote();
   }catch(err){
     if(/incorretos/.test(err.message)){fails++;if(fails>=5){lockUntil=Date.now()+30000;fails=0}}
     $('#lgErr').textContent=err.message;
   }finally{btn.disabled=false}
 });
 /* sessão guardada de um acesso anterior: confere em segundo plano */
-if(isAdmin)sbIsAdmin().then(ok=>{if(!ok){sbSignOut();setAdmin(false)}}).catch(()=>{if(!sbSession){setAdmin(false);toast('Sua sessão expirou. Entre de novo pela Redação 🔒')}});
+if(sbSession)sbIsAdmin().then(ok=>{store.set('isAdm',ok);setAdmin(ok)}).catch(()=>{if(!sbSession){setAdmin(false);onAuth()}});
 const loginEmail=()=>{const raw=$('#lgUser').value.trim().toLowerCase();return !raw?'':raw.includes('@')?raw:raw+'@'+SB_LOGIN_DOMAIN};
 $('#lgUser').addEventListener('input',()=>{const m=loginEmail();$('#lgWho').textContent=m?'Conta usada no login: '+m:''});
 $('#lgEye').onclick=()=>{
@@ -1458,6 +1515,154 @@ $('#lgEye').onclick=()=>{
   $('#lgEye').setAttribute('aria-label',show?'Esconder senha':'Mostrar senha');
 };
 if(location.hash==='#admin')openLogin();
+
+
+/* ===== conta de leitor + listas ===== */
+const jwtSub=t=>{try{return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).sub}catch(e){return null}};
+const myName=()=>store.get('me','')||'';
+const accOv=$('#accOv'),listsOv=$('#listsOv');
+function onAuth(){
+  const b=$('#accBtn');
+  b.textContent=sbSession&&myName()?myName():'Entrar';
+  b.setAttribute('aria-label',sbSession?'Minha conta':'Entrar ou criar conta');
+  if(sbSession&&!listsPulled)pullLists();
+  if(!sbSession)listsPulled=false;
+}
+function lockScroll(){document.body.style.overflow='hidden'}
+function unlockScroll(){if(!document.querySelector('.overlay.open'))document.body.style.overflow=''}
+function closeAcc(){accOv.classList.remove('open');unlockScroll()}
+function openAcc(mode){
+  accMode=sbSession?'me':(mode||'in');paintAcc();
+  accOv.classList.add('open');lockScroll();
+  const i=$('#acUser');i&&i.focus();
+}
+let accMode='in';
+function paintAcc(){
+  const b=$('#accBody');
+  if(accMode==='me'){
+    b.innerHTML=`<h3 id="accTitle">Olá, ${esc(myName()||'leitor')}! 🍳</h3><p style="color:var(--muted)">Você está logado. Suas listas ficam salvas na sua conta.</p>
+    <div class="acc-links"><button class="btn hot" type="button" id="acLists">Minhas listas</button><button class="btn alt" type="button" id="acOut">Sair</button></div>`;
+    $('#acLists').onclick=()=>{closeAcc();openLists()};
+    $('#acOut').onclick=()=>{sbSignOut();setAdmin(false);closeAcc();toast('Você saiu da conta.')};
+    return;
+  }
+  const up=accMode==='signup';
+  b.innerHTML=`<h3 id="accTitle">${up?'Criar conta':'Entrar'}</h3>
+  <p style="color:var(--muted);margin-bottom:12px">Guarde suas listas (ver mais tarde, com a família, com a namorada...) e leve pra qualquer aparelho.</p>
+  <div class="acc-tabs" role="tablist"><button type="button" role="tab" data-m="in" aria-selected="${!up}">Entrar</button><button type="button" role="tab" data-m="signup" aria-selected="${up}">Criar conta</button></div>
+  <form id="acForm" novalidate>
+    <div class="field"><label for="acUser">Usuário ou e-mail</label><input type="text" id="acUser" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="80"></div>
+    <div class="field"><label for="acPass">Senha</label><input type="password" id="acPass" autocomplete="${up?'new-password':'current-password'}" maxlength="72"></div>
+    ${up?'<small style="display:block;color:var(--muted);margin-bottom:8px">Use um nome de usuário (3 a 20 letras ou números) ou seu e-mail. Senha com pelo menos 6 caracteres. Só com usuário, não dá pra recuperar a senha se esquecer.</small>':''}
+    <span class="err" id="acErr" role="alert" style="display:block;margin-bottom:8px"></span>
+    <button class="btn" type="submit">${up?'Criar minha conta':'Entrar'}</button>
+  </form>`;
+  $$('#accBody .acc-tabs button').forEach(x=>x.onclick=()=>{accMode=x.dataset.m;paintAcc();$('#acUser').focus()});
+  $('#acForm').onsubmit=accSubmit;
+}
+function accEmail(raw){raw=raw.trim().toLowerCase();if(raw.includes('@'))return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(raw)?raw:'';return /^[a-z0-9_.-]{3,20}$/.test(raw)?raw+'@'+SB_LOGIN_DOMAIN:''}
+async function accSubmit(e){
+  e.preventDefault();
+  const up=accMode==='signup',raw=$('#acUser').value,pass=$('#acPass').value,err=$('#acErr'),btn=e.target.querySelector('button[type=submit]');
+  const email=accEmail(raw);err.textContent='';
+  if(!email){err.textContent='Usuário: 3 a 20 letras, números, ponto ou traço. Ou um e-mail válido.';return}
+  if(pass.length<6){err.textContent='A senha precisa ter pelo menos 6 caracteres.';return}
+  btn.disabled=true;
+  try{
+    if(up){
+      let r;try{r=await sbFetch('/auth/v1/signup',{method:'POST',body:{email,password:pass}})}catch(x){throw new Error('Não consegui falar com o servidor. Confere a internet.')}
+      if(!r.ok){
+        const c=(r.data&&(r.data.error_code||r.data.error))||'';
+        if(c==='user_already_exists'||/already/i.test(JSON.stringify(r.data||'')))throw new Error('Esse usuário já existe. Tenta entrar ou escolhe outro nome.');
+        if(c==='weak_password')throw new Error('Senha fraca demais. Misture letras e números.');
+        if(c==='signup_disabled')throw new Error('Cadastros estão desativados no momento.');
+        if(r.status===429)throw new Error('Muitas tentativas. Espera um pouco.');
+        throw new Error('Não deu pra criar a conta ('+(c||r.status)+').');
+      }
+      if(r.data&&r.data.access_token)startSession(r.data);
+      else if(email.endsWith('@'+SB_LOGIN_DOMAIN)){await sbSignIn(email,pass)}
+      else{accBodyMsg('Quase lá! Mandamos um e-mail de confirmação para '+email+'. Clique no link e depois volte aqui pra entrar.');return}
+    }else{await sbSignIn(email,pass)}
+    store.set('me',email.split('@')[0]);
+    let adm=false;try{adm=await sbIsAdmin()}catch(x){}
+    store.set('isAdm',adm);setAdmin(adm);
+    listsPulled=false;onAuth();closeAcc();toast(up?'Conta criada! Bem-vinda(o) 🍳':'Que bom te ver de novo 🍳');
+  }catch(x){err.textContent=x.message}
+  finally{btn.disabled=false}
+}
+function accBodyMsg(t){$('#accBody').innerHTML='<h3 id="accTitle">Confirme seu e-mail</h3><p>'+esc(t)+'</p>'}
+$('#accBtn').onclick=()=>openAcc();
+$('#accClose').onclick=closeAcc;
+accOv.addEventListener('click',e=>{if(e.target===accOv)closeAcc()});
+
+/* listas */
+const DEF_LISTS=[['later','Ver mais tarde','⏰'],['family','Com a família','👨‍👩‍👧'],['date','Com a namorada(o)','💘'],['friends','Com os amigos','🍿']];
+let lists=(()=>{const l=store.get('lists',null);return Array.isArray(l)&&l.length?l:DEF_LISTS.map(([id,n,ic])=>({id,n,ic,items:[]}))})();
+let listsPulled=false,listSel=lists[0].id,lsSaveT=null,lsSync='';
+const allTitles=()=>[...movies,...series];
+const listChips=id=>lists.map(l=>`<button type="button" data-lt="${esc(l.id)}" data-tid="${esc(id)}" class="${l.items.some(x=>x.id===id)?'on':''}" aria-pressed="${l.items.some(x=>x.id===id)}">${l.ic||'📌'} ${esc(l.n)}</button>`).join('');
+function toggleInList(lid,tid){
+  const l=lists.find(x=>x.id===lid),it=allTitles().find(x=>x.id===tid);if(!l)return;
+  const i=l.items.findIndex(x=>x.id===tid);
+  if(i>=0){l.items.splice(i,1);toast('Tirado de “'+l.n+'”')}
+  else if(it){l.items.push({id:tid,t:it.t,y:it.y,k:movies.includes(it)?'movies':'series'});toast('Guardado em “'+l.n+'” ✔')}
+  saveLists();
+}
+function saveLists(){
+  store.set('lists',lists);
+  if(!sbSession)return;
+  clearTimeout(lsSaveT);lsSaveT=setTimeout(pushLists,900);
+}
+async function pushLists(){
+  try{
+    const t=await sbToken(),uid=jwtSub(t);if(!uid)return;
+    const r=await sbFetch('/rest/v1/user_lists?on_conflict=user_id',{method:'POST',token:t,headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:[{user_id:uid,data:lists}]});
+    lsSync=r.ok?'ok':'off';
+  }catch(e){lsSync='off'}
+}
+async function pullLists(){
+  listsPulled=true;
+  try{
+    const t=await sbToken(),r=await sbFetch('/rest/v1/user_lists?select=data',{token:t});
+    if(!r.ok){lsSync='off';return}
+    lsSync='ok';
+    const rem=r.data&&r.data[0]&&Array.isArray(r.data[0].data)?r.data[0].data:[];
+    rem.forEach(rl=>{
+      const l=lists.find(x=>x.id===rl.id);
+      if(!l){lists.push({id:String(rl.id).slice(0,40),n:String(rl.n||'Lista').slice(0,40),ic:rl.ic||'📌',items:(rl.items||[]).slice(0,200)});return}
+      (rl.items||[]).forEach(x=>{if(!l.items.some(y=>y.id===x.id))l.items.push(x)});
+    });
+    store.set('lists',lists);pushLists();
+    if(listsOv.classList.contains('open'))paintLists();
+  }catch(e){lsSync='off'}
+}
+function closeLists(){listsOv.classList.remove('open');unlockScroll()}
+function openLists(){paintLists();listsOv.classList.add('open');lockScroll()}
+function paintLists(){
+  if(!lists.some(l=>l.id===listSel))listSel=lists[0].id;
+  const cur=lists.find(l=>l.id===listSel),b=$('#lsBody');
+  const rows=cur.items.map((x,i)=>{const live=allTitles().find(y=>y.id===x.id);return `<li><div class="lt"><strong>${esc(x.t)}</strong><small>${esc(x.k==='movies'?'Filme':'Série')}${x.y?' · '+esc(x.y):''}</small></div>${live?`<button type="button" data-lo="${esc(x.id)}">Ver</button>`:''}<button type="button" data-lr="${i}" aria-label="Tirar da lista">✕</button></li>`}).join('');
+  const isDef=DEF_LISTS.some(d=>d[0]===cur.id);
+  b.innerHTML=`<h3 id="lsTitle">Minhas listas</h3>
+  <div class="ls-tabs" role="tablist">${lists.map(l=>`<button type="button" role="tab" data-ls="${esc(l.id)}" aria-selected="${l.id===listSel}">${l.ic||'📌'} ${esc(l.n)}<small>${l.items.length}</small></button>`).join('')}</div>
+  ${rows?`<ul class="ls-rows">${rows}</ul>`:'<p class="ls-note">Nada aqui ainda. Abra um filme ou série do ranking (“Sinopse, prêmios e onde assistir”) e escolha “Guardar numa lista”.</p>'}
+  ${isDef?'':'<button type="button" class="btn alt" data-ld="1" style="margin-bottom:14px">Apagar esta lista</button>'}
+  <form class="ls-new" id="lsNew"><input type="text" id="lsName" placeholder="Nova lista (ex.: Maratona de domingo)" maxlength="30" aria-label="Nome da nova lista"><button class="btn" type="submit">Criar lista</button></form>
+  <p class="ls-note">${sbSession?(lsSync==='off'?'Salvas neste aparelho. A sincronização com a conta ainda não foi ativada pela redação.':'Suas listas ficam salvas na sua conta. ☁️'):'Salvas neste aparelho. <button type="button" class="lk" id="lsAcc" style="text-decoration:underline">Crie uma conta</button> pra levar pra qualquer lugar.'}</p>`;
+  const a=$('#lsAcc');if(a)a.onclick=()=>{closeLists();openAcc('signup')};
+  $('#lsNew').onsubmit=e=>{e.preventDefault();const n=$('#lsName').value.trim();if(!n)return;if(lists.length>=15){toast('Limite de 15 listas.');return}const id='l'+Date.now().toString(36);lists.push({id,n,ic:'📌',items:[]});listSel=id;saveLists();paintLists()};
+}
+listsOv.addEventListener('click',e=>{
+  if(e.target===listsOv)return closeLists();
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.ls){listSel=t.dataset.ls;paintLists()}
+  else if(t.dataset.lr!=null){const l=lists.find(x=>x.id===listSel);l.items.splice(+t.dataset.lr,1);saveLists();paintLists()}
+  else if(t.dataset.lo){closeLists();openTitle(t.dataset.lo)}
+  else if(t.dataset.ld){if(confirm('Apagar esta lista?')){lists=lists.filter(x=>x.id!==listSel);saveLists();paintLists()}}
+});
+$('#lsClose').onclick=closeLists;
+$('#listsBtn').onclick=openLists;$('#menuLists').onclick=e=>{e.preventDefault();$('.navbar').classList.remove('open');$('#burger').setAttribute('aria-expanded','false');$('#burger').textContent='Menu';openLists()};
+onAuth();
 
 /* TMDB / OMDb */
 const tmKey=()=>store.get('tmdbKey','');
@@ -1521,7 +1726,7 @@ async function tmToItem(r,kind){
 const sortedBy=k=>COLL[k].slice().sort((a,b)=>score(b)-score(a));
 
 /* schemas do painel */
-const TABS=[['movies','🎬 Filmes'],['series','📺 Séries'],['articles','📰 Matérias'],['review','⭐ Resenha'],['ticker','⚡ Notas rápidas'],['poll','🗳️ Enquete'],['interviews','🎙️ Entrevistas'],['nacional','🇧🇷 Coluna Daqui'],['config','⚙️ Configurações']];
+const TABS=[['movies','🎬 Filmes'],['series','📺 Séries'],['articles','📰 Matérias'],['review','⭐ Resenha'],['ticker','⚡ Notas rápidas'],['poll','🗳️ Enquete'],['interviews','🎙️ Entrevistas'],['nacional','🇧🇷 Coluna Descascando'],['config','⚙️ Configurações']];
 const F=(k,l,t='text',x={})=>({k,l,t,...x});
 const moodOpts=moods.filter(m=>m.k!=='surpresa').map(m=>[m.k,m.e+' '+m.l]);
 const titleFields=[F('t','Título','text',{r:1}),F('g','Gêneros (ex.: Drama · Comédia)'),F('y','Ano (ou temporada)'),F('tmdb','Nota TMDB (0 a 100)','number'),F('imdb','Nota IMDb (0 a 10)','number'),F('mood','Humor da sugestão','select',{o:moodOpts}),F('emoji','Emoji (usado se não tiver pôster)'),F('img','Link da imagem do pôster (opcional)'),F('d','Sinopse (descrição)','textarea',{rows:4}),F('aw','Prêmios (ex.: Ganhou 2 Oscars)'),F('wh','Onde assistir: streaming (ex.: Netflix, Max)'),F('whr','Onde assistir: alugar ou comprar (opcional)'),F('link','Link de onde assistir (opcional)')];
