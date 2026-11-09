@@ -406,6 +406,28 @@ footer .copy a{text-decoration:underline}
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}html{scroll-behavior:auto}}
+/* detalhes do título e última atualização */
+.rk-bar{display:flex;justify-content:space-between;align-items:center;gap:12px 24px;flex-wrap:wrap;margin-bottom:34px}
+.rk-bar .tabs{margin-bottom:0}
+.rk-upd{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:#bdb8aa;display:flex;align-items:center;gap:8px}
+.rk-upd::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--gema);flex:none}
+.rk-upd:empty{display:none}
+.rk-open{text-align:left;font:inherit;color:inherit;letter-spacing:inherit}
+.rk-open:hover{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px;text-decoration-color:var(--gema)}
+.rk-more{margin-top:12px;font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--gema);border-bottom:2px solid var(--gema);padding:2px 0}
+.rk-more:hover{color:#fff;border-color:#fff}
+.td{display:grid;grid-template-columns:200px 1fr;gap:28px;padding:30px 34px 34px}
+.td .poster{border-color:var(--rule)}
+.td h3{font-stretch:78%;text-transform:uppercase;font-size:clamp(2.2rem,5vw,3.4rem);line-height:.95;margin:12px 0 8px}
+.td .chips2{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.td .chips2 .chip{border-color:var(--ink);color:var(--ink)}
+.td h4{font-family:var(--mono);font-weight:400;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:22px 0 6px;padding-top:12px;border-top:1px solid var(--hair)}
+.td p{font-size:18px;line-height:1.5;margin:0 0 6px}
+.td .none{color:var(--muted);font-style:italic}
+.td .links{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.td .links a{text-decoration:none}
+.td .src{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:14px}
+@media(max-width:640px){.td{grid-template-columns:110px 1fr;gap:16px;padding:60px 18px 24px}.td h3{font-size:2rem}}
 html.loading main{opacity:0}
 main{transition:opacity .3s}
 
@@ -476,9 +498,12 @@ main{transition:opacity .3s}
       <h2>Em alta <em>agora</em></h2>
       <p>A posição mistura a nota da galera (50%) com IMDb e TMDB (50%). Dá sua nota nos pontos de gema e veja o ranking mexer.</p>
     </div>
-    <div class="tabs" role="tablist" aria-label="Tipo de título">
-      <button role="tab" id="tabMovies" aria-selected="true" data-kind="movies">Filmes</button>
-      <button role="tab" id="tabSeries" aria-selected="false" data-kind="series">Séries</button>
+    <div class="rk-bar">
+      <div class="tabs" role="tablist" aria-label="Tipo de título">
+        <button role="tab" id="tabMovies" aria-selected="true" data-kind="movies">Filmes</button>
+        <button role="tab" id="tabSeries" aria-selected="false" data-kind="series">Séries</button>
+      </div>
+      <p class="rk-upd" id="rkUpd" aria-live="polite"></p>
     </div>
     <ol class="rank-list" id="rankList"></ol>
     <p class="note-src" id="noteSrc">* Títulos, notas e votos desta página são exemplos fictícios, só pra mostrar como o ranking funciona.</p>
@@ -636,6 +661,13 @@ main{transition:opacity .3s}
       <div id="mText" style="margin-top:18px"></div>
       <div class="reacts" id="mReacts"></div>
     </div>
+  </div>
+</div>
+
+<div class="overlay" id="titleOv" role="dialog" aria-modal="true" aria-labelledby="tTitle">
+  <div class="card modal" style="width:min(820px,100%)">
+    <button class="close" id="tClose" type="button" aria-label="Fechar">✕</button>
+    <div id="tBody"></div>
   </div>
 </div>
 
@@ -875,6 +907,35 @@ function score(it){
   return parts.length?parts.reduce((a,b)=>a+b,0)/parts.length:0;
 }
 const EX_IDS=new Set(['movies','series'].flatMap(k=>JSON.parse(DEFAULT_SNAPSHOT)[k].map(x=>x.id)));
+const safeUrl=u=>/^https?:\/\//i.test(String(u||'').trim())?String(u).trim():'';
+const tmUrl=(it,watch)=>{const m=/^([ms])_t(\d+)$/.exec(it.id||'');return m?`https://www.themoviedb.org/${m[1]==='m'?'movie':'tv'}/${m[2]}${watch?'/watch?locale=BR':'?language=pt-BR'}`:''};
+const fmtDT=ms=>{const d=new Date(ms);return d.getDate()+' '+d.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')+' '+d.getFullYear()+' às '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+let rankUpd=store.get('rankUpd',null);
+function paintUpd(){$('#rkUpd').textContent=rankUpd?'Ranking atualizado em '+fmtDT(rankUpd):''}
+function openTitle(id){
+  const all=[...movies,...series],it=all.find(x=>x.id===id);if(!it)return;
+  const isM=movies.includes(it),list=(isM?movies:series).slice().sort((a,b)=>score(b)-score(a)),pos=list.indexOf(it)+1;
+  const wh=String(it.wh||'').trim(),whr=String(it.whr||'').trim(),link=safeUrl(it.link)||tmUrl(it,true),tmu=tmUrl(it,false);
+  lastFocus=document.activeElement;
+  $('#tBody').innerHTML=`<div class="td">
+    <div>${poster(it)}</div>
+    <div>
+      <span class="tag ${isM?'h':'s'}">${isM?'Filme':'Série'} · ${pos}º no ranking</span>
+      <h3 id="tTitle">${esc(it.t)}</h3>
+      <small class="mono" style="color:var(--muted)">${esc([it.y,it.g].filter(Boolean).join(' · '))}</small>
+      <div class="chips2">${it.imdb?`<span class="chip">IMDb ${(+it.imdb).toFixed(1)}</span>`:''}${it.tmdb?`<span class="chip">TMDB ${Math.round(it.tmdb)}%</span>`:''}<span class="chip">Galera ${galera(it)}</span><span class="chip">Nota final ${score(it).toFixed(1)}</span></div>
+      <h4>Sinopse</h4>
+      ${it.d?String(it.d).split(/\n\s*\n/).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join(''):'<p class="none">A redação ainda não escreveu a descrição deste título.</p>'}
+      <h4>Prêmios</h4>
+      ${it.aw?`<p>${esc(it.aw)}</p>`:'<p class="none">Nenhum prêmio registrado até agora.</p>'}
+      <h4>Onde assistir</h4>
+      ${wh||whr?`${wh?`<p><strong>Streaming:</strong> ${esc(wh)}</p>`:''}${whr?`<p><strong>Alugar ou comprar:</strong> ${esc(whr)}</p>`:''}`:'<p class="none">Sem informação de onde assistir no Brasil.</p>'}
+      <div class="links">${link?`<a class="btn hot" href="${esc(link)}" target="_blank" rel="noopener noreferrer">Ver onde assistir</a>`:''}${tmu?`<a class="btn alt" href="${esc(tmu)}" target="_blank" rel="noopener noreferrer">Ver no TMDB</a>`:''}</div>
+      ${wh||whr?'<p class="src">Onde assistir: dados do JustWatch, via TMDB. Pode mudar sem aviso.</p>':''}
+    </div></div>`;
+  $('#titleOv').classList.add('open');document.body.style.overflow='hidden';$('#tClose').focus();
+}
+function closeTitle(){$('#titleOv').classList.remove('open');document.body.style.overflow='';lastFocus&&lastFocus.focus&&lastFocus.focus()}
 function renderRank(){
   const list=(kind==='movies'?movies:series).slice().sort((a,b)=>score(b)-score(a));
   $('#rankList').innerHTML=list.map((it,i)=>{
@@ -887,9 +948,10 @@ function renderRank(){
       <div class="rank-num" aria-label="Posição ${pos}">${pos}</div>
       ${poster(it)}
       <div class="rank-info">
-        <h3>${esc(it.t)}</h3>
+        <h3><button type="button" class="rk-open" data-tt="${esc(it.id)}">${esc(it.t)}</button></h3>
         <div class="rank-meta"><span>${esc(it.g)} · ${it.y}</span>${trend}</div>
         <div class="rank-meta" style="margin-top:8px">${it.imdb?`<span class="chip">IMDb ${(+it.imdb).toFixed(1)}</span>`:''}${it.tmdb?`<span class="chip">TMDB ${Math.round(it.tmdb)}%</span>`:''}<span class="chip">Galera ${galera(it)}</span></div>
+        <button type="button" class="rk-more" data-tt="${esc(it.id)}">Sinopse, prêmios e onde assistir</button>
       </div>
       <div class="rank-vote">
         <div class="rank-score">${score(it).toFixed(1)}<small> /10</small></div>
@@ -898,10 +960,12 @@ function renderRank(){
       </div>
     </li>`;
   }).join('')||'<li class="empty">Ainda não tem nada por aqui. A redação já está de olho!</li>';
+  paintUpd();
   const fake=[...movies,...series].some(x=>EX_IDS.has(x.id));
   $('#noteSrc').textContent=fake?'* Títulos, notas e votos desta página são exemplos fictícios, só pra mostrar como o ranking funciona.':'As notas do IMDb e do TMDB vêm dos próprios sites e mudam quando a redação atualiza a lista.';
 }
 $('#rankList').addEventListener('click',e=>{
+  const o=e.target.closest('[data-tt]');if(o)return openTitle(o.dataset.tt);
   const b=e.target.closest('.rate button');if(!b)return;
   const id=b.dataset.id,n=+b.dataset.n;
   myRates[id]=n;store.set('rates',myRates);
@@ -984,6 +1048,8 @@ function openModal({title,tag,tagCls,meta,body,emoji,c,key}){
 }
 function closeModal(){mOv.classList.remove('open');document.body.style.overflow='';lastFocus&&lastFocus.focus&&lastFocus.focus()}
 $('#mClose').onclick=closeModal;
+$('#tClose').onclick=closeTitle;
+$('#titleOv').addEventListener('click',e=>{if(e.target.id==='titleOv')closeTitle()});
 mOv.addEventListener('click',e=>{if(e.target===mOv)closeModal()});
 $('#mReacts').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
@@ -1083,21 +1149,21 @@ function closeSearch(){sOv.classList.remove('open');document.body.style.overflow
 function runSearch(q){
   q=q.trim().toLowerCase();
   const items=[
-    ...[...movies,...series].map(x=>({type:'Ranking',t:x.t,go:'#ranking'})),
+    ...[...movies,...series].map(x=>({type:'Ranking',t:x.t,tt:x.id})),
     ...articles.map(a=>({type:catLabel(a.cat),t:a.t,art:a.id}))
   ];
   const res=(q?items.filter(i=>i.t.toLowerCase().includes(q)):items.slice(0,6)).slice(0,8);
   $('#results').innerHTML=res.length?res.map((r,i)=>`<li><button type="button" data-i="${i}"><span class="sq" aria-hidden="true"></span><span><strong>${esc(r.t)}</strong><br><small>${r.type}</small></span></button></li>`).join(''):'<li class="empty">Não achamos nada. Tenta outra palavra!</li>';
   $('#results').onclick=e=>{
     const b=e.target.closest('button');if(!b)return;const r=res[+b.dataset.i];closeSearch();
-    if(r.art)openArticle(r.art);else location.hash=r.go;
+    if(r.art)openArticle(r.art);else if(r.tt)openTitle(r.tt);else location.hash=r.go;
   };
 }
 $('#searchBtn').onclick=openSearch;
 $('#searchInput').addEventListener('input',e=>runSearch(e.target.value));
 sOv.addEventListener('click',e=>{if(e.target===sOv)closeSearch()});
 addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeSearch();closeModal();closeLogin();closeDrawer()}
+  if(e.key==='Escape'){closeSearch();closeModal();closeTitle();closeLogin();closeDrawer()}
   if(e.key==='/'&&!document.activeElement.isContentEditable&&!/input|textarea|select/i.test(document.activeElement.tagName)){e.preventDefault();openSearch()}
 });
 
@@ -1308,6 +1374,7 @@ function guessMood(ids){
   const has=n=>ids.includes(n);
   return has(27)?'susto':has(35)?'rir':(has(10749)||has(18))?'chorar':(has(9648)||has(53)||has(878)||has(10765)||has(14))?'pirar':'nada';
 }
+const trAw=s=>{s=String(s||'').trim();return !s||s==='N/A'?'':s.replace(/Won (\d+) Oscars?/g,(m,n)=>'Ganhou '+n+(n>1?' Oscars':' Oscar')).replace(/Nominated for (\d+) Oscars?/g,(m,n)=>'Indicado a '+n+(n>1?' Oscars':' Oscar')).replace(/Won /g,'Ganhou ').replace(/Nominated for /g,'Indicado a ').replace(/Another /g,'Outras ').replace(/\bnominations\b/g,'indicações').replace(/\bnomination\b/g,'indicação').replace(/\bwins\b/g,'vitórias').replace(/\bwin\b/g,'vitória').replace(/ & /g,' e ')};
 async function enrichImdb(it,id,kind){
   const key=omKey();if(!key)return;
   try{
@@ -1316,11 +1383,27 @@ async function enrichImdb(it,id,kind){
     const r=await fetch('https://www.omdbapi.com/?i='+ex.imdb_id+'&apikey='+encodeURIComponent(key));
     const d=await r.json(),n=parseFloat(d.imdbRating);
     if(n)it.imdb=n;
+    const aw=trAw(d.Awards);if(aw)it.aw=aw;
+  }catch(e){}
+}
+/* sinopse e onde assistir (Brasil) vêm do TMDB; ficam salvos no item pra todo mundo ver */
+async function enrichDetails(it,id,kind){
+  try{
+    const d=await tm('/'+(kind==='movies'?'movie':'tv')+'/'+id,{append_to_response:'watch/providers'});
+    const br=((d['watch/providers']||{}).results||{}).BR||{};
+    const nm=a=>[...new Set((a||[]).map(p=>p.provider_name))];
+    const stream=[...nm(br.flatrate),...nm(br.free),...nm(br.ads)].filter((x,i,a)=>a.indexOf(x)===i);
+    const other=[...nm(br.rent),...nm(br.buy)].filter((x,i,a)=>a.indexOf(x)===i&&!stream.includes(x));
+    if(d.overview)it.d=d.overview;
+    it.wh=stream.join(', ');it.whr=other.join(', ');
+    it.link=safeUrl(br.link)||'';
   }catch(e){}
 }
 async function tmToItem(r,kind){
   const gm=await genres(),ids=r.genre_ids||[],date=r.release_date||r.first_air_date||'';
   const it={id:(kind==='movies'?'m':'s')+'_t'+r.id,t:r.title||r.name,g:ids.slice(0,2).map(i=>gm[i]).filter(Boolean).join(' · '),y:date.slice(0,4)||(kind==='movies'?'':'Série'),imdb:null,tmdb:Math.round((r.vote_average||0)*10)||null,emoji:'🎬',c:randGrad(),img:r.poster_path?'https://image.tmdb.org/t/p/w342'+r.poster_path:'',votes:0,avg:0,mood:guessMood(ids),prev:0};
+  if(r.overview)it.d=r.overview;
+  await enrichDetails(it,r.id,kind);
   await enrichImdb(it,r.id,kind);
   return it;
 }
@@ -1330,7 +1413,7 @@ const sortedBy=k=>COLL[k].slice().sort((a,b)=>score(b)-score(a));
 const TABS=[['movies','🎬 Filmes'],['series','📺 Séries'],['articles','📰 Matérias'],['review','⭐ Resenha'],['ticker','⚡ Notas rápidas'],['poll','🗳️ Enquete'],['interviews','🎙️ Entrevistas'],['nacional','🇧🇷 Coluna Daqui'],['config','⚙️ Configurações']];
 const F=(k,l,t='text',x={})=>({k,l,t,...x});
 const moodOpts=moods.filter(m=>m.k!=='surpresa').map(m=>[m.k,m.e+' '+m.l]);
-const titleFields=[F('t','Título','text',{r:1}),F('g','Gêneros (ex.: Drama · Comédia)'),F('y','Ano (ou temporada)'),F('tmdb','Nota TMDB (0 a 100)','number'),F('imdb','Nota IMDb (0 a 10)','number'),F('mood','Humor da sugestão','select',{o:moodOpts}),F('emoji','Emoji (usado se não tiver pôster)'),F('img','Link da imagem do pôster (opcional)')];
+const titleFields=[F('t','Título','text',{r:1}),F('g','Gêneros (ex.: Drama · Comédia)'),F('y','Ano (ou temporada)'),F('tmdb','Nota TMDB (0 a 100)','number'),F('imdb','Nota IMDb (0 a 10)','number'),F('mood','Humor da sugestão','select',{o:moodOpts}),F('emoji','Emoji (usado se não tiver pôster)'),F('img','Link da imagem do pôster (opcional)'),F('d','Sinopse (descrição)','textarea',{rows:4}),F('aw','Prêmios (ex.: Ganhou 2 Oscars)'),F('wh','Onde assistir: streaming (ex.: Netflix, Max)'),F('whr','Onde assistir: alugar ou comprar (opcional)'),F('link','Link de onde assistir (opcional)')];
 const today=()=>{const d=new Date();return d.getDate()+' '+d.toLocaleDateString('pt-BR',{month:'short'}).replace('.','')};
 const blankTitle=p=>()=>({id:p+Date.now(),t:'',g:'',y:String(new Date().getFullYear()),imdb:null,tmdb:null,emoji:'🎬',c:randGrad(),img:'',votes:0,avg:0,mood:'nada',prev:0});
 const SCH={
@@ -1378,7 +1461,7 @@ function listHtml(c){
   ${isT?`<div class="card pn-box"><h4>🔎 Buscar no TMDB (filmes e séries de verdade)</h4>
     <div class="pn-bar" style="margin-bottom:10px"><input id="tmQ" type="text" placeholder="Digite o nome e aperte Enter…" aria-label="Buscar no TMDB"><button type="button" class="btn" data-act="tmsearch">Buscar</button></div>
     <ul class="pn-list" id="tmRes"></ul>
-    <button type="button" class="btn alt" data-act="trend">⚡ Trazer os mais populares da semana</button>
+    <div class="pn-bar" style="margin:0"><button type="button" class="btn alt" data-act="trend">⚡ Trazer os mais populares da semana</button><button type="button" class="btn alt" data-act="fill">📝 Completar sinopse, prêmios e onde assistir</button></div>
     <p class="pn-note" style="margin:12px 0 0">Precisa da chave do TMDB (grátis) em ⚙️ Configurações. A nota do IMDb vem do OMDb, se você cadastrar essa chave também.</p></div>`:''}
   <div class="pn-bar"><button type="button" class="btn" data-act="new">+ Adicionar ${esc(S.name)}</button></div>
   <ul class="pn-list" id="pnList">${rowsHtml(c)}</ul>`;
@@ -1444,6 +1527,20 @@ async function tmSearch(){
     res.innerHTML=tmCache.length?tmCache.map((r,j)=>`<li><div class="pn-thumb" style="${r.poster_path?`background:#222 center/cover url(https://image.tmdb.org/t/p/w92${r.poster_path})`:''}"></div><div class="pn-t"><strong>${esc(r.title||r.name)}</strong><small>${esc((r.release_date||r.first_air_date||'').slice(0,4))} · TMDB ${Math.round((r.vote_average||0)*10)}%</small></div><div class="pn-btns"><button type="button" data-act="tmadd" data-j="${j}">+ Adicionar</button></div></li>`).join(''):'<li class="empty">Não achei nada com esse nome.</li>';
   }catch(err){res.innerHTML='';toast(err.message)}
 }
+async function fillDetails(){
+  const kind=adTab,S=SCH[kind];
+  const todo=S.coll.filter(it=>/^[ms]_t\d+$/.test(it.id||''));
+  if(!todo.length){toast('Só dá pra completar títulos que vieram do TMDB.');return}
+  toast('Buscando detalhes no TMDB… pode levar alguns segundos');
+  let n=0;
+  for(const it of todo){
+    const id=it.id.replace(/^[ms]_t/,'');
+    await enrichDetails(it,id,kind);
+    if(omKey()&&!it.aw)await enrichImdb(it,id,kind);
+    n++;
+  }
+  commit();toast(n+' título'+(n>1?'s':'')+' atualizado'+(n>1?'s':'')+' com sinopse e onde assistir.');
+}
 async function importTrending(){
   const kind=adTab,S=SCH[kind];
   if(S.coll.length&&!confirm('Isso troca a lista atual de '+(kind==='movies'?'filmes':'séries')+' pelos mais populares da semana. As notas dos leitores dos títulos que continuarem são mantidas. Continuar?'))return;
@@ -1492,6 +1589,7 @@ adminOv.addEventListener('click',async e=>{
       }finally{b.disabled=false}
     }
     else if(act==='trend')await importTrending();
+    else if(act==='fill')await fillDetails();
     else if(act==='export'){download('ovofrito-backup.json',JSON.stringify(collect(),null,2));toast('Backup baixado ⬇️')}
     else if(act==='clear'){
       if(!confirm('Apagar filmes, séries, matérias, notas, entrevistas e coluna de exemplo? Resenha e enquete ficam como estão.'))return;
@@ -1523,6 +1621,7 @@ async function publishSite(silent){
       const r=await sbFetch('/rest/v1/content?on_conflict=key',{method:'POST',token:t,headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:rows.map(x=>({key:x.key,value:x.value}))});
       if(!r.ok)throw new Error(r.status===401||r.status===403?'Sem permissão pra salvar. Entre de novo pela Redação.':'Não consegui salvar (erro '+r.status+'). Suas edições continuam neste navegador.');
       rows.forEach(x=>{synced[x.key]=x.j});
+      if(rows.some(x=>x.key==='movies'||x.key==='series')){rankUpd=Date.now();store.set('rankUpd',rankUpd);paintUpd()}
     }
     store.set('dirty',false);
     setPub('✅ Salvo. Todo mundo já vê');
@@ -1579,10 +1678,12 @@ $('#edDrawer').addEventListener('submit',onAdSubmit);
 async function loadRemote(){
   try{
     if(isAdmin&&store.get('dirty',false)){publishSite(true);return false} /* edição que não chegou ao banco: não sobrescreve */
-    const r=await sbFetch('/rest/v1/content?select=key,value');
+    const r=await sbFetch('/rest/v1/content?select=key,value,updated_at');
     if(!r.ok||!Array.isArray(r.data))return false;
     if(!r.data.length)return true; /* banco ainda vazio: mantém os exemplos */
     const c={};r.data.forEach(x=>{c[x.key]=x.value});
+    const ts=r.data.filter(x=>x.key==='movies'||x.key==='series').map(x=>Date.parse(x.updated_at)).filter(Boolean);
+    if(ts.length){rankUpd=Math.max(...ts);store.set('rankUpd',rankUpd)}
     applyContent(c);store.set('content',collect());renderAll();
     markSynced(r.data.map(x=>x.key).filter(k=>KEYS.includes(k)));
     return true;
