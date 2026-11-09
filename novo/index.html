@@ -434,7 +434,7 @@ footer .copy a{text-decoration:underline}
 .pn-box{padding:16px;margin-bottom:20px}
 .pn-box h4{font-stretch:85%;font-size:1.2rem;margin-bottom:8px}
 .pn-note{padding:.7rem 1rem;border:1px dashed var(--ink);font-size:.9rem;color:var(--muted);margin-bottom:14px}
-@media(max-width:760px){.admin{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;height:92vh}.pn-nav{flex-direction:row;border-right:0;border-bottom:2px solid var(--rule)}.pn-nav button{white-space:nowrap}}
+@media(max-width:760px){.admin{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr);height:92vh;width:100%}.pn-head{grid-row:1;grid-column:1;padding:12px 14px}.pn-head h2{font-size:1.2rem}.pn-head .btn{padding:.5rem .7rem;font-size:.8rem}.pn-nav{grid-row:2;grid-column:1;flex-direction:row;border-right:0;border-bottom:2px solid var(--rule);padding:8px;overflow-x:auto;overflow-y:hidden}.pn-nav button{white-space:nowrap;flex:none}.pn-main{grid-row:3;grid-column:1;padding:14px}.pn-list li{flex-wrap:wrap}.pn-bar input{flex:1 1 100%}}
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}html{scroll-behavior:auto}}
