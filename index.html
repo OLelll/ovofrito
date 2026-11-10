@@ -955,11 +955,22 @@ poll.id='p0';
 let booted=false;
 const rv=()=>booted?'reveal in':'reveal';
 function collect(){const o={};Object.keys(COLL).forEach(k=>o[k]=COLL[k]);o.poll=poll;o.review=review;o.texts=texts;return o}
+let healed=false;
+const normT=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+function dedupe(arr){
+  const ids=new Set(),tt=new Set(),out=[];
+  arr.forEach(it=>{
+    const k=normT(it.t)+'|'+(it.y||'');
+    if(it.id&&ids.has(it.id)||(normT(it.t)&&tt.has(k))){healed=true;return}
+    if(it.id)ids.add(it.id);tt.add(k);out.push(it);
+  });
+  return out;
+}
 function applyContent(c){
   if(!c||typeof c!=='object')return;
   Object.keys(texts).forEach(k=>delete texts[k]);
   if(c.texts&&typeof c.texts==='object')Object.assign(texts,c.texts);
-  Object.keys(COLL).forEach(k=>{if(Array.isArray(c[k]))COLL[k].splice(0,COLL[k].length,...c[k])});
+  Object.keys(COLL).forEach(k=>{if(Array.isArray(c[k]))COLL[k].splice(0,COLL[k].length,...(k==='movies'||k==='series'?dedupe(c[k]):c[k]))});
   if(c.poll&&Array.isArray(c.poll.o)){Object.keys(poll).forEach(k=>delete poll[k]);Object.assign(poll,c.poll);poll.id=poll.id||'p0'}
   if(c.review&&typeof c.review==='object')Object.assign(review,c.review);
 }
@@ -1897,12 +1908,12 @@ async function importTrending(){
   if(S.coll.length&&!confirm('Isso troca a lista atual de '+(kind==='movies'?'filmes':'séries')+' pelos 25 mais populares da semana. As notas dos leitores dos títulos que continuarem são mantidas. Continuar?'))return;
   toast('Buscando os 25 mais populares no TMDB… pode levar uns 20 segundos');
   const res=[];
-  for(const pg of [1,2]){const d=await tm('/trending/'+(kind==='movies'?'movie':'tv')+'/week',{page:pg});res.push(...(d.results||[]))}
-  const old=sortedBy(kind),items=[],picks=res.slice(0,25);
+  for(const pg of [1,2,3]){const d=await tm('/trending/'+(kind==='movies'?'movie':'tv')+'/week',{page:pg});res.push(...(d.results||[]));if(new Set(res.map(r=>r.id)).size>=25)break}
+  const seen=new Set(),old=sortedBy(kind),items=[],picks=res.filter(r=>r&&!seen.has(r.id)&&seen.add(r.id)).slice(0,25);
   for(let k=0;k<picks.length;k+=5){
     pnMsg('Buscando detalhes… '+Math.min(k+5,picks.length)+' de '+picks.length);
     const part=(await Promise.all(picks.slice(k,k+5).map(r=>tmToItem(r,kind).catch(()=>null)))).filter(Boolean);
-    part.forEach(it=>{const o=old.findIndex(x=>x.id===it.id);if(o>=0){it.votes=old[o].votes;it.avg=old[o].avg;it.mood=old[o].mood;it.prev=o+1}items.push(it)});
+    part.forEach(it=>{if(items.some(x=>x.id===it.id||normT(x.t)===normT(it.t)&&x.y===it.y))return;const o=old.findIndex(x=>x.id===it.id);if(o>=0){it.votes=old[o].votes;it.avg=old[o].avg;it.mood=old[o].mood;it.prev=o+1}items.push(it)});
   }
   S.coll.splice(0,S.coll.length,...items);
   if(!items.length)throw new Error('O TMDB não devolveu nenhum título. Tenta de novo em instantes.');
@@ -1935,7 +1946,7 @@ adminOv.addEventListener('click',async e=>{
     else if(act==='tmadd'){
       b.disabled=true;
       try{
-        const it=await tmToItem(tmCache[+b.dataset.j],adTab),arr=S.coll,idx=arr.findIndex(x=>x.id===it.id);
+        const it=await tmToItem(tmCache[+b.dataset.j],adTab),arr=S.coll,idx=arr.findIndex(x=>x.id===it.id||normT(x.t)===normT(it.t)&&x.y===it.y);
         if(idx>=0){it.votes=arr[idx].votes;it.avg=arr[idx].avg;arr[idx]=it}else arr.push(it);
         saveContent();renderAll();$('#pnList').innerHTML=rowsHtml(adTab);
         toast('“'+it.t+'” entrou no ranking! 🎬');
@@ -2037,7 +2048,7 @@ async function loadRemote(){
     const c={};r.data.forEach(x=>{c[x.key]=x.value});
     const ts=r.data.filter(x=>x.key==='movies'||x.key==='series').map(x=>Date.parse(x.updated_at)).filter(Boolean);
     if(ts.length){rankUpd=Math.max(...ts);store.set('rankUpd',rankUpd)}
-    applyContent(c);store.set('content',collect());renderAll();
+    healed=false;applyContent(c);store.set('content',collect());renderAll();if(healed&&isAdmin)saveContent();
     markSynced(r.data.map(x=>x.key).filter(k=>KEYS.includes(k)));
     return true;
   }catch(e){return false}
