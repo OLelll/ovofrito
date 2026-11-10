@@ -1905,15 +1905,21 @@ async function fillDetails(){
 function pnMsg(t,bad){const el=$('#tmMsg');if(!el)return;el.style.display=t?'':'none';el.textContent=t||'';el.style.borderColor=bad?'var(--pimenta)':''}
 async function importTrending(){
   const kind=adTab,S=SCH[kind];
-  if(S.coll.length&&!confirm('Isso troca a lista atual de '+(kind==='movies'?'filmes':'séries')+' pelos 25 mais populares da semana. As notas dos leitores dos títulos que continuarem são mantidas. Continuar?'))return;
+  const tb=adminOv.querySelector('[data-act=trend]');
+  if(S.coll.length&&tb&&!tb.dataset.arm){
+    tb.dataset.arm='1';tb.dataset.lbl=tb.textContent;tb.textContent='⚠️ Toque de novo para confirmar (troca a lista atual)';
+    pnMsg('Isso troca a lista atual de '+(kind==='movies'?'filmes':'séries')+' pelos 25 mais populares. Toque de novo no botão pra confirmar.');
+    setTimeout(()=>{if(tb.dataset.arm){delete tb.dataset.arm;tb.textContent=tb.dataset.lbl}},8000);return;
+  }
+  if(tb&&tb.dataset.arm){delete tb.dataset.arm;tb.textContent=tb.dataset.lbl}
   toast('Buscando os 25 mais populares no TMDB… pode levar uns 20 segundos');
   const res=[];
-  for(const pg of [1,2,3]){const d=await tm('/trending/'+(kind==='movies'?'movie':'tv')+'/week',{page:pg});res.push(...(d.results||[]));if(new Set(res.map(r=>r.id)).size>=25)break}
+  for(const pg of [1,2,3,4,5]){const d=await tm('/trending/'+(kind==='movies'?'movie':'tv')+'/week',{page:pg});res.push(...(d.results||[]));if(new Set(res.map(r=>r.id)).size>=25)break}
   const seen=new Set(),old=sortedBy(kind),items=[],picks=res.filter(r=>r&&!seen.has(r.id)&&seen.add(r.id)).slice(0,25);
   for(let k=0;k<picks.length;k+=5){
     pnMsg('Buscando detalhes… '+Math.min(k+5,picks.length)+' de '+picks.length);
     const part=(await Promise.all(picks.slice(k,k+5).map(r=>tmToItem(r,kind).catch(()=>null)))).filter(Boolean);
-    part.forEach(it=>{if(items.some(x=>x.id===it.id||normT(x.t)===normT(it.t)&&x.y===it.y))return;const o=old.findIndex(x=>x.id===it.id);if(o>=0){it.votes=old[o].votes;it.avg=old[o].avg;it.mood=old[o].mood;it.prev=o+1}items.push(it)});
+    part.forEach(it=>{if(items.some(x=>x.id===it.id||normT(it.t)&&normT(x.t)===normT(it.t)&&x.y===it.y))return;const o=old.findIndex(x=>x.id===it.id);if(o>=0){it.votes=old[o].votes;it.avg=old[o].avg;it.mood=old[o].mood;it.prev=o+1}items.push(it)});
   }
   S.coll.splice(0,S.coll.length,...items);
   if(!items.length)throw new Error('O TMDB não devolveu nenhum título. Tenta de novo em instantes.');
@@ -1946,7 +1952,7 @@ adminOv.addEventListener('click',async e=>{
     else if(act==='tmadd'){
       b.disabled=true;
       try{
-        const it=await tmToItem(tmCache[+b.dataset.j],adTab),arr=S.coll,idx=arr.findIndex(x=>x.id===it.id||normT(x.t)===normT(it.t)&&x.y===it.y);
+        const it=await tmToItem(tmCache[+b.dataset.j],adTab),arr=S.coll,idx=arr.findIndex(x=>x.id===it.id||normT(it.t)&&normT(x.t)===normT(it.t)&&x.y===it.y);
         if(idx>=0){it.votes=arr[idx].votes;it.avg=arr[idx].avg;arr[idx]=it}else arr.push(it);
         saveContent();renderAll();$('#pnList').innerHTML=rowsHtml(adTab);
         toast('“'+it.t+'” entrou no ranking! 🎬');
