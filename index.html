@@ -1738,10 +1738,11 @@ if(location.hash==='#admin')openLogin();
 /* ===== conta de leitor + listas ===== */
 const jwtSub=t=>{try{return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).sub}catch(e){return null}};
 const myName=()=>store.get('me','')||'';
+const jwtName=t=>{try{const p=JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));const n=(p.user_metadata&&p.user_metadata.name)||'';if(n)return String(n).slice(0,24);const em=p.email||'';return em.endsWith('@'+SB_LOGIN_DOMAIN)?em.split('@')[0]:''}catch(e){return ''}};
 const accOv=$('#accOv'),listsOv=$('#listsOv');
 function onAuth(){
   const b=$('#accBtn');
-  b.textContent=sbSession&&myName()?myName():'Entrar';
+  b.textContent=sbSession?(myName()||'Minha conta'):'Entrar';
   b.setAttribute('aria-label',sbSession?'Minha conta':'Entrar ou criar conta');
   pullMine();
   if(sbSession&&!listsPulled)pullLists();
@@ -1759,8 +1760,13 @@ let accMode='in';
 function paintAcc(){
   const b=$('#accBody');
   if(accMode==='me'){
-    b.innerHTML=`<h3 id="accTitle">Olá, ${esc(myName()||'leitor')}! 🍳</h3><p style="color:var(--muted)">Você está logado. Suas listas ficam salvas na sua conta.</p>
-    <div class="acc-links"><button class="btn hot" type="button" id="acLists">Minhas listas</button><button class="btn alt" type="button" id="acOut">Sair</button></div>`;
+    const nv=Object.keys(myRates).length;
+    b.innerHTML=`<h3 id="accTitle">Olá, ${esc(myName()||'leitor')}! 🍳</h3><p style="color:var(--muted)">Você está logado. Suas listas e notas ficam salvas na sua conta.</p>
+    <form id="acName" class="field" style="margin-top:12px"><label for="acNm">Como você quer ser chamado(a)</label><div style="display:flex;gap:8px"><input type="text" id="acNm" maxlength="24" value="${esc(myName())}" placeholder="Apelido ou primeiro nome" style="flex:1"><button class="btn alt" type="submit">Salvar</button></div></form>
+    <div class="acc-links"><button class="btn hot" type="button" id="acLists">Minhas listas</button><button class="btn alt" type="button" id="acVotes">Meus votos (${nv})</button><button class="btn alt" type="button" id="acOut">Sair</button></div>`;
+    $('#acName').onsubmit=async e=>{e.preventDefault();const n=$('#acNm').value.trim().slice(0,24);if(!n){toast('Escreva um nome.');return}
+      try{const t=await sbToken(),r=await sbFetch('/auth/v1/user',{method:'PUT',token:t,body:{data:{name:n}}});if(!r.ok)throw 0;store.set('me',n);onAuth();paintAcc();toast('Nome atualizado ✔')}catch(x){toast('Não consegui salvar o nome agora.')}};
+    $('#acVotes').onclick=()=>{closeAcc();openVotes()};
     $('#acLists').onclick=()=>{closeAcc();openLists()};
     $('#acOut').onclick=()=>{sbSignOut();setAdmin(false);closeAcc();toast('Você saiu da conta.')};
     return;
@@ -1770,6 +1776,7 @@ function paintAcc(){
   <p style="color:var(--muted);margin-bottom:12px">Dê suas notas nas frigideirinhas e guarde listas (ver mais tarde, com a família, com a namorada...) em qualquer aparelho.</p>
   <div class="acc-tabs" role="tablist"><button type="button" role="tab" data-m="in" aria-selected="${!up}">Entrar</button><button type="button" role="tab" data-m="signup" aria-selected="${up}">Criar conta</button></div>
   <form id="acForm" novalidate>
+    ${up?'<div class="field"><label for="acNick">Como quer ser chamado(a)?</label><input type="text" id="acNick" maxlength="24" autocomplete="nickname" placeholder="Apelido ou primeiro nome"></div>':''}
     <div class="field"><label for="acUser">${up?'E-mail':'E-mail ou usuário'}</label><input type="text" id="acUser" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="80"></div>
     <div class="field"><label for="acPass">Senha</label><input type="password" id="acPass" autocomplete="${up?'new-password':'current-password'}" maxlength="72"></div>
     ${up?'<small style="display:block;color:var(--muted);margin-bottom:8px">Senha com pelo menos 6 caracteres. Vamos mandar um e-mail pra você confirmar a conta antes de entrar.</small>':''}
@@ -1784,12 +1791,14 @@ async function accSubmit(e){
   e.preventDefault();
   const up=accMode==='signup',raw=$('#acUser').value,pass=$('#acPass').value,err=$('#acErr'),btn=e.target.querySelector('button[type=submit]');
   const email=accEmail(raw,up);err.textContent='';
+  const nick=up?($('#acNick').value.trim().slice(0,24)):'';
+  if(up&&!nick){err.textContent='Diga como quer ser chamado(a): um apelido ou seu primeiro nome.';return}
   if(!email){err.textContent=up?'Digite um e-mail válido. Vamos mandar um link pra confirmar.':'Digite seu e-mail (ou o usuário da redação).';return}
   if(pass.length<6){err.textContent='A senha precisa ter pelo menos 6 caracteres.';return}
   btn.disabled=true;
   try{
     if(up){
-      let r;try{r=await sbFetch('/auth/v1/signup?redirect_to='+encodeURIComponent(location.origin+location.pathname),{method:'POST',body:{email,password:pass}})}catch(x){throw new Error('Não consegui falar com o servidor. Confere a internet.')}
+      let r;try{r=await sbFetch('/auth/v1/signup?redirect_to='+encodeURIComponent(location.origin+location.pathname),{method:'POST',body:{email,password:pass,data:{name:nick}}})}catch(x){throw new Error('Não consegui falar com o servidor. Confere a internet.')}
       if(!r.ok){
         const c=(r.data&&(r.data.error_code||r.data.error))||'';
         if(c==='user_already_exists'||/already/i.test(JSON.stringify(r.data||'')))throw new Error('Esse usuário já existe. Tenta entrar ou escolhe outro nome.');
@@ -1801,7 +1810,7 @@ async function accSubmit(e){
       if(r.data&&r.data.access_token)startSession(r.data);
       else{accBodyMsg('Quase lá! Mandamos um e-mail de confirmação para '+email+'. Clique no link dele (olhe também o spam) e você já volta pro site logada(o).');return}
     }else{await sbSignIn(email,pass)}
-    store.set('me',email.split('@')[0]);
+    store.set('me',jwtName(sbSession.access_token)||nick);
     let adm=false;try{adm=await sbIsAdmin()}catch(x){}
     store.set('isAdm',adm);setAdmin(adm);
     listsPulled=false;onAuth();closeAcc();toast(up?'Conta criada! Bem-vinda(o) 🍳':'Que bom te ver de novo 🍳');
@@ -1854,6 +1863,13 @@ async function pullLists(){
     if(listsOv.classList.contains('open'))paintLists();
   }catch(e){lsSync='off'}
 }
+function openVotes(){
+  const ids=Object.keys(myRates),all=[...movies,...series],b=$('#lsBody');
+  const pans=n=>'<span class="dots" aria-label="'+n+' de 5" style="display:inline-flex">'+[1,2,3,4,5].map(i=>'<i class="'+(i<=n?'on':'')+'"></i>').join('')+'</span>';
+  const rows=ids.map(id=>{const it=all.find(x=>x.id===id);return `<li><div class="lt"><strong>${esc(it?it.t:'(título que saiu do ranking)')}</strong><small>${pans(myRates[id])} · ${esc(ratingHints[myRates[id]]||'')}</small></div>${it?`<button type="button" data-vo="${esc(id)}">Ver</button>`:''}<button type="button" data-vd="${esc(id)}">Apagar voto</button></li>`}).join('');
+  b.innerHTML=`<h3 id="lsTitle">Meus votos</h3>${rows?`<ul class="ls-rows">${rows}</ul>`:'<p class="ls-note">Você ainda não deu nenhuma nota. Dê suas frigideirinhas no ranking.</p>'}<p class="ls-note">Apagar um voto tira a sua nota do ranking. Você pode votar de novo quando quiser.</p>`;
+  listsOv.classList.add('open');lockScroll();
+}
 function closeLists(){listsOv.classList.remove('open');unlockScroll()}
 function openLists(){paintLists();listsOv.classList.add('open');lockScroll()}
 function paintLists(){
@@ -1870,12 +1886,19 @@ function paintLists(){
   const a=$('#lsAcc');if(a)a.onclick=()=>{closeLists();openAcc('signup')};
   $('#lsNew').onsubmit=e=>{e.preventDefault();const n=$('#lsName').value.trim();if(!n)return;if(lists.length>=15){toast('Limite de 15 listas.');return}const id='l'+Date.now().toString(36);lists.push({id,n,ic:'📌',items:[]});listSel=id;saveLists();paintLists()};
 }
-listsOv.addEventListener('click',e=>{
+listsOv.addEventListener('click',async e=>{
   if(e.target===listsOv)return closeLists();
   const t=e.target.closest('button');if(!t)return;
   if(t.dataset.ls){listSel=t.dataset.ls;paintLists()}
   else if(t.dataset.lr!=null){const l=lists.find(x=>x.id===listSel);l.items.splice(+t.dataset.lr,1);saveLists();paintLists()}
   else if(t.dataset.lo){closeLists();openTitle(t.dataset.lo)}
+  else if(t.dataset.vo){closeLists();openTitle(t.dataset.vo)}
+  else if(t.dataset.vd){
+    const id=t.dataset.vd,prev=myRates[id];if(!prev)return;
+    const c=crowd[id];if(c){c.sum-=prev;c.n=Math.max(0,c.n-1)}delete myRates[id];renderRank();openVotes();
+    try{const tk=await sbToken(),r=await sbFetch('/rest/v1/rpc/unrate',{method:'POST',token:tk,body:{p_item:id}});if(!r.ok)throw 0;toast('Voto apagado.')}
+    catch(x){myRates[id]=prev;if(c){c.sum+=prev;c.n++}renderRank();openVotes();toast('Não consegui apagar agora. Tenta de novo em instantes.')}
+  }
   else if(t.dataset.ld){if(confirm('Apagar esta lista?')){lists=lists.filter(x=>x.id!==listSel);saveLists();paintLists()}}
 });
 $('#lsClose').onclick=closeLists;
@@ -1887,7 +1910,7 @@ onAuth();
   try{
     startSession({access_token:at,refresh_token:q.get('refresh_token'),expires_in:+q.get('expires_in')||3600});
     const em=JSON.parse(atob(at.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).email||'';
-    store.set('me',em.split('@')[0]);store.set('isAdm',false);
+    store.set('me',jwtName(at));store.set('isAdm',false);
     history.replaceState(null,'',location.pathname+location.search);
     onAuth();toast('E-mail confirmado! Bem-vinda(o) 🍳');
   }catch(e){}
