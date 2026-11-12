@@ -2197,8 +2197,8 @@ document.querySelectorAll('input[name=wrWhen]').forEach(r=>r.addEventListener('c
 $('#wrAt').addEventListener('change',wrDirty);
 /* abrir / ler / salvar */
 function openWriter(art){
-  closeAdmin();
-  const a=art?JSON.parse(JSON.stringify(art)):{id:'a'+Date.now(),cat:'Notícia',t:'',x:'',h:'',au:store.get('wrAuthor',''),d:today(),r:1,emoji:'📰',c:randGrad(),img:'',ia:'',tg:[]};
+  closeAdmin();try{localStorage.removeItem('ovofrito:wrAuthor')}catch(e){}
+  const a=art?JSON.parse(JSON.stringify(art)):{id:'a'+Date.now(),cat:'Notícia',t:'',x:'',h:'',au:'',d:today(),r:1,emoji:'📰',c:randGrad(),img:'',ia:'',tg:[]};
   const inList=!!art&&articles.some(x=>x.id===a.id),sched=inList&&a.pubAt&&Date.parse(a.pubAt)>Date.now();
   wr={a,pub:inList,sched:!!sched,dirty:false,tags:(a.tg||[]).slice()};
   $('#wrT').value=a.t||'';$('#wrX').value=a.x||'';$('#wrCat').value=a.cat||'Notícia';$('#wrAu').value=a.au||'';
@@ -2224,7 +2224,6 @@ function wrRead(){
   const bl=readBlocks();a.h=blocksToHtml(bl);
   const w=(bl.filter(b=>TEXT_T.includes(b.t)).map(b=>plainOf(b.x)).concat(bl.filter(b=>b.items).map(b=>b.items.map(plainOf).join(' '))).join(' ').match(/\S+/g)||[]).length;
   a.r=Math.max(1,Math.ceil(w/200));
-  if(a.au)store.set('wrAuthor',a.au);
   delete a.b;
   return a;
 }
