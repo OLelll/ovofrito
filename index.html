@@ -1382,16 +1382,28 @@ addEventListener('hashchange',routeView);routeView();
   const box=$('#moodOpts');
   box.innerHTML=moods.map(m=>`<button type="button" data-k="${m.k}" aria-pressed="false">${m.l}</button>`).join('');
   let last=null;
-  box.addEventListener('click',e=>{
-    const b=e.target.closest('button');if(!b)return;
-    $$('button',box).forEach(x=>x.setAttribute('aria-pressed',x===b));
+  const res=$('#moodResult');
+  function local(k){
     const all=[...movies,...series];
-    let pool=b.dataset.k==='surpresa'?all:all.filter(x=>x.mood===b.dataset.k);
+    let pool=k==='surpresa'?all:all.filter(x=>x.mood===k);
     if(pool.length>1&&last)pool=pool.filter(x=>x.id!==last);
     const pick=pool[Math.floor(Math.random()*pool.length)];
-    if(!pick){$('#moodResult').innerHTML='<small>Ainda não tem título pra esse humor. Volta em breve!</small>';return}
+    if(!pick){res.innerHTML='<small>Ainda não tem título pra esse humor. Volta em breve!</small>';return}
     last=pick.id;
-    $('#moodResult').innerHTML=`${poster(pick)}<div><strong>${esc(pick.t)}</strong><br><small>${esc(pick.g)}</small><br><small>${galera(pick)==='—'?'Ainda sem nota da galera':'Nota da galera: '+galera(pick)+'/10'} · clica de novo pra outra</small></div>`;
+    res.innerHTML=`${poster(pick)}<div><strong>${esc(pick.t)}</strong><br><small>${esc(pick.g)}</small><br><small>${galera(pick)==='—'?'Ainda sem nota da galera':'Nota da galera: '+galera(pick)+'/10'} · clica de novo pra outra</small></div>`;
+  }
+  let seq=0;
+  box.addEventListener('click',async e=>{
+    const b=e.target.closest('button');if(!b)return;
+    $$('button',box).forEach(x=>x.setAttribute('aria-pressed',x===b));
+    const k=b.dataset.k,my=++seq;
+    res.innerHTML='<small>Procurando um filme pro seu humor…</small>';
+    try{
+      const r=await fetch(SB_URL+'/functions/v1/humor?mood='+encodeURIComponent(k));
+      if(!r.ok)throw 0;const x=await r.json();if(!x.t)throw 0;
+      if(my!==seq)return;
+      res.innerHTML=`<img src="${esc(x.poster)}" alt="Pôster de ${esc(x.t)}" width="90" style="border-radius:8px;flex:none"><div><strong>${esc(x.t)}</strong> <small>(${esc(x.y)} · ${x.kind==='tv'?'série':'filme'})</small><br><small>${esc(x.sinopse.length>180?x.sinopse.slice(0,177)+'…':x.sinopse)}</small><br><small>TMDB ${x.nota}/10 · <a href="${esc(x.link)}" target="_blank" rel="noopener">ver no TMDB</a> · clica de novo pra outra</small></div>`;
+    }catch(_){if(my===seq)local(k)}
   });
 })();
 
