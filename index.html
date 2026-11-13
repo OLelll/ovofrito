@@ -2017,9 +2017,12 @@ function artPageHtml(a,opts){
     ${more.length?`<div class="ap-more"><h2>Leia também</h2>${more.map(b=>`<button type="button" class="it" data-open="${esc(b.id)}"><span class="tag ${tagColor[b.cat]||''}">${esc(catLabel(b.cat))}</span><strong>${esc(b.t)}</strong></button>`).join('')}</div>`:''}`}
   </article>`;
 }
+function decorateArt(root){
+  root.querySelectorAll('figure:not([data-film]) img').forEach(im=>{const t=(im.getAttribute('alt')||'').trim();if(!t)return;const w=document.createElement('div');w.className='ap-wrap';im.replaceWith(w);const o=document.createElement('span');o.className='ap-ov';o.textContent=t;w.append(im,o)});
+}
 function renderArtPage(a){
   $('#apBox').innerHTML=artPageHtml(a);
-  $('#apBox').querySelectorAll('figure:not([data-film]) img').forEach(im=>{const t=(im.getAttribute('alt')||'').trim();if(!t)return;const w=document.createElement('div');w.className='ap-wrap';im.replaceWith(w);const o=document.createElement('span');o.className='ap-ov';o.textContent=t;w.append(im,o)});
+  decorateArt($('#apBox'));
   document.title=a.t+' · Ovo Frito';
 }
 function openArticle(id){artFrom=true;location.hash='materia-'+id}
@@ -2432,7 +2435,7 @@ $('#wrGear').onclick=()=>$('#wrSide').classList.add('open');
 $('#wrSideClose').onclick=()=>$('#wrSide').classList.remove('open');
 $('#wrSave').onclick=()=>wrSaveDraft(false);
 $('#wrBack').onclick=()=>closeWriter(true);
-$('#wrPrevBtn').onclick=()=>{const a=wrRead();$('#wrPvBox').innerHTML=artPageHtml(a,{preview:true});$('#wrPv').classList.add('open')};
+$('#wrPrevBtn').onclick=()=>{const a=wrRead();$('#wrPvBox').innerHTML=artPageHtml(a,{preview:true});decorateArt($('#wrPvBox'));$('#wrPv').classList.add('open')};
 $('#wrPvClose').onclick=()=>$('#wrPv').classList.remove('open');
 $('#wrPub').onclick=async()=>{
   const a=wrRead();
