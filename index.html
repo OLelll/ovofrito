@@ -525,13 +525,13 @@ main{transition:opacity .3s}
 body.view-art #materia{display:block}
 body.view-art .hero,body.view-art .ticker,body.view-art main>section:not(#materia){display:none}
 .ap{max-width:760px;margin-inline:auto}
-.ap-back{display:inline-block;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:26px;border-bottom:2px solid var(--gema);padding-bottom:2px}
-.ap h1{font-family:var(--display);font-stretch:78%;font-weight:900;font-size:clamp(38px,6.4vw,68px);line-height:.98;letter-spacing:-.01em;text-transform:uppercase;margin:14px 0 14px}
-.ap-sub{font-family:var(--serif,'Newsreader',serif);font-size:clamp(19px,2.4vw,24px);line-height:1.35;color:var(--muted);margin-bottom:18px}
-.ap-by{font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:12px 0;border-top:2px solid var(--rule);border-bottom:1px solid var(--hair);margin-bottom:26px}
-.ap-cover{margin:0 0 30px}.ap-cover img{width:100%;height:auto;display:block}
-.ap-body,.wr-body{font-family:'Newsreader',serif;font-size:clamp(18px,2vw,20.5px);line-height:1.72}
-.ap-body>*+*,.wr-body>*+*{margin-top:1.1em}
+.ap-back{display:inline-block;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px;border-bottom:2px solid var(--gema);padding-bottom:2px}
+.ap h1{font-family:var(--display);font-stretch:78%;font-weight:900;font-size:clamp(32px,5vw,52px);line-height:1.05;letter-spacing:-.01em;text-transform:none;margin:10px 0 12px}
+.ap-sub{font-family:var(--serif,'Newsreader',serif);font-size:clamp(19px,2.4vw,24px);line-height:1.35;color:var(--muted);margin-bottom:14px}
+.ap-by{font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:10px 0;border-top:2px solid var(--rule);border-bottom:1px solid var(--hair);margin-bottom:20px}
+.ap-cover{margin:0 0 22px}.ap-cover img{width:100%;height:auto;display:block}
+.ap-body,.wr-body{font-family:'Newsreader',serif;font-size:clamp(18px,2vw,20px);line-height:1.6}
+.ap-body>*+*,.wr-body>*+*{margin-top:.85em}
 .ap-body h2,.wr-body h2{font-family:var(--display);font-stretch:80%;font-weight:800;font-size:1.9em;line-height:1.05;text-transform:uppercase;margin-top:1.6em}
 .ap-body h3,.wr-body h3{font-family:var(--display);font-stretch:85%;font-weight:800;font-size:1.35em;line-height:1.15;margin-top:1.4em}
 .ap-body blockquote,.wr-body blockquote{border-left:8px solid var(--gema);padding:6px 0 6px 20px;font-size:1.2em;font-style:italic;line-height:1.45}
@@ -539,7 +539,7 @@ body.view-art .hero,body.view-art .ticker,body.view-art main>section:not(#materi
 .ap-body ul,.wr-body ul{list-style:disc}.ap-body ol,.wr-body ol{list-style:decimal}
 .ap-body a,.wr-body a{color:var(--azul,#2B3AE0);text-decoration:underline;text-underline-offset:3px}
 [data-theme="dark"] .ap-body a,[data-theme="dark"] .wr-body a{color:#8d97ff}
-.ap-body figure,.wr-body figure{margin:1.6em 0}
+.ap-body figure,.wr-body figure{margin:1.2em 0}
 .ap-body img,.wr-body img{max-width:100%;height:auto;display:block}
 .ap-body figcaption,.wr-body figcaption{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:8px}
 .ap-body figcaption:empty{display:none}
@@ -1099,8 +1099,8 @@ const ticker = [
  ['BASTIDOR','Diretor de “Ressaca Cósmica” diz que 80% das piadas foram improvisadas']
 ];
 
-const cats = ['Tudo','Notícia','Resenha','Lista','Nacional','Séries'];
-const tagColor = {Notícia:'h',Resenha:'v',Lista:'m',Nacional:'p',Séries:'s'};
+const cats = ['Tudo','Notícia','Resenha','Lista','Nacional','Séries','Documentários'];
+const tagColor = {Notícia:'h',Resenha:'v',Lista:'m',Nacional:'p',Séries:'s',Documentários:'v'};
 const catLabel=c=>c==='Nacional'?'Descascando':c;
 const articles = [
  {id:'a1',cat:'Lista',t:'7 filmes curtinhos pra ver quando você só tem 90 minutos',x:'Sem tempo, mas com vontade? Separamos sete filmes que cabem na sua noite sem pedir maratona.',d:'6 out',r:5,emoji:'⏱️',c:['#FFD21F','#FF7AB8'],b:'Filme bom não precisa ser longo. Esses sete entregam história, emoção e risada em menos de uma hora e meia. O primeiro da lista é perfeito pra quem tem preguiça de começar, e o último a gente só recomenda se você aguenta chorar no escuro.'},
@@ -1291,7 +1291,7 @@ function openTitle(id){
 }
 function closeTitle(){$('#titleOv').classList.remove('open');document.body.style.overflow='';lastFocus&&lastFocus.focus&&lastFocus.focus()}
 function renderRank(){
-  const list=(kind==='movies'?movies:series).slice().sort((a,b)=>score(b)-score(a));
+  const list=(kind==='movies'?movies:series).filter(it=>isAdmin||(score(it)>0&&!(+it.y>new Date().getFullYear()))).sort((a,b)=>score(b)-score(a));
   const rowHtml=(it,i)=>{
     const pos=i+1,diff=it.prev?it.prev-pos:0;
     const trend=diff>0?`<span class="trend up">▲ ${diff}</span>`:diff<0?`<span class="trend down">▼ ${-diff}</span>`:(it.prev?`<span class="trend">= igual</span>`:`<span class="trend up">NOVO</span>`);
@@ -1718,7 +1718,7 @@ document.addEventListener('keydown',e=>{
 
 /* login: e-mail e senha do Supabase (a checagem de verdade é feita no banco) */
 const loginOv=$('#loginOv'),adminOv=$('#adminOv');
-let isAdmin=!!sbSession&&store.get('isAdm',false),fails=0,lockUntil=0;
+var isAdmin=!!sbSession&&store.get("isAdm",false);let fails=0,lockUntil=0;
 function setAdmin(v){
   isAdmin=v;
   $('#adminFab').classList.toggle('show',v);
@@ -1864,7 +1864,8 @@ function toggleInList(lid,tid){
   else if(it){l.items.push({id:tid,t:it.t,y:it.y,k:movies.includes(it)?'movies':'series'});toast('Guardado em “'+l.n+'” ✔')}
   saveLists();
 }
-function saveLists(){
+function listBadge(){const n=lists.reduce((a,l)=>a+(l.items||[]).length,0),sx=n?' ('+n+')':'';const b=document.getElementById('listsBtn'),m=document.getElementById('menuLists');if(b)b.textContent='Listas'+sx;if(m)m.textContent='Minhas listas'+sx}
+function saveLists(){listBadge();
   store.set('lists',lists);
   if(!sbSession)return;
   clearTimeout(lsSaveT);lsSaveT=setTimeout(pushLists,900);
@@ -1931,7 +1932,7 @@ listsOv.addEventListener('click',async e=>{
   else if(t.dataset.ld){if(confirm('Apagar esta lista?')){lists=lists.filter(x=>x.id!==listSel);saveLists();paintLists()}}
 });
 $('#lsClose').onclick=closeLists;
-$('#listsBtn').onclick=openLists;$('#menuLists').onclick=e=>{e.preventDefault();$('.navbar').classList.remove('open');$('#burger').setAttribute('aria-expanded','false');$('#burger').textContent='Menu';openLists()};
+listBadge();$('#listsBtn').onclick=openLists;$('#menuLists').onclick=e=>{e.preventDefault();$('.navbar').classList.remove('open');$('#burger').setAttribute('aria-expanded','false');$('#burger').textContent='Menu';openLists()};
 onAuth();
 (function(){
   const h=location.hash;if(!/access_token=/.test(h))return;
@@ -1957,7 +1958,7 @@ function cleanHtml(html,inline){
   const out=document.createElement('div'),OK=inline?INLINE_OK:OK_TAGS;
   (function walk(src,dst){
     src.childNodes.forEach(n=>{
-      if(n.nodeType===3){dst.appendChild(document.createTextNode(n.nodeValue));return}
+      if(n.nodeType===3){dst.appendChild(document.createTextNode(n.nodeValue.replace(/\u00a0/g,' ')));return}
       if(n.nodeType!==1)return;
       let tag=n.tagName;if(DROP_TAGS.has(tag))return;
       tag=TAG_MAP[tag]||tag;
@@ -2081,7 +2082,7 @@ function blkEl(b){
       <input type="text" class="b-alt" maxlength="200" placeholder="Descrição da imagem (alt): descreva o que aparece, pra quem não enxerga e pro Google" value="${esc(b.alt||'')}" aria-label="Descrição da imagem">
       <input type="text" class="b-cap" maxlength="160" placeholder="Legenda (opcional, aparece embaixo da imagem)" value="${esc(b.cap||'')}" aria-label="Legenda"></div>`;
   }else body='<hr>';
-  d.innerHTML=bar+body;return d;
+  d.innerHTML=bar+body;if(!TEXT_T.includes(b.t)&&b.t!=='ul'&&b.t!=='ol')d.tabIndex=0;return d;
 }
 function addRow(last){
   const d=document.createElement('div');d.className='blk-add'+(last?' last':'');
@@ -2138,15 +2139,22 @@ function splitBlock(ed,blk){
   const n=insertBlockAfter(blk,{t:'p',x:tmp.innerHTML});
   focusBlock(n);const e2=n.querySelector('.blk-ed'),rr=document.createRange();rr.selectNodeContents(e2);rr.collapse(true);s.removeAllRanges();s.addRange(rr);
 }
+function delBlk(blk){
+  const bs=[...wrBl.querySelectorAll('.blk')];if(bs.length<2){const ed=blk.querySelector('.blk-ed');if(ed){ed.innerHTML='';focusEnd(ed)}return}
+  const i=bs.indexOf(blk),nb=bs[i-1]||bs[i+1];blk.remove();ensureAdds();wrDirty();wrCountUpd();nb&&focusBlock(nb);
+}
+wrBl.addEventListener('mousedown',e=>{const pv=e.target.closest&&e.target.closest('.blk-img .pv,.blk-hr');if(pv){const b=pv.closest('.blk');setTimeout(()=>b.focus(),0)}});
 wrBl.addEventListener('keydown',e=>{
   if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('last')){e.preventDefault();e.target.classList.toggle('open');return}
+  if((e.key==='Delete'||e.key==='Backspace')&&e.target.classList&&e.target.classList.contains('blk')){e.preventDefault();delBlk(e.target);return}
   const ed=e.target.closest&&e.target.closest('.blk-ed');if(!ed)return;
   const blk=ed.closest('.blk'),t=blk.dataset.t;
+  if(e.key==='Delete'&&e.ctrlKey&&e.shiftKey){e.preventDefault();delBlk(blk);return}
   if(e.key==='Enter'&&!e.shiftKey&&TEXT_T.includes(t)){e.preventDefault();splitBlock(ed,blk)}
   else if(e.key==='Enter'&&(t==='ul'||t==='ol')){
     const n=getSelection().anchorNode,li=n&&(n.nodeType===1?n:n.parentElement).closest('li');
     if(li&&!li.textContent.trim()){e.preventDefault();li.remove();if(!ed.querySelector('li'))blk.remove();const nb=insertBlockAfter(blk.isConnected?blk:null,{t:'p',x:''});focusBlock(nb)}
-  }else if(e.key==='Backspace'&&TEXT_T.includes(t)&&!ed.textContent.length&&wrBl.querySelectorAll('.blk').length>1){
+  }else if((e.key==='Backspace'||e.key==='Delete')&&TEXT_T.includes(t)&&!ed.textContent.length&&wrBl.querySelectorAll('.blk').length>1){
     e.preventDefault();const prev=blk.previousElementSibling&&blk.previousElementSibling.previousElementSibling;blk.remove();ensureAdds();wrDirty();wrCountUpd();
     const pb=[...wrBl.querySelectorAll('.blk')].find(x=>x===prev)||wrBl.querySelector('.blk');pb&&focusBlock(pb);
   }
