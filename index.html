@@ -65,7 +65,7 @@ h1,h2,h3,h4{font-family:var(--display);line-height:1;font-weight:900}
 .tag.s::before,.kick.s i{background:var(--prato)}
 .kick i{width:11px;height:11px;display:block;flex:none}
 .card{background:var(--card);border:2px solid var(--rule)}
-.mk,.sec-head h2 em{font-style:normal;background:var(--gema);color:var(--chapa);padding:0 .12em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.mk,.sec-head h2 em,.news h2 em{font-style:normal;background:var(--gema);color:var(--chapa);padding:0 .12em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px 48px;flex-wrap:wrap;border-top:4px solid var(--rule);padding-top:14px;margin-bottom:40px}
 .sec-head h2{font-stretch:78%;text-transform:uppercase;font-size:clamp(2.6rem,6vw,4.4rem);line-height:.92;letter-spacing:-.005em}
 .sec-head p{max-width:420px;font-style:italic;font-size:18px;line-height:1.4;color:var(--muted)}
@@ -815,7 +815,7 @@ ul.blk-ed{list-style:disc;padding-left:1.4em}ol.blk-ed{list-style:decimal;paddin
 <section id="noticias" class="ed-sec">
   <div class="wrap">
     <div class="sec-head reveal">
-      <h2>Notí <em>cias</em></h2>
+      <h2><em>Notícias</em></h2>
       <span class="sec-sub">As novidades do cinema e das séries, sem enrolação.</span>
     </div>
     <div class="grid-art ed-grid" data-edcat="Notícia" data-edempty></div>
@@ -827,7 +827,7 @@ ul.blk-ed{list-style:disc;padding-left:1.4em}ol.blk-ed{list-style:decimal;paddin
 <section id="resenha">
   <div class="wrap">
     <div class="sec-head reveal">
-      <h2>Resenha <em>do dia</em></h2>
+      <h2><em>Resenha</em> do dia</h2>
       <p>Nossa nota usa pontos de gema, do Cru ao Dourado. Quanto mais gema, melhor o filme. Aí é com você: concorda ou não?</p>
     </div>
     <article class="review reveal">
@@ -857,7 +857,7 @@ ul.blk-ed{list-style:disc;padding-left:1.4em}ol.blk-ed{list-style:decimal;paddin
 <section id="listas" class="ed-sec">
   <div class="wrap">
     <div class="sec-head reveal">
-      <h2>Lis <em>tas</em></h2>
+      <h2><em>Lista</em></h2>
       <span class="sec-sub">Listas pra decidir o que ver (e brigar por causa disso).</span>
     </div>
     <div class="grid-art ed-grid" data-edcat="Lista" data-edempty></div>
@@ -936,7 +936,7 @@ ul.blk-ed{list-style:disc;padding-left:1.4em}ol.blk-ed{list-style:decimal;paddin
 <section class="news" aria-labelledby="newsTitle">
   <div class="wrap">
     <div>
-      <h2 id="newsTitle">Sexta na frigideira</h2>
+      <h2 id="newsTitle">Sexta na <em>frigideira</em></h2>
       <p>Toda sexta, a gente manda 5 dicas do que ver no fim de semana. Sem spam, sem enrolação, a gente prometeu.</p>
     </div>
     <form id="newsForm" novalidate>
