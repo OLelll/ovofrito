@@ -543,6 +543,8 @@ body.view-art .hero,body.view-art .ticker,body.view-art main>section:not(#materi
 .ap-body img,.wr-body img{max-width:100%;height:auto;display:block}
 .ap-body figcaption,.wr-body figcaption{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:8px}
 .ap-body figcaption:empty{display:none}
+figure .ap-wrap{position:relative}
+.ap-ov{position:absolute;left:0;bottom:0;max-width:100%;box-sizing:border-box;background:rgba(20,20,20,.68);color:#fff;font-family:var(--display,sans-serif);font-weight:500;font-size:13px;line-height:1.35;padding:6px 10px;border-top-right-radius:6px}
 .ap-share{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
 .ap-more{margin-top:50px;padding-top:24px;border-top:4px solid var(--rule)}
 .ap-more h2{font-family:var(--display);font-stretch:80%;font-weight:900;font-size:30px;text-transform:uppercase;margin-bottom:14px}
@@ -2006,6 +2008,7 @@ function artPageHtml(a,opts){
 }
 function renderArtPage(a){
   $('#apBox').innerHTML=artPageHtml(a);
+  $('#apBox').querySelectorAll('figure img').forEach(im=>{const t=(im.getAttribute('alt')||'').trim();if(!t)return;const w=document.createElement('div');w.className='ap-wrap';im.replaceWith(w);const o=document.createElement('span');o.className='ap-ov';o.textContent=t;w.append(im,o)});
   document.title=a.t+' · Ovo Frito';
 }
 function openArticle(id){artFrom=true;location.hash='materia-'+id}
