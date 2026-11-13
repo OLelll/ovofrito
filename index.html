@@ -122,7 +122,8 @@ header.site{background:var(--bg);position:sticky;top:0;z-index:50}
 /* hero: manchete, Na chapa e chamadas, como no design system */
 .hero{padding:0 0 56px}
 .hero p.lead{font-style:italic;font-size:17px;line-height:1.4;color:var(--muted);text-align:center;padding:14px 0 26px;max-width:none}
-.hero-grid{display:grid;grid-template-columns:8fr 4fr;gap:40px;align-items:start}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}.hero-grid aside{display:contents}
+main#topo{display:flex;flex-direction:column}main#topo>*{order:2}main#topo>#materias{order:0}main#topo>.hero{order:1}main#topo>#materias{padding-top:8px}
 .hl-in{display:block;cursor:pointer}
 .hl-img{aspect-ratio:16/10;width:100%;position:relative;background-size:cover;background-position:center;overflow:hidden}
 .hl-img.ph span{font-size:6rem}
@@ -702,18 +703,16 @@ ul.blk-ed{list-style:disc;padding-left:1.4em}ol.blk-ed{list-style:decimal;paddin
   <div class="wrap">
     <p class="lead">Resenhas sem enrolação, notas rápidas, entrevistas e um ranking feito com a sua nota. Aqui você descobre o que assistir e ainda briga (com carinho) sobre o final.</p>
     <div class="hero-grid">
-      <article class="hl" id="heroLead"></article>
       <aside>
         <div class="nachapa"><h3>Na chapa</h3><ul id="ncList"></ul></div>
         <div class="mood" aria-labelledby="moodTitle">
           <h3 id="moodTitle">Que clima hoje?</h3>
-          <p>Escolhe seu humor e a gente sugere algo do ranking.</p>
+          <p>Escolhe seu humor e a gente sugere um filme ou série, mesmo que não esteja no ranking.</p>
           <div class="mood-opts" id="moodOpts" role="group" aria-label="Escolha seu humor"></div>
           <div class="mood-result" id="moodResult" aria-live="polite"><small>Toca num humor aí em cima.</small></div>
         </div>
       </aside>
     </div>
-    <div class="trio" id="heroTrio"></div>
   </div>
 </section>
 
@@ -1229,12 +1228,7 @@ renderTicker();
 function lastWords(t,n){const w=String(t).trim().split(/\s+/);if(w.length<3)return [esc(t),''];const k=Math.min(n,Math.max(1,Math.floor(w.length/2)));return [esc(w.slice(0,-k).join(' ')),esc(w.slice(-k).join(' '))]}
 function artCover(a,cls){return a.img?`<div class="${cls}" style="background-image:url('${imgUrl(a)}')"></div>`:`<div class="${cls} ph ${phv(a)}" aria-hidden="true"><span>${esc(inits(a.t))}</span></div>`}
 function renderHero(){
-  const LA=liveArts(),a=LA[0],hl=$('#heroLead');if(!hl)return;
-  if(a){const [h,t]=lastWords(a.t,2);
-    hl.innerHTML=`<div class="hl-in" data-open="${esc(a.id)}" role="button" tabindex="0">${artCover(a,'hl-img')}<p class="hl-cap">${esc(a.d||'')} · ${esc(a.r||'')} min de leitura</p><span class="tag ${tagColor[a.cat]||''}" style="margin-top:18px">${esc(catLabel(a.cat))}</span><h1>${h}${t?` <span class="mk">${t}</span>`:''}</h1><p class="deck">${esc(a.x)}</p><p class="meta">Redação Ovo Frito</p></div>`;
-  }else hl.innerHTML='';
-  $('#heroTrio').innerHTML=LA.slice(1,4).map(b=>`<div class="it" data-open="${esc(b.id)}" role="button" tabindex="0"><span class="tag ${tagColor[b.cat]||''}">${esc(catLabel(b.cat))}</span><span class="t">${esc(b.t)}</span><span class="mono" style="color:var(--muted)">${esc(b.d||'')} · ${esc(b.r||'')} min</span></div>`).join('');
-  $('#heroTrio').style.display=LA.length>1?'':'none';
+  const LA=liveArts();
   $('#ncList').innerHTML=ticker.slice(0,5).map(n=>`<li><div class="mono">${esc(n.k||'Nota')}</div><div class="t">${esc(n.t)}</div></li>`).join('');
   $('.nachapa').style.display=ticker.length?'':'none';
   const rs=LA.filter(x=>x.cat==='Resenha').slice(0,3);
@@ -1663,7 +1657,7 @@ function markEditable(){
   const pp=$('#pollQ').closest('.panel');if(pp)pp.dataset.ed='poll';
 }
 const mo=new MutationObserver(markEditable);
-['#heroLead','#heroTrio','#rankList','#rankListFull','#artGrid','#interviews','#nacList','#ticker'].forEach(s=>mo.observe($(s),{childList:true}));
+['#rankList','#rankListFull','#artGrid','#interviews','#nacList','#ticker'].forEach(s=>mo.observe($(s),{childList:true}));
 markEditable();
 
 function setEditing(v){
