@@ -2561,7 +2561,7 @@ async function tmToItem(r,kind){
 const sortedBy=k=>COLL[k].slice().sort((a,b)=>score(b)-score(a));
 
 /* schemas do painel */
-const TABS=[['movies','🎬 Filmes'],['series','📺 Séries'],['articles','📰 Matérias'],['review','⭐ Resenha'],['ticker','⚡ Notas rápidas'],['poll','🗳️ Enquete'],['interviews','🎙️ Entrevistas'],['nacional','🇧🇷 Coluna Descascando'],['config','⚙️ Configurações']];
+const TABS=[['movies','🎬 Filmes'],['series','📺 Séries'],['articles','📰 Matérias'],['review','⭐ Resenha'],['ticker','⚡ Notas rápidas'],['poll','🗳️ Enquete'],['interviews','🎙️ Entrevistas'],['nacional','🇧🇷 Coluna Descascando'],['team','👥 Equipe'],['config','⚙️ Configurações']];
 const F=(k,l,t='text',x={})=>({k,l,t,...x});
 const moodOpts=moods.filter(m=>m.k!=='surpresa').map(m=>[m.k,m.e+' '+m.l]);
 const titleFields=[F('t','Título','text',{r:1}),F('g','Gêneros (ex.: Drama · Comédia)'),F('y','Ano (ou temporada)'),F('tmdb','Nota TMDB (0 a 100)','number'),F('imdb','Nota IMDb (0 a 10)','number'),F('mood','Humor da sugestão','select',{o:moodOpts}),F('emoji','Emoji (usado se não tiver pôster)'),F('img','Link da imagem do pôster (opcional)'),F('d','Sinopse (descrição)','textarea',{rows:4}),F('aw','Prêmios (ex.: Ganhou 2 Oscars)'),F('wh','Onde assistir: streaming (ex.: Netflix, Max)'),F('whr','Onde assistir: alugar ou comprar (opcional)'),F('link','Link de onde assistir (opcional)')];
@@ -2638,6 +2638,23 @@ function pollHtml(){
   <div class="field"><label for="po">Opções (uma por linha, no mínimo 2) *</label><textarea id="po" name="o" rows="6">${esc((poll.o||[]).map(o=>o.t).join('\n'))}</textarea></div>
   <div class="pn-bar"><button class="btn hot" type="submit">Publicar enquete</button></div></form>`;
 }
+function teamHtml(){
+  setTimeout(teamLoad,0);
+  return `<h3>👥 Equipe</h3>
+  <div class="card pn-box"><h4>Dar acesso de admin</h4>
+    <p class="pn-note">A pessoa precisa ter criado a conta no site (e confirmado o e-mail). Digite o e-mail dela: ela passa a poder editar o site, escrever matérias e abrir rascunhos. Quem é admin vê o botão do painel depois de sair e entrar de novo.</p>
+    <div class="field"><label for="eqEmail">E-mail da conta</label><input id="eqEmail" type="email" autocomplete="off" placeholder="pessoa@email.com"></div>
+    <button type="button" class="btn" data-act="eqadd">Dar acesso</button></div>
+  <div class="card pn-box"><h4>Quem é admin hoje</h4><ul class="pn-list" id="eqList"><li class="empty">Carregando…</li></ul></div>`;
+}
+async function teamLoad(){
+  const ul=$('#eqList');if(!ul)return;
+  try{
+    const r=await sbFetch('/rest/v1/rpc/list_admins',{method:'POST',token:await sbToken(),body:{}});
+    if(!r.ok)throw new Error(r.data&&r.data.message||'erro');
+    ul.innerHTML=r.data.map(x=>`<li><div class="pn-t"><strong>${esc(x.email||'(sem e-mail)')}</strong></div><div class="pn-btns"><button type="button" data-act="eqdel" data-id="${esc(x.user_id)}" aria-label="Tirar acesso">🗑️</button></div></li>`).join('')||'<li class="empty">Ninguém.</li>';
+  }catch(e){ul.innerHTML='<li class="empty">Não consegui carregar a lista ('+esc(e.message)+').</li>'}
+}
 function configHtml(){
   return `<h3>⚙️ Configurações</h3>
   <form id="keysForm" class="card pn-box" novalidate><h4>Chaves das APIs</h4>
@@ -2657,7 +2674,7 @@ function adminRender(){
   $('#pnNav').innerHTML=TABS.map(([k,l])=>`<button type="button" data-tab="${k}" aria-current="${k===adTab}">${l}</button>`).join('');
   const m=$('#pnMain');
   try{
-    m.innerHTML=adEdit?formHtml():SCH[adTab]?listHtml(adTab):adTab==='review'?reviewHtml():adTab==='poll'?pollHtml():configHtml();
+    m.innerHTML=adEdit?formHtml():SCH[adTab]?listHtml(adTab):adTab==='review'?reviewHtml():adTab==='poll'?pollHtml():adTab==='team'?teamHtml():configHtml();
   }catch(err){
     console.error(err);
     m.innerHTML='<h3>Ops 🍳</h3><p class="pn-note">Não consegui montar esta tela: '+esc(err&&err.message||'erro desconhecido')+'</p><div class="pn-bar"><button type="button" class="btn alt" data-act="resetlocal">🧹 Limpar dados deste navegador</button></div>';
@@ -2732,6 +2749,18 @@ adminOv.addEventListener('click',async e=>{
   const b=e.target.closest('[data-act]');if(!b)return;
   const act=b.dataset.act,i=+b.dataset.i,S=SCH[adTab];
   try{
+    if(act==='eqadd'){
+      const em=$('#eqEmail').value.trim();if(!/^\S+@\S+\.\S+$/.test(em)){toast('Digite um e-mail válido.');return}
+      const r=await sbFetch('/rest/v1/rpc/add_admin_by_email',{method:'POST',token:await sbToken(),body:{p_email:em}});
+      if(!r.ok){toast((r.data&&r.data.message||'Não deu certo').replace(/^.*?:\s*(?=conta)/,''));return}
+      $('#eqEmail').value='';toast('Acesso dado ✔');teamLoad();return;
+    }
+    if(act==='eqdel'){
+      if(!b.dataset.arm){b.dataset.arm='1';b.textContent='Tirar mesmo?';setTimeout(()=>{b.dataset.arm='';b.textContent='🗑️'},3500);return}
+      const r=await sbFetch('/rest/v1/rpc/remove_admin',{method:'POST',token:await sbToken(),body:{p_user:b.dataset.id}});
+      if(!r.ok){toast(r.data&&r.data.message||'Não deu certo');return}
+      toast('Acesso removido');teamLoad();return;
+    }
     if(act==='wnew')openWriter();
     else if(act==='wlink'){copyLink(draftUrl(b.dataset.id))}
     else if(act==='wdraft'){const d=drafts.find(x=>x.id===b.dataset.id);if(d)openWriter(d)}
