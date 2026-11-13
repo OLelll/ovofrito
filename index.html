@@ -526,6 +526,7 @@ main{transition:opacity .3s}
 body.view-art #materia{display:block}
 body.view-art .hero,body.view-art .ticker,body.view-art main>section:not(#materia){display:none}
 .ap{max-width:760px;margin-inline:auto}
+.ap-draft{background:var(--gema);color:var(--chapa);font-family:var(--mono);font-size:12px;padding:8px 12px;margin:0 0 14px}
 .ap-back{display:inline-block;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px;border-bottom:2px solid var(--gema);padding-bottom:2px}
 .ap h1{font-family:var(--display);font-stretch:78%;font-weight:900;font-size:clamp(32px,5vw,52px);line-height:1.05;letter-spacing:-.01em;text-transform:none;margin:10px 0 12px}
 .ap-sub{font-family:var(--serif,'Newsreader',serif);font-size:clamp(19px,2.4vw,24px);line-height:1.35;color:var(--muted);margin-bottom:14px}
@@ -961,6 +962,7 @@ ul.blk-ed{list-style:disc;padding-left:1.4em}ol.blk-ed{list-style:decimal;paddin
         <button type="button" class="btn alt wr-gear" id="wrGear">⚙ Detalhes</button>
         <button type="button" class="btn alt" id="wrSave">Salvar rascunho</button>
         <button type="button" class="btn alt" id="wrPrevBtn">Pré-visualizar</button>
+        <button type="button" class="btn alt" id="wrLink" title="Copia o link deste rascunho (só admin abre)">🔗 Link do rascunho</button>
         <button type="button" class="btn hot" id="wrPub">Publicar</button>
       </div>
     </div>
@@ -1378,6 +1380,7 @@ $$('.tabs button').forEach(b=>b.onclick=()=>{
 renderRank();
 let wasFull=false;var artFrom=false,BASE_TITLE=document.title;
 function routeView(){
+  if(/^#rascunho-[\w-]+$/.test(location.hash)){openDraftView(location.hash.slice(10));return}
   const h=location.hash,full=h==='#ranking-completo',am=/^#materia-([\w-]+)$/.exec(h),art=am&&liveArts().find(x=>x.id===am[1]);
   document.body.classList.toggle('view-rank',full);
   document.body.classList.toggle('view-art',!!art);
@@ -1998,6 +2001,21 @@ const plainText=h=>{const d=document.createElement('div');d.innerHTML=cleanHtml(
 const legacyHtml=a=>String(a.b||'').split(/\n\s*\n/).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('');
 const artBody=a=>a.h?cleanHtml(a.h):legacyHtml(a);
 const safeImg=u=>/^https:\/\//i.test(String(u||''))?String(u).replace(/["'<>\s\\()]/g,''):'';
+const draftUrl=id=>location.origin+location.pathname+'#rascunho-'+id;
+async function copyLink(u){try{if(navigator.clipboard){await navigator.clipboard.writeText(u);toast('Link copiado! 🔗');return}}catch(x){}prompt('Copie o link:',u)}
+async function openDraftView(id){
+  document.body.classList.remove('view-rank');document.body.classList.add('view-art');wasFull=true;scrollTo({top:0,behavior:'instant'});
+  const box=$('#apBox');box.innerHTML='<div class="ap"><p class="ap-draft">Carregando rascunho…</p></div>';
+  await new Promise(r=>setTimeout(r,0));
+  const live=()=>articles.find(x=>x.id===id&&isLive(x)),find=()=>drafts.find(x=>x.id===id)||articles.find(x=>x.id===id);
+  let a=find();
+  if(!a&&sbSession){try{await loadDrafts()}catch(e){}a=find()}
+  if(live()&&!drafts.find(x=>x.id===id)){location.replace('#materia-'+id);return}
+  if(!a||(!isAdmin&&!live())){box.innerHTML='<div class="ap"><a class="ap-back" href="#materias" data-back>← Matérias</a><h1>Rascunho não encontrado</h1><p class="ap-sub">Esse link só abre pra quem está logado na redação. Se você é da redação, entre no site e abra o link de novo.</p></div>';document.title='Rascunho · Ovo Frito';return}
+  box.innerHTML=artPageHtml(a,{preview:true});decorateArt(box);
+  const ap=box.querySelector('.ap');if(ap)ap.insertAdjacentHTML('afterbegin','<p class="ap-draft">🔒 Rascunho · só quem está logado na redação consegue abrir este link.</p>');
+  document.title='[Rascunho] '+(a.t||'sem título');
+}
 const artUrl=id=>location.origin+location.pathname+'#materia-'+id;
 function artPageHtml(a,opts){
   const cv=safeImg(a.img),reacts=store.get('reacts',{}),ro=[['🔥','Quente'],['😂','Rachei'],['🤯','Pirei'],['❤️','Amei']];
@@ -2042,7 +2060,7 @@ $('#apBox').addEventListener('click',async e=>{
 });
 
 /* ---- rascunhos ---- */
-let drafts=[],draftsOff=false;
+var drafts=[],draftsOff=false;
 const DRAFT_LOCAL='wrdrafts';
 async function loadDrafts(){
   const local=store.get(DRAFT_LOCAL,[]);
@@ -2071,7 +2089,7 @@ async function paintDrafts(){
   const ul=$('#wrDrafts');if(!ul)return;
   await loadDrafts();
   const ul2=$('#wrDrafts');if(!ul2)return;
-  ul2.innerHTML=drafts.length?drafts.map(d=>`<li><div class="pn-thumb" style="${d.img?`background:#222 center/cover url('${safeImg(d.img)}')`:''}">${d.img?'':'✍️'}</div><div class="pn-t"><strong>${esc(d.t||'(sem título)')}</strong><small>Rascunho · ${esc(catLabel(d.cat||''))}${d._u?' · '+new Date(d._u).toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):''}</small></div><div class="pn-btns"><button type="button" data-act="wdraft" data-id="${esc(d.id)}">Editar</button><button type="button" data-act="wdel" data-id="${esc(d.id)}" aria-label="Excluir rascunho">🗑️</button></div></li>`).join(''):'<li class="empty">Nenhum rascunho. Clique em “Escrever nova matéria”.</li>';
+  ul2.innerHTML=drafts.length?drafts.map(d=>`<li><div class="pn-thumb" style="${d.img?`background:#222 center/cover url('${safeImg(d.img)}')`:''}">${d.img?'':'✍️'}</div><div class="pn-t"><strong>${esc(d.t||'(sem título)')}</strong><small>Rascunho · ${esc(catLabel(d.cat||''))}${d._u?' · '+new Date(d._u).toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):''}</small></div><div class="pn-btns"><button type="button" data-act="wdraft" data-id="${esc(d.id)}">Editar</button><button type="button" data-act="wlink" data-id="${esc(d.id)}" aria-label="Copiar link do rascunho" title="Copiar link do rascunho">🔗</button><button type="button" data-act="wdel" data-id="${esc(d.id)}" aria-label="Excluir rascunho">🗑️</button></div></li>`).join(''):'<li class="empty">Nenhum rascunho. Clique em “Escrever nova matéria”.</li>';
   const n=$('#wrDraftNote');if(n)n.textContent=draftsOff?'⚠️ Os rascunhos estão sendo guardados só neste navegador. Rode o arquivo supabase/redacao.sql no Supabase pra guardá-los na nuvem e poder enviar imagens.':'';
 }
 
@@ -2434,6 +2452,7 @@ $('#wrCvDel').onclick=()=>{wr.a.img='';wrCoverPaint();wrDirty()};
 $('#wrGear').onclick=()=>$('#wrSide').classList.add('open');
 $('#wrSideClose').onclick=()=>$('#wrSide').classList.remove('open');
 $('#wrSave').onclick=()=>wrSaveDraft(false);
+$('#wrLink').onclick=async()=>{if(!wr)return;const a=wrRead();if(wr.pub&&isLive(a)){copyLink(artUrl(a.id));return}await wrSaveDraft(true);copyLink(draftUrl(a.id))};
 $('#wrBack').onclick=()=>closeWriter(true);
 $('#wrPrevBtn').onclick=()=>{const a=wrRead();$('#wrPvBox').innerHTML=artPageHtml(a,{preview:true});decorateArt($('#wrPvBox'));$('#wrPv').classList.add('open')};
 $('#wrPvClose').onclick=()=>$('#wrPv').classList.remove('open');
@@ -2714,6 +2733,7 @@ adminOv.addEventListener('click',async e=>{
   const act=b.dataset.act,i=+b.dataset.i,S=SCH[adTab];
   try{
     if(act==='wnew')openWriter();
+    else if(act==='wlink'){copyLink(draftUrl(b.dataset.id))}
     else if(act==='wdraft'){const d=drafts.find(x=>x.id===b.dataset.id);if(d)openWriter(d)}
     else if(act==='wdel'){if(confirm('Excluir este rascunho?')){await dropDraft(b.dataset.id);paintDrafts()}}
     else if(act==='new'){adEdit={coll:adTab,i:-1};adminRender()}
