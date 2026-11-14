@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/materia/:slug", "destination": "/api/materia?slug=:slug" },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" }
+  ],
+  "functions": {
+    "api/materia.js": { "includeFiles": "index.html" }
+  }
+}

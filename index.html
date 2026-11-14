@@ -8,7 +8,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta property="og:type" content="website"><meta property="og:title" content="Ovo Frito"><meta property="og:description" content="Resenhas, notas rápidas, entrevistas e o ranking semanal feito pela galera.">
+<meta property="og:type" content="website"><meta property="og:image" content="https://olelll.github.io/ovofrito/og.png"><meta name="twitter:card" content="summary_large_image"><meta property="og:title" content="Ovo Frito"><meta property="og:description" content="Resenhas, notas rápidas, entrevistas e o ranking semanal feito pela galera.">
 <meta name="description" content="Resenhas, notas rápidas, entrevistas e o ranking semanal feito pela galera. O guia pra você descobrir o que assistir e ainda trocar ideia sobre isso.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1461,7 +1461,7 @@ renderRank();
 let wasFull=false;var artFrom=false,BASE_TITLE=document.title;
 const DEF_AU='Redação Ovo Frito';
 const auSlug=n=>String(n||DEF_AU).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'redacao';
-const authorUrl=n=>location.origin+location.pathname+'#autor-'+auSlug(n);
+const authorUrl=n=>SITE_BASE+'#autor-'+auSlug(n);
 function openAuthorView(slug){
   document.body.classList.remove('view-rank');document.body.classList.add('view-art');wasFull=true;scrollTo({top:0,behavior:'instant'});
   const list=liveArts().filter(a=>auSlug(a.au)===slug),name=list.length?(list[0].au||DEF_AU):slug.replace(/-/g,' ');
@@ -1471,6 +1471,15 @@ function openAuthorView(slug){
     <div class="grid-art">${list.map(artCardHtml).join('')}</div></div>`;
   document.title=name+' · Ovo Frito';
 }
+/* No GitHub Pages os links são #materia-slug. Num domínio próprio (Vercel) viram /materia/slug, que as redes sociais leem. */
+const PATHMODE=/^https?:$/.test(location.protocol)&&!/github\.io$/.test(location.hostname);
+const SITE_BASE=PATHMODE?location.origin+'/':location.origin+location.pathname;
+function routeHash(){
+  const pm=PATHMODE&&/^\/materia\/([\w-]+)\/?$/.exec(location.pathname);
+  if(location.hash&&!/^#access_token=/.test(location.hash))return location.hash;
+  return pm?'#materia-'+pm[1]:location.hash;
+}
+function goTo(path,hash){if(PATHMODE){history.pushState(null,'',path+(hash||''));routeView()}else location.hash=(hash||'#').slice(1)}
 const META0=document.querySelector('meta[name=description]').content;
 function setMeta(d,t){
   const set=(sel,attr,v)=>{const m=document.querySelector(sel);if(m)m.setAttribute(attr,v)};
@@ -1479,11 +1488,12 @@ function setMeta(d,t){
   if(t)set('meta[property="og:title"]','content',t+' · Ovo Frito');
 }
 function routeView(){
-  if(location.hash==='#painel'){setTimeout(()=>{isAdmin?openAdmin():openLogin()},0);return}
-  const au=/^#autor-([\w-]+)$/.exec(location.hash);if(au){openAuthorView(au[1]);return}
-  const pv=/^#previa=([\w-]+)$/.exec(location.hash);if(pv){openPreviewView(pv[1]);return}
-  if(/^#rascunho-[\w-]+$/.test(location.hash)){openDraftView(location.hash.slice(10));return}
-  const h=location.hash,full=h==='#ranking-completo',am=/^#materia-([\w-]+)$/.exec(h),art=am&&liveArts().find(x=>x.id===am[1]||x.slug===am[1]);
+  const H=routeHash();
+  if(H==='#painel'){setTimeout(()=>{isAdmin?openAdmin():openLogin()},0);return}
+  const au=/^#autor-([\w-]+)$/.exec(H);if(au){openAuthorView(au[1]);return}
+  const pv=/^#previa=([\w-]+)$/.exec(H);if(pv){openPreviewView(pv[1]);return}
+  if(/^#rascunho-[\w-]+$/.test(H)){openDraftView(H.slice(10));return}
+  const h=H,full=h==='#ranking-completo',am=/^#materia-([\w-]+)$/.exec(h),art=am&&liveArts().find(x=>x.id===am[1]||x.slug===am[1]);
   document.body.classList.toggle('view-rank',full);
   document.body.classList.toggle('view-art',!!art);
   if(art){renderArtPage(art);scrollTo({top:0,behavior:'instant'})}
@@ -1492,7 +1502,7 @@ function routeView(){
   else if(wasFull&&!art){let t=null;try{t=h.length>1&&document.querySelector(h)}catch(e){}t?t.scrollIntoView({behavior:'instant'}):scrollTo({top:0,behavior:'instant'})}
   wasFull=full||!!art;
 }
-addEventListener('hashchange',routeView);routeView();
+addEventListener('hashchange',routeView);if(PATHMODE)addEventListener('popstate',routeView);setTimeout(routeView,0); /* depois do script inteiro carregar */
 
 /* ---------- humor ---------- */
 (function(){
@@ -1955,7 +1965,7 @@ async function accSubmit(e){
   btn.disabled=true;
   try{
     if(up){
-      let r;try{r=await sbFetch('/auth/v1/signup?redirect_to='+encodeURIComponent(location.origin+location.pathname),{method:'POST',body:{email,password:pass,data:{name:nick}}})}catch(x){throw new Error('Não consegui falar com o servidor. Confere a internet.')}
+      let r;try{r=await sbFetch('/auth/v1/signup?redirect_to='+encodeURIComponent(SITE_BASE),{method:'POST',body:{email,password:pass,data:{name:nick}}})}catch(x){throw new Error('Não consegui falar com o servidor. Confere a internet.')}
       if(!r.ok){
         const c=(r.data&&(r.data.error_code||r.data.error))||'';
         if(c==='user_already_exists'||/already/i.test(JSON.stringify(r.data||'')))throw new Error('Esse usuário já existe. Tenta entrar ou escolhe outro nome.');
@@ -2114,7 +2124,7 @@ const plainText=h=>{const d=document.createElement('div');d.innerHTML=cleanHtml(
 const legacyHtml=a=>String(a.b||'').split(/\n\s*\n/).filter(Boolean).map(p=>`<p>${esc(p)}</p>`).join('');
 const artBody=a=>a.h?cleanHtml(a.h):legacyHtml(a);
 const safeImg=u=>/^https:\/\//i.test(String(u||''))?String(u).replace(/["'<>\s\\()]/g,''):'';
-const draftUrl=id=>location.origin+location.pathname+'#rascunho-'+id;
+const draftUrl=id=>SITE_BASE+'#rascunho-'+id;
 async function copyLink(u){try{if(navigator.clipboard){await navigator.clipboard.writeText(u);toast('Link copiado! 🔗');return}}catch(x){}prompt('Copie o link:',u)}
 async function openDraftView(id){
   document.body.classList.remove('view-rank');document.body.classList.add('view-art');wasFull=true;scrollTo({top:0,behavior:'instant'});
@@ -2129,7 +2139,7 @@ async function openDraftView(id){
   const ap=box.querySelector('.ap');if(ap)ap.insertAdjacentHTML('afterbegin','<p class="ap-draft">🔒 Rascunho · só quem está logado na redação consegue abrir este link.</p>');
   document.title='[Rascunho] '+(a.t||'sem título');
 }
-const artUrl=id=>{const a=articles.find(x=>x.id===id);return location.origin+location.pathname+'#materia-'+((a&&a.slug)||id)};
+const artUrl=id=>{const a=articles.find(x=>x.id===id);return PATHMODE?location.origin+'/materia/'+((a&&a.slug)||id):SITE_BASE+'#materia-'+((a&&a.slug)||id)};
 function artPageHtml(a,opts){
   const cv=safeImg(a.img),reacts=store.get('reacts',{}),ro=[['🔥','Quente'],['😂','Rachei'],['🤯','Pirei'],['❤️','Amei']];
   const more=(opts&&opts.preview)?[]:liveArts().filter(x=>x.id!==a.id).slice(0,3);
@@ -2156,10 +2166,10 @@ function renderArtPage(a){
   decorateArt($('#apBox'));
   document.title=(a.seoT||a.t)+' · Ovo Frito';setMeta(a.seoD||a.x,a.seoT||a.t);
 }
-function openArticle(id){artFrom=true;const a=articles.find(x=>x.id===id);location.hash='materia-'+((a&&a.slug)||id)}
+function openArticle(id){artFrom=true;const a=articles.find(x=>x.id===id),k=(a&&a.slug)||id;if(PATHMODE)goTo('/materia/'+k);else location.hash='materia-'+k}
 $('#apBox').addEventListener('click',async e=>{
   const bk=e.target.closest('[data-back]');
-  if(bk){e.preventDefault();if(artFrom&&history.length>1){history.back()}else location.hash='materias';return}
+  if(bk){e.preventDefault();if(artFrom&&history.length>1){history.back()}else if(PATHMODE)goTo('/','#materias');else location.hash='materias';return}
   const tg=e.target.closest('[data-tag]');
   if(tg){curTag=tg.dataset.tag;shown=6;curCat='Tudo';renderChips();renderArt();location.hash='materias';return}
   const rb=e.target.closest('#apReacts button');
@@ -2492,7 +2502,7 @@ async function unpackArt(str){
   const o=JSON.parse(new TextDecoder().decode(bytes));
   return {id:'previa',cat:cats.includes(o.cat)?o.cat:'Notícia',cats:Array.isArray(o.cats)?o.cats.filter(c=>cats.includes(c)):[],t:String(o.t||''),tl:String(o.tl||''),x:String(o.x||''),h:cleanHtml(String(o.h||'')),au:String(o.au||''),d:String(o.d||''),r:+o.r||1,img:/^https:\/\//.test(o.img||'')?o.img:'',ia:String(o.ia||''),tg:Array.isArray(o.tg)?o.tg.map(String).slice(0,12):[],seoT:String(o.seoT||''),seoD:String(o.seoD||'')};
 }
-async function previewLink(a){return location.origin+location.pathname+'#previa='+await packArt(a)}
+async function previewLink(a){return SITE_BASE+'#previa='+await packArt(a)}
 async function openPreviewView(code){
   document.body.classList.remove('view-rank');document.body.classList.add('view-art');wasFull=true;scrollTo({top:0,behavior:'instant'});
   const box=$('#apBox');
@@ -2673,7 +2683,7 @@ $('#wrDel').onclick=async()=>{
 };
 
 /* matérias agendadas entram sozinhas no horário */
-(function(){let n=liveArts().length;setInterval(()=>{const m=liveArts().length;if(m!==n){n=m;renderHero();renderArt();if(/^#materia-/.test(location.hash))routeView()}},30000)})();
+(function(){let n=liveArts().length;setInterval(()=>{const m=liveArts().length;if(m!==n){n=m;renderHero();renderArt();if(/^#materia-/.test(routeHash()))routeView()}},30000)})();
 
 /* TMDB / OMDb */
 const tmKey=()=>store.get('tmdbKey','');
@@ -3094,7 +3104,7 @@ async function loadRemote(){
     const c={};r.data.forEach(x=>{c[x.key]=x.value});
     const ts=r.data.filter(x=>x.key==='movies'||x.key==='series').map(x=>Date.parse(x.updated_at)).filter(Boolean);
     if(ts.length){rankUpd=Math.max(...ts);store.set('rankUpd',rankUpd)}
-    healed=false;applyContent(c);store.set('content',collect());renderAll();if(healed&&isAdmin)saveContent();if(/^#materia-/.test(location.hash))routeView();
+    healed=false;applyContent(c);store.set('content',collect());renderAll();if(healed&&isAdmin)saveContent();if(/^#materia-/.test(routeHash()))routeView();
     markSynced(r.data.map(x=>x.key).filter(k=>KEYS.includes(k)));
     return true;
   }catch(e){return false}
