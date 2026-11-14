@@ -237,6 +237,7 @@ main#topo>#materias{order:0;padding-top:8px}main#topo>#ranking{order:1}main#topo
 .more{text-align:center;margin-top:48px}
 .empty{padding:30px;text-align:center;color:var(--muted);list-style:none}
 @media(min-width:961px){#artGrid>.art:nth-child(1){display:grid;grid-template-columns:7fr 5fr;column-gap:40px;align-items:center}#artGrid>.art:nth-child(1) .art-cover{margin-bottom:0}#artGrid>.art:nth-child(1) .art-body{flex:none;justify-content:center}}
+@media(min-width:961px){#artGrid>.art:last-child:nth-child(3n+2){grid-column:span 12}#artGrid>.art:last-child:nth-child(3n),#artGrid>.art:nth-last-child(2):nth-child(3n+2){grid-column:span 6}}
 @media(max-width:960px){.grid-art{gap:44px 28px}.art{grid-column:span 6}.art:nth-child(1){grid-column:span 12}}
 @media(max-width:620px){.art,.art:nth-child(1){grid-column:span 12}}
 
