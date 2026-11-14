@@ -153,9 +153,16 @@ main#topo>#materias{order:0;padding-top:8px}main#topo>#ranking{order:1}main#topo
 .mood{border-top:0;padding:18px;margin-top:34px;background:var(--soft);max-width:640px}main#topo>.hero{display:none}
 .mood h3{font-family:var(--mono);font-weight:400;font-stretch:100%;font-size:11px;letter-spacing:.08em;text-transform:uppercase;line-height:1.4;margin-bottom:6px}
 .mood p{font-size:15px;line-height:1.35;color:var(--muted);margin-bottom:12px}
-#ranking .mood{color:#14110C}#ranking .mood h3{color:#14110C}#ranking .mood p,#ranking .mood-result small{color:#5f5a4e}
-#ranking .mood-opts button{color:#14110C;border-color:#14110C;background:transparent}#ranking .mood-opts button:hover{background:#FFC800;color:#14110C}#ranking .mood-opts button[aria-pressed="true"]{background:#14110C;color:#fff;border-color:#14110C}
-#ranking .mood-result{background:#fff;color:#14110C;border-color:#d9d4c7}#ranking .mood-result strong{color:#14110C}
+#ranking .mood{background:transparent;max-width:none;margin-top:48px;padding:18px 0 0;border-top:4px solid var(--gema);display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);column-gap:40px;row-gap:12px;align-items:start}
+#ranking .mood h3{grid-column:1;grid-row:1;font-family:var(--display);font-stretch:78%;font-weight:900;text-transform:uppercase;font-size:40px;line-height:.92;letter-spacing:0;color:var(--ink);margin:0}
+#ranking .mood>p{grid-column:1;grid-row:2;color:var(--muted);margin:0;font-size:17px}
+#ranking .mood-opts{grid-column:2;grid-row:1}#ranking .mood-result{grid-column:2;grid-row:2;margin-top:0}
+#ranking .mood-opts button{color:var(--ink);border:1px solid rgba(243,241,235,.5);background:transparent}
+#ranking .mood-opts button:hover{background:var(--gema);border-color:var(--gema);color:#14110C}
+#ranking .mood-opts button[aria-pressed="true"]{background:var(--gema);border-color:var(--gema);color:#14110C}
+#ranking .mood-result{background:transparent;color:var(--ink);border:1px solid rgba(243,241,235,.25)}
+#ranking .mood-result strong{color:var(--ink)}#ranking .mood-result small{color:var(--muted)}
+@media(max-width:900px){#ranking .mood{grid-template-columns:1fr}#ranking .mood h3,#ranking .mood>p,#ranking .mood-opts,#ranking .mood-result{grid-column:1;grid-row:auto}}
 .mood-opts{display:flex;flex-wrap:wrap;gap:8px}
 .mood-opts button{padding:8px 12px;border:1px solid var(--ink);font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
 .mood-opts button:hover{background:var(--gemapale);color:var(--chapa)}
