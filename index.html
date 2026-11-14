@@ -1318,7 +1318,8 @@ $('#year').textContent=new Date().getFullYear();
 
 /* ---------- ticker ---------- */
 function renderTicker(){
-  const html=ticker.map(({k,t})=>`<span>${k?`<b>${esc(k)}</b>`:''}${esc(t)}</span>`).join('');
+  const lk=a=>a&&articles.some(x=>x.id===a)?` data-open="${esc(a)}" role="button" tabindex="0" class="nc-link" style="cursor:pointer"`:'';
+  const html=ticker.map(({k,t,a})=>`<span${lk(a)}>${k?`<b>${esc(k)}</b>`:''}${esc(t)}</span>`).join('');
   $('#ticker').innerHTML=html+html;
   $('.ticker').style.visibility=ticker.length?'':'hidden';
   if(typeof renderHero==='function')renderHero();
@@ -1331,7 +1332,7 @@ function tHtml(a){return esc(a.tl||a.t||'').replace(/\*([^*\n]+)\*/g,'<em class=
 function artCover(a,cls){return a.img?`<div class="${cls}" style="background-image:url('${imgUrl(a)}')"></div>`:`<div class="${cls} ph ${phv(a)}" aria-hidden="true"><span>${esc(inits(a.t))}</span></div>`}
 function renderHero(){
   const LA=liveArts();
-  $('#ncList').innerHTML=ticker.slice(0,5).map(n=>`<li><div class="mono">${esc(n.k||'Nota')}</div><div class="t">${esc(n.t)}</div></li>`).join('');
+  $('#ncList').innerHTML=ticker.slice(0,5).map(n=>`<li${n.a&&articles.some(x=>x.id===n.a)?` data-open="${esc(n.a)}" role="button" tabindex="0" class="nc-link" style="cursor:pointer"`:''}><div class="mono">${esc(n.k||'Nota')}</div><div class="t">${esc(n.t)}</div></li>`).join('');
   $('.nachapa').style.display=ticker.length?'':'none';
   const rs=LA.filter(x=>x.cat==='Resenha').slice(0,3);
   $('#moreCrit').innerHTML=rs.map(b=>`<div class="it" data-open="${esc(b.id)}" role="button" tabindex="0"><span class="tag ${tagColor[b.cat]||''}">Resenha</span><span class="t">${tHtml(b)}</span><span class="mono" style="color:var(--muted)">${esc(b.d||'')} · ${esc(b.r||'')} min</span></div>`).join('');
@@ -1795,7 +1796,7 @@ labelTexts();applyTexts();
 function markEditable(){
   const coll=kind==='movies'?movies:series,order=coll.slice().sort((a,b)=>score(b)-score(a));
   ['#rankList','#rankListFull'].forEach(sel=>$$(sel+' .rank-item, '+sel+' .rk-card').forEach((li,i)=>{const it=order[i];if(it)li.dataset.ed=kind+':'+coll.indexOf(it)}));
-  $$('.hero [data-open]').forEach(el=>{const i=articles.findIndex(a=>a.id===el.dataset.open);if(i>=0)el.dataset.ed='articles:'+i});
+  $$('.hero [data-open]:not(.nc-link)').forEach(el=>{const i=articles.findIndex(a=>a.id===el.dataset.open);if(i>=0)el.dataset.ed='articles:'+i});
   $$('#artGrid .art').forEach(el=>{const i=articles.findIndex(a=>a.id===el.dataset.open);if(i>=0)el.dataset.ed='articles:'+i});
   $$('#interviews .iv').forEach((el,i)=>el.dataset.ed='interviews:'+i);
   $$('#nacList li').forEach((el,i)=>el.dataset.ed='nacional:'+i);
@@ -2784,7 +2785,7 @@ const SCH={
   articles:{name:'matéria',coll:articles,top:true,order:true,title:i=>i.t,sub:i=>(i.pubAt&&Date.parse(i.pubAt)>Date.now()?'⏰ Agendada · '+new Date(i.pubAt).toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})+' · ':'')+(i.cat||'')+' · '+(i.d||''),
     fields:[F('cat','Categoria','select',{o:cats.filter(c=>c!=='Tudo').map(c=>[c,c])}),F('t','Título','text',{r:1}),F('x','Resumo (aparece no card)','textarea',{rows:2,r:1}),F('b','Texto da matéria (separe os parágrafos com uma linha em branco)','textarea',{rows:8}),F('d','Data (ex.: 7 out)'),F('r','Minutos de leitura','number'),F('emoji','Emoji da capa'),F('img','Link da imagem da capa (opcional)')],
     blank:()=>({id:'a'+Date.now(),cat:'Notícia',t:'',x:'',b:'',d:today(),r:3,emoji:'📰',c:randGrad(),img:''})},
-  ticker:{name:'nota rápida',coll:ticker,order:true,title:i=>i.t,sub:i=>i.k||'',fields:[F('k','Selo (ex.: NOTA, SÉRIE)'),F('t','Texto','text',{r:1})],blank:()=>({k:'NOTA',t:''})},
+  ticker:{name:'nota rápida',coll:ticker,order:true,title:i=>i.t,sub:i=>i.k||'',fields:[F('k','Selo (ex.: NOTA, SÉRIE)'),F('t','Texto','text',{r:1}),F('a','Ligar a uma matéria já publicada (opcional: a nota vira link pra ela)','select',{o:()=>[['','— Nenhuma (só texto) —'],...articles.map(x=>[x.id,(x.t||'(sem título)')+(x.cat?' · '+x.cat:'')])]})],blank:()=>({k:'NOTA',t:'',a:''})},
   interviews:{name:'entrevista',coll:interviews,order:true,title:i=>i.n,sub:i=>i.r||'',
     fields:[F('n','Nome','text',{r:1}),F('r','Quem é (ex.: Roteirista de séries)'),F('q','Frase de destaque','textarea',{rows:2,r:1}),F('b','Texto completo','textarea',{rows:6}),F('i','Iniciais (2 letras)'),F('c','Cor do avatar','select',{o:[['#FFD21F','Amarelo'],['#2FD69A','Verde'],['#FF7AB8','Rosa'],['#7B5CFF','Violeta'],['#FF4A1C','Laranja']]})],
     blank:()=>({n:'',r:'',q:'',b:'',i:'',c:'#FFD21F'})},
@@ -2795,7 +2796,7 @@ let adTab='movies',adView='home',adSub='movies',adEdit=null,tmCache=[];
 function fieldHtml(f,v){
   const val=v==null?'':v,id='f_'+f.k;let inp;
   if(f.t==='textarea')inp=`<textarea id="${id}" name="${f.k}" rows="${f.rows||4}">${esc(val)}</textarea>`;
-  else if(f.t==='select')inp=`<select id="${id}" name="${f.k}">${f.o.map(([a,b])=>`<option value="${esc(a)}"${String(a)===String(val)?' selected':''}>${esc(b)}</option>`).join('')}</select>`;
+  else if(f.t==='select')inp=`<select id="${id}" name="${f.k}">${(typeof f.o==='function'?f.o():f.o).map(([a,b])=>`<option value="${esc(a)}"${String(a)===String(val)?' selected':''}>${esc(b)}</option>`).join('')}</select>`;
   else inp=`<input id="${id}" name="${f.k}" type="${f.t==='number'?'number':'text'}"${f.t==='number'?' step="any"':''} value="${esc(val)}">`;
   return `<div class="field"><label for="${id}">${esc(f.l)}${f.r?' *':''}</label>${inp}</div>`;
 }
