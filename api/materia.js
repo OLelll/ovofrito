@@ -8,10 +8,10 @@ const isLive = a => !a.pubAt || Date.parse(a.pubAt) <= Date.now();
 const cut = (t, n) => { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length <= n ? t : t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…'; };
 
 async function loadArticles() {
-  const r = await fetch(`${SB_URL}/rest/v1/content?key=eq.articles&select=value`, { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY } });
+  const r = await fetch(`${SB_URL}/rest/v1/rpc/public_articles`, { method: 'POST', headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' }, body: '{}' });
   if (!r.ok) throw new Error('supabase ' + r.status);
   const j = await r.json();
-  return Array.isArray(j[0] && j[0].value) ? j[0].value : [];
+  return Array.isArray(j) ? j : [];
 }
 
 function render(html, a, origin) {

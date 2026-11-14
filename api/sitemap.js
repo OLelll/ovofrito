@@ -6,8 +6,8 @@ module.exports = async (req, res) => {
   const origin = 'https://' + (req.headers['x-forwarded-host'] || req.headers.host || '');
   let list = [];
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/content?key=eq.articles&select=value`, { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY } });
-    const j = await r.json(); list = Array.isArray(j[0] && j[0].value) ? j[0].value : [];
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/public_articles`, { method: 'POST', headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' }, body: '{}' });
+    const j = await r.json(); list = Array.isArray(j) ? j : [];
   } catch (e) {}
   list = list.filter(a => !a.pubAt || Date.parse(a.pubAt) <= Date.now());
   const urls = [`<url><loc>${origin}/</loc></url>`].concat(list.map(a => `<url><loc>${x(origin + '/materia/' + (a.slug || a.id))}</loc></url>`));

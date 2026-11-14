@@ -3152,6 +3152,7 @@ async function loadRemote(){
     if(!r.ok||!Array.isArray(r.data))return false;
     if(!r.data.length)return true; /* banco ainda vazio: mantém os exemplos */
     const c={};r.data.forEach(x=>{c[x.key]=x.value});
+    if(!Array.isArray(c.articles)){const pa=await sbFetch('/rest/v1/rpc/public_articles',{method:'POST',body:{}});if(pa.ok&&Array.isArray(pa.data))c.articles=pa.data}
     const ts=r.data.filter(x=>x.key==='movies'||x.key==='series').map(x=>Date.parse(x.updated_at)).filter(Boolean);
     if(ts.length){rankUpd=Math.max(...ts);store.set('rankUpd',rankUpd)}
     healed=false;applyContent(c);store.set('content',collect());renderAll();if(healed&&isAdmin)saveContent();if(/^#materia-/.test(routeHash()))routeView();
