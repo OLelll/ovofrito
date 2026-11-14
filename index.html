@@ -1067,6 +1067,14 @@ ul.blk-ed{list-style:disc;padding-left:1.4em}ol.blk-ed{list-style:decimal;paddin
           <small>Até 8 tags. Ex.: terror, brasil, netflix.</small>
         </section>
         <section><h4>Autoria</h4><input type="text" id="wrAu" maxlength="60" placeholder="Seu nome"></section>
+        <section><h4>Imagem de capa</h4>
+          <div class="pv" id="wrCv">Sem capa</div>
+          <div class="row"><label class="btn alt" style="cursor:pointer;margin:0">📷 Enviar<input type="file" id="wrCvFile" accept="image/jpeg,image/png,image/webp" hidden></label><button type="button" class="btn alt" id="wrCvDel">Remover</button></div>
+          <input type="text" id="wrCvUrl" placeholder="ou cole o endereço (https://…)" aria-label="Endereço da capa">
+          <label for="wrCvAlt">Descrição da imagem (alt)</label>
+          <input type="text" id="wrCvAlt" maxlength="200" placeholder="Descreva o que aparece na imagem">
+          <small>Toda imagem é cortada em 16:9 (1600×900) pra manter o padrão do site.</small>
+        </section>
         <section id="wrSeo"><h4>SEO (Google e redes)</h4>
           <label for="wrSeoT">Título SEO <span class="ct" id="wrSeoTc"></span></label><input type="text" id="wrSeoT" maxlength="80" placeholder="Igual ao título da matéria">
           <label for="wrSeoD">Descrição SEO <span class="ct" id="wrSeoDc"></span></label><textarea id="wrSeoD" rows="3" maxlength="220" placeholder="Igual à linha fina"></textarea>
@@ -1075,14 +1083,6 @@ ul.blk-ed{list-style:disc;padding-left:1.4em}ol.blk-ed{list-style:decimal;paddin
           <div class="seo-pv" id="wrSeoPv" aria-label="Como aparece no Google"></div>
           <button type="button" class="btn alt" id="wrSeoAuto">↺ Gerar tudo automático</button>
           <small>Tudo isso é preenchido sozinho a partir do título e da linha fina. Edite só o que quiser mudar.</small>
-        </section>
-        <section><h4>Imagem de capa</h4>
-          <div class="pv" id="wrCv">Sem capa</div>
-          <div class="row"><label class="btn alt" style="cursor:pointer;margin:0">📷 Enviar<input type="file" id="wrCvFile" accept="image/jpeg,image/png,image/webp" hidden></label><button type="button" class="btn alt" id="wrCvDel">Remover</button></div>
-          <input type="text" id="wrCvUrl" placeholder="ou cole o endereço (https://…)" aria-label="Endereço da capa">
-          <label for="wrCvAlt">Descrição da imagem (alt)</label>
-          <input type="text" id="wrCvAlt" maxlength="200" placeholder="Descreva o que aparece na imagem">
-          <small>Toda imagem é cortada em 16:9 (1600×900) pra manter o padrão do site.</small>
         </section>
       </aside>
     </div>
@@ -2695,6 +2695,7 @@ $('#wrPub').onclick=async()=>{
     if(!wr.pub)a.d=today();
     delete a.pubAt;
   }
+  { const nowIso=new Date().toISOString();if(!wr.pub||!a.at)a.at=sch?a.pubAt:nowIso;a.up=nowIso;if(!wr.pub||!a.by)a.by=myName()||a.au||''; }
   delete a._u;
   const i=articles.findIndex(x=>x.id===a.id);
   if(i>=0)articles[i]=a;else articles.unshift(a);
@@ -2782,7 +2783,7 @@ async function tmToItem(r,kind){
 const sortedBy=k=>COLL[k].slice().sort((a,b)=>score(b)-score(a));
 
 /* schemas do painel */
-const NAV=[['Início',[['home','🏠 Visão geral']]],['As 7 editorias',[['ranking','🏆 Ranking'],...EDS.map(e=>['ed:'+e.k,e.ic+' '+e.l])]],['Site',[['ticker','⚡ Na chapa'],['team','👥 Equipe'],['config','⚙️ Configurações']]]];
+const NAV=[['Início',[['home','🏠 Visão geral']]],['As 7 editorias',[['ranking','🏆 Ranking'],...EDS.map(e=>['ed:'+e.k,e.ic+' '+e.l])]],['Site',[['hist','🕘 Histórico'],['ticker','⚡ Na chapa'],['team','👥 Equipe'],['config','⚙️ Configurações']]]];
 const TT={movies:'🎬 Filmes',series:'📺 Séries',ticker:'⚡ Na chapa (notas rápidas da home)'};
 const F=(k,l,t='text',x={})=>({k,l,t,...x});
 const moodOpts=moods.filter(m=>m.k!=='surpresa').map(m=>[m.k,m.e+' '+m.l]);
@@ -2917,8 +2918,20 @@ function viewHtml(){
   if(adView==='ranking')return rankingHtml();
   if(adView.startsWith('ed:'))return edHtml(adView.slice(3));
   if(adView==='ticker')return listHtml('ticker');
+  if(adView==='hist')return histHtml();
   if(adView==='team')return teamHtml();
   return configHtml();
+}
+function artTs(a){const t=a.at?Date.parse(a.at):NaN;if(!isNaN(t))return t;const m=/^a(\d{12,14})$/.exec(a.id||'');return m?+m[1]:0}
+function histHtml(){
+  const list=[...articles].sort((x,y)=>artTs(y)-artTs(x));
+  const fd=t=>new Date(t).toLocaleString('pt-BR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).replace('.','');
+  const rows=list.map(a=>{
+    const t=artTs(a),up=a.up?Date.parse(a.up):0,sch=a.pubAt&&Date.parse(a.pubAt)>Date.now();
+    const who=a.au||a.by||'sem autor',st=sch?'⏰ Agendada':'✔ Publicada';
+    return `<li><div class="pn-t"><strong>${esc((a.t||'(sem título)').replace(/\*/g,''))}</strong><small>${esc(who)} · ${esc(catLabel(a.cat))} · ${st}</small><small>${t?esc(fd(t)):esc(a.d||'sem data')}${up&&t&&up-t>120000?' · atualizada em '+esc(fd(up)):''}</small></div>
+    <div class="pn-btns"><a class="btn alt" href="${esc(artUrl(a.id))}" target="_blank" rel="noopener" style="min-width:0;height:38px;padding:0 .8rem;display:inline-flex;align-items:center">Abrir</a><button type="button" data-act="wedit" data-id="${esc(a.id)}" title="Editar">✏️</button></div></li>`}).join('');
+  return `<h3>🕘 Histórico</h3><p class="pn-note">Todas as matérias do site, da mais recente para a mais antiga: quem assina, dia, horário e link. Matérias antigas, de antes deste histórico, mostram a data aproximada.</p><ul class="pn-list">${rows||'<li class="empty">Nenhuma matéria publicada ainda.</li>'}</ul>`;
 }
 function setView(v){adView=v;adEdit=null;adTab=v==='ranking'?adSub:v==='ticker'?'ticker':'articles'}
 function adminRender(){
@@ -3015,6 +3028,7 @@ adminOv.addEventListener('click',async e=>{
     }
     if(act==='wnew')openWriter(null,b.dataset.cat||(adView.startsWith('ed:')?adView.slice(3):''));
     else if(act==='wlink'){const d=drafts.find(x=>x.id===b.dataset.id);if(d)copyLink(await previewLink(d))}
+    else if(act==='wedit'){const a=articles.find(x=>x.id===b.dataset.id);if(a)openWriter(a)}
     else if(act==='wdraft'){const d=drafts.find(x=>x.id===b.dataset.id);if(d)openWriter(d)}
     else if(act==='wdel'){if(confirm('Excluir este rascunho?')){await dropDraft(b.dataset.id);paintDrafts()}}
     else if(act==='new'){adEdit={coll,i:-1};adminRender()}
