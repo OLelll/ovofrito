@@ -1490,6 +1490,7 @@ function setMeta(d,t){
   if(t)set('meta[property="og:title"]','content',t+' · Ovo Frito');
 }
 function routeView(){
+  if(PATHMODE&&/^\/materia\//.test(location.pathname)&&location.hash&&!/^#(materia-|access_token=)/.test(location.hash))history.replaceState(null,'','/'+location.hash);
   const H=routeHash();
   if(H==='#painel'){setTimeout(()=>{isAdmin?openAdmin():openLogin()},0);return}
   const au=/^#autor-([\w-]+)$/.exec(H);if(au){openAuthorView(au[1]);return}
