@@ -150,9 +150,12 @@ main#topo>#materias{order:0;padding-top:8px}main#topo>#ranking{order:1}main#topo
 .nachapa li{padding:14px 0;border-bottom:1px solid var(--hair)}
 .nachapa .mono{color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:11px}
 .nachapa .t{font-family:var(--display);font-stretch:85%;font-weight:800;font-size:20px;line-height:1.1;margin-top:4px}
-.mood{border-top:0;padding:18px;margin-top:22px;background:var(--soft)}
+.mood{border-top:0;padding:18px;margin-top:34px;background:var(--soft);max-width:640px}main#topo>.hero{display:none}
 .mood h3{font-family:var(--mono);font-weight:400;font-stretch:100%;font-size:11px;letter-spacing:.08em;text-transform:uppercase;line-height:1.4;margin-bottom:6px}
 .mood p{font-size:15px;line-height:1.35;color:var(--muted);margin-bottom:12px}
+#ranking .mood{color:#14110C}#ranking .mood h3{color:#14110C}#ranking .mood p,#ranking .mood-result small{color:#5f5a4e}
+#ranking .mood-opts button{color:#14110C;border-color:#14110C;background:transparent}#ranking .mood-opts button:hover{background:#FFC800;color:#14110C}#ranking .mood-opts button[aria-pressed="true"]{background:#14110C;color:#fff;border-color:#14110C}
+#ranking .mood-result{background:#fff;color:#14110C;border-color:#d9d4c7}#ranking .mood-result strong{color:#14110C}
 .mood-opts{display:flex;flex-wrap:wrap;gap:8px}
 .mood-opts button{padding:8px 12px;border:1px solid var(--ink);font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
 .mood-opts button:hover{background:var(--gemapale);color:var(--chapa)}
@@ -752,13 +755,6 @@ ul.blk-ed{list-style:disc;padding-left:1.4em}ol.blk-ed{list-style:decimal;paddin
     <p class="lead">Resenhas sem enrolação, notas rápidas, entrevistas e um ranking feito com a sua nota. Aqui você descobre o que assistir e ainda briga (com carinho) sobre o final.</p>
     <div class="hero-grid">
       <aside>
-        <div class="nachapa"><h3>Na chapa</h3><ul id="ncList"></ul></div>
-        <div class="mood" aria-labelledby="moodTitle">
-          <h3 id="moodTitle">Que clima hoje?</h3>
-          <p>Escolhe seu humor e a gente sugere um filme ou série, mesmo que não esteja no ranking.</p>
-          <div class="mood-opts" id="moodOpts" role="group" aria-label="Escolha seu humor"></div>
-          <div class="mood-result" id="moodResult" aria-live="polite"><small>Toca num humor aí em cima.</small></div>
-        </div>
       </aside>
     </div>
   </div>
@@ -780,6 +776,12 @@ ul.blk-ed{list-style:disc;padding-left:1.4em}ol.blk-ed{list-style:decimal;paddin
     </div>
     <ol class="rk-grid" id="rankList"></ol>
     <div class="rk-all" id="rkAll"><a class="btn hot" href="#ranking-completo">Ver ranking completo</a><span id="rkCount"></span></div>
+    <div class="mood" aria-labelledby="moodTitle">
+      <h3 id="moodTitle">Que clima hoje?</h3>
+      <p>Escolhe seu humor e a gente sugere um filme ou série, mesmo que não esteja no ranking.</p>
+      <div class="mood-opts" id="moodOpts" role="group" aria-label="Escolha seu humor"></div>
+      <div class="mood-result" id="moodResult" aria-live="polite"><small>Toca num humor aí em cima.</small></div>
+    </div>
     <p class="note-src" id="noteSrc">* Títulos, notas e votos desta página são exemplos fictícios, só pra mostrar como o ranking funciona.</p>
   </div>
 </section>
@@ -1335,8 +1337,6 @@ function tHtml(a){return esc(a.tl||a.t||'').replace(/\*([^*\n]+)\*/g,'<em class=
 function artCover(a,cls){return a.img?`<div class="${cls}" style="background-image:url('${imgUrl(a)}')"></div>`:`<div class="${cls} ph ${phv(a)}" aria-hidden="true"><span>${esc(inits(a.t))}</span></div>`}
 function renderHero(){
   const LA=liveArts();
-  $('#ncList').innerHTML=ticker.slice(0,5).map(n=>`<li${n.a&&articles.some(x=>x.id===n.a)?` data-open="${esc(n.a)}" role="button" tabindex="0" class="nc-link" style="cursor:pointer"`:''}><div class="mono">${esc(tkKind(n)||'Nota')}</div><div class="t">${esc(tkText(n))}</div></li>`).join('');
-  $('.nachapa').style.display=ticker.length?'':'none';
   const rs=LA.filter(x=>x.cat==='Resenha').slice(0,3);
   $('#moreCrit').innerHTML=rs.map(b=>`<div class="it" data-open="${esc(b.id)}" role="button" tabindex="0"><span class="tag ${tagColor[b.cat]||''}">Resenha</span><span class="t">${tHtml(b)}</span><span class="mono" style="color:var(--muted)">${esc(b.d||'')} · ${esc(b.r||'')} min</span></div>`).join('');
   $('#moreCrit').style.display=rs.length?'':'none';
