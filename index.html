@@ -65,6 +65,8 @@ h1,h2,h3,h4{font-family:var(--display);line-height:1;font-weight:900}
 .tag.s::before,.kick.s i{background:var(--prato)}
 .kick i{width:11px;height:11px;display:block;flex:none}
 .card{background:var(--card);border:2px solid var(--rule)}
+.tm{font-style:normal;background:var(--gema);color:var(--chapa);padding:0 .1em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.wr-hint{display:block;color:var(--muted);font-size:13px;margin:4px 0 8px}
 .mk,.sec-head h2 em,.news h2 em{font-style:normal;background:var(--gema);color:var(--chapa);padding:0 .12em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px 48px;flex-wrap:wrap;border-top:4px solid var(--rule);padding-top:14px;margin-bottom:40px}
 .sec-head h2{font-stretch:78%;text-transform:uppercase;font-size:clamp(2.6rem,6vw,4.4rem);line-height:.92;letter-spacing:-.005em}
@@ -1032,6 +1034,7 @@ ul.blk-ed{list-style:disc;padding-left:1.4em}ol.blk-ed{list-style:decimal;paddin
         </div>
         <div class="wr-doc">
           <input type="text" class="wr-title" id="wrT" placeholder="Título da matéria" maxlength="140" aria-label="Título">
+          <small class="wr-hint">Dica: coloque *asteriscos* em volta das palavras que devem ganhar a gema. Ex.: Vencedor do *É Tudo Verdade*</small>
           <textarea class="wr-sub" id="wrX" rows="2" placeholder="Linha fina: resumo em uma ou duas frases (aparece nos cards)" maxlength="240" aria-label="Linha fina"></textarea>
           <div class="wr-blocks" id="wrBl"></div>
           <div class="wr-foot"><button type="button" class="btn alt" id="wrUnpub" hidden>Despublicar</button><button type="button" class="btn alt" id="wrDel">🗑️ Excluir matéria</button></div>
@@ -1320,13 +1323,14 @@ renderTicker();
 
 /* ---------- ranking ---------- */
 function lastWords(t,n){const w=String(t).trim().split(/\s+/);if(w.length<3)return [esc(t),''];const k=Math.min(n,Math.max(1,Math.floor(w.length/2)));return [esc(w.slice(0,-k).join(' ')),esc(w.slice(-k).join(' '))]}
+function tHtml(a){return esc(a.tl||a.t||'').replace(/\*([^*\n]+)\*/g,'<em class="tm">$1</em>')}
 function artCover(a,cls){return a.img?`<div class="${cls}" style="background-image:url('${imgUrl(a)}')"></div>`:`<div class="${cls} ph ${phv(a)}" aria-hidden="true"><span>${esc(inits(a.t))}</span></div>`}
 function renderHero(){
   const LA=liveArts();
   $('#ncList').innerHTML=ticker.slice(0,5).map(n=>`<li><div class="mono">${esc(n.k||'Nota')}</div><div class="t">${esc(n.t)}</div></li>`).join('');
   $('.nachapa').style.display=ticker.length?'':'none';
   const rs=LA.filter(x=>x.cat==='Resenha').slice(0,3);
-  $('#moreCrit').innerHTML=rs.map(b=>`<div class="it" data-open="${esc(b.id)}" role="button" tabindex="0"><span class="tag ${tagColor[b.cat]||''}">Resenha</span><span class="t">${esc(b.t)}</span><span class="mono" style="color:var(--muted)">${esc(b.d||'')} · ${esc(b.r||'')} min</span></div>`).join('');
+  $('#moreCrit').innerHTML=rs.map(b=>`<div class="it" data-open="${esc(b.id)}" role="button" tabindex="0"><span class="tag ${tagColor[b.cat]||''}">Resenha</span><span class="t">${tHtml(b)}</span><span class="mono" style="color:var(--muted)">${esc(b.d||'')} · ${esc(b.r||'')} min</span></div>`).join('');
   $('#moreCrit').style.display=rs.length?'':'none';
 }
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('[role=button][data-open]')){e.preventDefault();e.target.click()}});
@@ -1532,7 +1536,7 @@ function renderChips(){
 function artCardHtml(a){return `
     <button type="button" class="art" data-open="${a.id}">
       ${a.img?`<div class="art-cover" style="background-image:url('${imgUrl(a)}')"></div>`:`<div class="art-cover ph ${phv(a)}" aria-hidden="true"><span>${esc(inits(a.t))}</span></div>`}
-      <div class="art-body"><span class="tag ${tagColor[a.cat]||''}">${esc(catLabel(a.cat))}</span><h3>${esc(a.t)}</h3><p>${esc(a.x)}</p><div class="art-foot"><span>${esc(a.d||'')}</span><span>${esc(a.r||'')} min de leitura</span></div></div>
+      <div class="art-body"><span class="tag ${tagColor[a.cat]||''}">${esc(catLabel(a.cat))}</span><h3>${tHtml(a)}</h3><p>${esc(a.x)}</p><div class="art-foot"><span>${esc(a.d||'')}</span><span>${esc(a.r||'')} min de leitura</span></div></div>
     </button>`}
 function renderArt(){
   const list=liveArts().filter(a=>(curCat==='Tudo'||a.cat===curCat||(a.cats||[]).includes(curCat))&&(!curTag||(a.tg||[]).some(t=>t.toLowerCase()===curTag.toLowerCase())));
@@ -2133,7 +2137,7 @@ function artPageHtml(a,opts){
   return `<article class="ap">
     ${opts&&opts.preview?'':'<a class="ap-back" href="#materias" data-back>← Todas as matérias</a><br>'}
     <span class="tag ${tagColor[a.cat]||''}">${esc(catLabel(a.cat))}</span>${(a.cats||[]).filter(c=>c!==a.cat).map(c=>` <span class="tag ${tagColor[c]||''}" style="opacity:.75">${esc(catLabel(c))}</span>`).join('')}
-    <h1>${esc(a.t||'(sem título)')}</h1>
+    <h1>${a.t?tHtml(a):'(sem título)'}</h1>
     ${a.x?`<p class="ap-sub">${esc(a.x)}</p>`:''}
     <div class="ap-by"><a href="#autor-${auSlug(a.au)}" class="ap-au" title="Ver todas as matérias de ${esc(a.au||DEF_AU)}">${esc(a.au||DEF_AU)}</a> · ${esc(a.d||'')} · ${esc(a.r||1)} min de leitura</div>
     ${cv?`<figure class="ap-cover"><img src="${cv}" alt="${esc(a.ia||'')}"></figure>`:''}
@@ -2141,7 +2145,7 @@ function artPageHtml(a,opts){
     ${tags.length?`<div class="ap-tags" aria-label="Tags">${tags.map(t=>`<button type="button" data-tag="${esc(t)}">#${esc(t)}</button>`).join('')}</div>`:''}
     ${opts&&opts.preview?'':`<div class="reacts" id="apReacts">${ro.map(([e,l])=>{const k=a.id+e;return `<button type="button" data-k="${esc(k)}" class="${reacts[k]?'on':''}">${e} ${l}</button>`}).join('')}</div>
     <div class="ap-share"><button type="button" class="btn" data-share="${esc(a.id)}">🔗 Compartilhar</button><a class="btn alt" href="#materias" data-back>Ver mais matérias</a></div>
-    ${more.length?`<div class="ap-more"><h2>Leia também</h2>${more.map(b=>`<button type="button" class="it" data-open="${esc(b.id)}"><span class="tag ${tagColor[b.cat]||''}">${esc(catLabel(b.cat))}</span><strong>${esc(b.t)}</strong></button>`).join('')}</div>`:''}`}
+    ${more.length?`<div class="ap-more"><h2>Leia também</h2>${more.map(b=>`<button type="button" class="it" data-open="${esc(b.id)}"><span class="tag ${tagColor[b.cat]||''}">${esc(catLabel(b.cat))}</span><strong>${tHtml(b)}</strong></button>`).join('')}</div>`:''}`}
   </article>`;
 }
 function decorateArt(root){
@@ -2451,7 +2455,7 @@ const v0=r=>/[\s-]$/.test(r)&&slugify(r);
 const seoCut=(t,n)=>{t=String(t||'').replace(/\s+/g,' ').trim();return t.length<=n?t:t.slice(0,n-1).replace(/\s+\S*$/,'')+'…'};
 function seoAuto(which){
   if(!wr)return;
-  const t=$('#wrT').value.trim(),x=$('#wrX').value.trim()||plainText(blocksToHtml(readBlocks())).slice(0,400);
+  const t=$('#wrT').value.replace(/\*/g,'').trim(),x=$('#wrX').value.trim()||plainText(blocksToHtml(readBlocks())).slice(0,400);
   if(which.includes('t'))$('#wrSeoT').value=seoCut(t,60);
   if(which.includes('d'))$('#wrSeoD').value=seoCut(x,155);
   if(which.includes('s'))$('#wrSlug').value=slugUnique(slugify(t),wr.a.id);
@@ -2459,7 +2463,7 @@ function seoAuto(which){
 }
 function paintSeo(){
   if(!wr)return;
-  const t=$('#wrSeoT').value||$('#wrT').value,d=$('#wrSeoD').value||$('#wrX').value,sl=$('#wrSlug').value;
+  const t=$('#wrSeoT').value||$('#wrT').value.replace(/\*/g,''),d=$('#wrSeoD').value||$('#wrX').value,sl=$('#wrSlug').value;
   const c=(id,n,lim,ok)=>{const e=$(id);e.textContent=n+'/'+lim;e.className='ct '+(n>lim?'bad':n>=ok?'ok':'')};
   c('#wrSeoTc',$('#wrSeoT').value.length,60,30);c('#wrSeoDc',$('#wrSeoD').value.length,160,110);
   $('#wrSlugUrl').textContent=location.host+location.pathname.replace(/index\.html$/,'')+'#materia-'+(sl||'…');
@@ -2475,7 +2479,7 @@ $('#wrX').addEventListener('input',()=>{if(!wr)return;if(wr.auto.d)seoAuto('d');
 [['#wrSeoT','t'],['#wrSeoD','d'],['#wrSlug','s']].forEach(([id,k])=>$(id).addEventListener('input',()=>{if(!wr)return;wr.auto[k]=!$(id).value.trim();if(k==='s'){const raw=$(id).value,v=slugify(raw)+(v0(raw)?'-':'');if(v!==raw)$(id).value=v}paintSeo();wrDirty()}));
 $('#wrSeoAuto').onclick=()=>{if(!wr)return;wr.auto={t:true,d:true,s:true};seoAuto('tds');wrDirty()};
 async function packArt(a){
-  const o={t:a.t,x:a.x,h:a.h,au:a.au,d:a.d,r:a.r,img:a.img,ia:a.ia,tg:a.tg,cat:a.cat,cats:a.cats,seoT:a.seoT,seoD:a.seoD,id:'previa'};
+  const o={t:a.t,tl:a.tl,x:a.x,h:a.h,au:a.au,d:a.d,r:a.r,img:a.img,ia:a.ia,tg:a.tg,cat:a.cat,cats:a.cats,seoT:a.seoT,seoD:a.seoD,id:'previa'};
   let bytes=new TextEncoder().encode(JSON.stringify(o)),p='p';
   try{if(window.CompressionStream){const cs=new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));bytes=new Uint8Array(await new Response(cs).arrayBuffer());p='z'}}catch(e){p='p'}
   let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));
@@ -2486,7 +2490,7 @@ async function unpackArt(str){
   let bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
   if(p==='z'){const ds=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));bytes=new Uint8Array(await new Response(ds).arrayBuffer())}
   const o=JSON.parse(new TextDecoder().decode(bytes));
-  return {id:'previa',cat:cats.includes(o.cat)?o.cat:'Notícia',cats:Array.isArray(o.cats)?o.cats.filter(c=>cats.includes(c)):[],t:String(o.t||''),x:String(o.x||''),h:cleanHtml(String(o.h||'')),au:String(o.au||''),d:String(o.d||''),r:+o.r||1,img:/^https:\/\//.test(o.img||'')?o.img:'',ia:String(o.ia||''),tg:Array.isArray(o.tg)?o.tg.map(String).slice(0,12):[],seoT:String(o.seoT||''),seoD:String(o.seoD||'')};
+  return {id:'previa',cat:cats.includes(o.cat)?o.cat:'Notícia',cats:Array.isArray(o.cats)?o.cats.filter(c=>cats.includes(c)):[],t:String(o.t||''),tl:String(o.tl||''),x:String(o.x||''),h:cleanHtml(String(o.h||'')),au:String(o.au||''),d:String(o.d||''),r:+o.r||1,img:/^https:\/\//.test(o.img||'')?o.img:'',ia:String(o.ia||''),tg:Array.isArray(o.tg)?o.tg.map(String).slice(0,12):[],seoT:String(o.seoT||''),seoD:String(o.seoD||'')};
 }
 async function previewLink(a){return location.origin+location.pathname+'#previa='+await packArt(a)}
 async function openPreviewView(code){
@@ -2542,7 +2546,7 @@ function openWriter(art,cat0){
   const a=art?JSON.parse(JSON.stringify(art)):{id:'a'+Date.now(),cat:cats.includes(cat0)&&cat0!=='Tudo'?cat0:'Notícia',t:'',x:'',h:'',au:'',d:today(),r:1,emoji:'📰',c:randGrad(),img:'',ia:'',tg:[]};
   const inList=!!art&&articles.some(x=>x.id===a.id),sched=inList&&a.pubAt&&Date.parse(a.pubAt)>Date.now();
   wr={a,pub:inList,sched:!!sched,dirty:false,tags:(a.tg||[]).slice(),cats:(a.cats||[]).filter(c=>c!==a.cat)};
-  $('#wrT').value=a.t||'';$('#wrX').value=a.x||'';$('#wrCat').value=a.cat||'Notícia';$('#wrAu').value=a.au||'';
+  $('#wrT').value=a.tl||a.t||'';$('#wrX').value=a.x||'';$('#wrCat').value=a.cat||'Notícia';$('#wrAu').value=a.au||'';
   $('#wrCvAlt').value=a.ia||'';
   paintBlocks(htmlToBlocks(a.h||legacyHtml(a)));
   paintTags();paintCats();wrCoverPaint();wrCountUpd();seoOpen(a);
@@ -2560,7 +2564,8 @@ function openWriter(art,cat0){
 function wrCoverPaint(){const u=safeImg(wr.a.img),pv=$('#wrCv');pv.style.backgroundImage=u?`url('${u}')`:'';pv.textContent=u?'':'Sem capa';$('#wrCvUrl').value=wr.a.img||''}
 function wrRead(){
   const a=wr.a;
-  a.t=$('#wrT').value.trim();a.x=$('#wrX').value.trim();a.cat=$('#wrCat').value;a.au=$('#wrAu').value.trim();
+  {const raw=$('#wrT').value.trim();a.tl=/\*[^*\n]+\*/.test(raw)?raw:'';a.t=raw.replace(/\*/g,'')}
+  a.x=$('#wrX').value.trim();a.cat=$('#wrCat').value;a.au=$('#wrAu').value.trim();
   a.img=$('#wrCvUrl').value.trim();a.ia=$('#wrCvAlt').value.trim();a.tg=wr.tags.slice();a.cats=wr.cats.filter(c=>c!==a.cat);
   a.seoT=$('#wrSeoT').value.trim();a.seoD=$('#wrSeoD').value.trim();a.slug=slugify($('#wrSlug').value)||slugUnique(slugify(a.t),a.id);
   const bl=readBlocks();a.h=blocksToHtml(bl);
