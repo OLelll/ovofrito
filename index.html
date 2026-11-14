@@ -1945,13 +1945,31 @@ function paintAcc(){
   <form id="acForm" novalidate>
     ${up?'<div class="field"><label for="acNick">Como quer ser chamado(a)?</label><input type="text" id="acNick" maxlength="24" autocomplete="nickname" placeholder="Apelido ou primeiro nome"></div>':''}
     <div class="field"><label for="acUser">${up?'E-mail':'E-mail ou usuário'}</label><input type="text" id="acUser" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="80"></div>
-    <div class="field"><label for="acPass">Senha</label><input type="password" id="acPass" autocomplete="${up?'new-password':'current-password'}" maxlength="72"></div>
+    <div class="field"><label for="acPass">Senha</label><div class="pw"><input type="password" id="acPass" autocomplete="${up?'new-password':'current-password'}" maxlength="72"><button type="button" id="acEye" aria-label="Mostrar senha" aria-pressed="false">👁️</button></div></div>
+    ${up?'':'<button type="button" class="linkbtn" id="acForgot" style="background:none;border:0;padding:0;margin:-2px 0 10px;color:inherit;text-decoration:underline;cursor:pointer;font:inherit;font-size:.9rem">Esqueci minha senha</button>'}
     ${up?'<small style="display:block;color:var(--muted);margin-bottom:8px">Senha com pelo menos 6 caracteres. Vamos mandar um e-mail pra você confirmar a conta antes de entrar.</small>':''}
     <span class="err" id="acErr" role="alert" style="display:block;margin-bottom:8px"></span>
     <button class="btn" type="submit">${up?'Criar minha conta':'Entrar'}</button>
   </form>`;
   $$('#accBody .acc-tabs button').forEach(x=>x.onclick=()=>{accMode=x.dataset.m;paintAcc();$('#acUser').focus()});
   $('#acForm').onsubmit=accSubmit;
+  $('#acEye').onclick=()=>{const p=$('#acPass'),s=p.type==='password';p.type=s?'text':'password';$('#acEye').textContent=s?'🙈':'👁️';$('#acEye').setAttribute('aria-pressed',s);$('#acEye').setAttribute('aria-label',s?'Esconder senha':'Mostrar senha')};
+  const fg=$('#acForgot');if(fg)fg.onclick=async()=>{
+    const err=$('#acErr'),raw=$('#acUser').value.trim().toLowerCase();err.textContent='';
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(raw)){err.textContent='Digite seu e-mail no campo acima e clique de novo em “Esqueci minha senha”.';return}
+    fg.disabled=true;
+    try{const r=await sbFetch('/auth/v1/recover?redirect_to='+encodeURIComponent(SITE_BASE),{method:'POST',body:{email:raw}});
+      if(r.status===429)throw new Error('Muitas tentativas. Espera um pouco.');
+      if(!r.ok)throw new Error('Não consegui enviar agora ('+((r.data&&(r.data.error_code||r.data.error))||r.status)+').');
+      accBodyMsg('Se existir uma conta com '+raw+', enviamos um link para criar uma nova senha. Olhe também o spam.')}
+    catch(x){err.textContent=x.message}finally{fg.disabled=false}};
+}
+function paintReset(){
+  $('#accBody').innerHTML=`<h3 id="accTitle">Nova senha</h3><form id="acReset" novalidate><div class="field"><label for="acNew">Nova senha</label><div class="pw"><input type="password" id="acNew" autocomplete="new-password" maxlength="72"><button type="button" id="acNewEye" aria-label="Mostrar senha">👁️</button></div></div><span class="err" id="acErr" role="alert" style="display:block;margin-bottom:8px"></span><button class="btn" type="submit">Salvar nova senha</button></form>`;
+  $('#acNewEye').onclick=()=>{const p=$('#acNew'),s=p.type==='password';p.type=s?'text':'password';$('#acNewEye').textContent=s?'🙈':'👁️'};
+  $('#acReset').onsubmit=async e=>{e.preventDefault();const v=$('#acNew').value,err=$('#acErr');if(v.length<6){err.textContent='A senha precisa ter pelo menos 6 caracteres.';return}
+    try{const t=await sbToken(),r=await sbFetch('/auth/v1/user',{method:'PUT',token:t,body:{password:v}});if(!r.ok)throw new Error((r.data&&(r.data.msg||r.data.error_code))||'erro');closeAcc();toast('Senha atualizada ✔')}catch(x){err.textContent='Não consegui salvar: '+x.message}};
+  accOv.classList.add('open');
 }
 function accEmail(raw,up){raw=raw.trim().toLowerCase();if(raw.includes('@'))return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(raw)?raw:'';if(up)return '';return /^[a-z0-9_.-]{3,20}$/.test(raw)?raw+'@'+SB_LOGIN_DOMAIN:''}
 async function accSubmit(e){
@@ -2080,7 +2098,8 @@ onAuth();
     const em=JSON.parse(atob(at.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).email||'';
     store.set('me',jwtName(at));store.set('isAdm',false);
     history.replaceState(null,'',location.pathname+location.search);
-    onAuth();toast('E-mail confirmado! Bem-vinda(o) 🍳');
+    onAuth();
+    if(q.get('type')==='recovery'){setTimeout(paintReset,0)}else toast('E-mail confirmado! Bem-vinda(o) 🍳');
   }catch(e){}
 })();
 
