@@ -133,6 +133,8 @@ main#topo>#materias{order:0;padding-top:8px}main#topo>#ranking{order:1}main#topo
 .ed-grid:empty{display:none}
 .ed-grid .art:nth-child(1){grid-column:span 4}.ed-grid .art:nth-child(1) .art-cover{aspect-ratio:3/2}.ed-grid .art:nth-child(1) .art-body h3{font-stretch:85%;text-transform:none;font-weight:800;font-size:24px;line-height:1.1}
 @media(max-width:960px){.ed-grid .art,.ed-grid .art:nth-child(1){grid-column:span 6}}@media(max-width:640px){.ed-grid .art,.ed-grid .art:nth-child(1){grid-column:span 12}}.ed-sec .more,.more:has(+*){}
+@media(min-width:961px){.ed-grid>.art:last-child:nth-child(3n+1){grid-column:span 12}.ed-grid>.art:last-child:nth-child(3n+2),.ed-grid>.art:nth-last-child(2):nth-child(3n+1){grid-column:span 6}}
+@media(min-width:641px) and (max-width:960px){.ed-grid>.art:last-child:nth-child(odd){grid-column:span 12}#artGrid>.art:last-child:nth-child(even){grid-column:span 12}}
 .adm-only{display:none}body.adm .adm-only{display:list-item}
 .hl-in{display:block;cursor:pointer}
 .hl-img{aspect-ratio:16/10;width:100%;position:relative;background-size:cover;background-position:center;overflow:hidden}
@@ -1470,7 +1472,7 @@ function openAuthorView(slug){
   $('#apBox').innerHTML=`<div class="ap" style="max-width:1100px"><a class="ap-back" href="#materias" data-back>← Todas as matérias</a><br>
     <span class="tag">Autoria</span><h1>${esc(name)}</h1>
     <p class="ap-sub">${list.length?list.length+(list.length>1?' matérias publicadas':' matéria publicada'):'Nenhuma matéria publicada por aqui ainda.'}</p>
-    <div class="grid-art">${list.map(artCardHtml).join('')}</div></div>`;
+    <div class="grid-art ed-grid">${list.map(artCardHtml).join('')}</div></div>`;
   document.title=name+' · Ovo Frito';
 }
 /* No GitHub Pages os links são #materia-slug. Num domínio próprio (Vercel) viram /materia/slug, que as redes sociais leem. */
