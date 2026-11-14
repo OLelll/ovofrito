@@ -1317,9 +1317,12 @@ $('#year').textContent=new Date().getFullYear();
 })();
 
 /* ---------- ticker ---------- */
+function tkArt(n){return n&&n.a?articles.find(x=>x.id===n.a):null}
+function tkText(n){if(n.t)return n.t;const a=tkArt(n);if(!a)return '';const t=String(a.t||'').replace(/\*/g,'').trim();return t.length>90?t.slice(0,90).replace(/\s+\S*$/,'')+'…':t}
+function tkKind(n){const a=tkArt(n);return n.k||(a?catLabel(a.cat):'')}
 function renderTicker(){
   const lk=a=>a&&articles.some(x=>x.id===a)?` data-open="${esc(a)}" role="button" tabindex="0" class="nc-link" style="cursor:pointer"`:'';
-  const html=ticker.map(({k,t,a})=>`<span${lk(a)}>${k?`<b>${esc(k)}</b>`:''}${esc(t)}</span>`).join('');
+  const html=ticker.map(n=>{const k=tkKind(n);return `<span${lk(n.a)}>${k?`<b>${esc(k)}</b>`:''}${esc(tkText(n))}</span>`}).join('');
   $('#ticker').innerHTML=html+html;
   $('.ticker').style.visibility=ticker.length?'':'hidden';
   if(typeof renderHero==='function')renderHero();
@@ -1332,7 +1335,7 @@ function tHtml(a){return esc(a.tl||a.t||'').replace(/\*([^*\n]+)\*/g,'<em class=
 function artCover(a,cls){return a.img?`<div class="${cls}" style="background-image:url('${imgUrl(a)}')"></div>`:`<div class="${cls} ph ${phv(a)}" aria-hidden="true"><span>${esc(inits(a.t))}</span></div>`}
 function renderHero(){
   const LA=liveArts();
-  $('#ncList').innerHTML=ticker.slice(0,5).map(n=>`<li${n.a&&articles.some(x=>x.id===n.a)?` data-open="${esc(n.a)}" role="button" tabindex="0" class="nc-link" style="cursor:pointer"`:''}><div class="mono">${esc(n.k||'Nota')}</div><div class="t">${esc(n.t)}</div></li>`).join('');
+  $('#ncList').innerHTML=ticker.slice(0,5).map(n=>`<li${n.a&&articles.some(x=>x.id===n.a)?` data-open="${esc(n.a)}" role="button" tabindex="0" class="nc-link" style="cursor:pointer"`:''}><div class="mono">${esc(tkKind(n)||'Nota')}</div><div class="t">${esc(tkText(n))}</div></li>`).join('');
   $('.nachapa').style.display=ticker.length?'':'none';
   const rs=LA.filter(x=>x.cat==='Resenha').slice(0,3);
   $('#moreCrit').innerHTML=rs.map(b=>`<div class="it" data-open="${esc(b.id)}" role="button" tabindex="0"><span class="tag ${tagColor[b.cat]||''}">Resenha</span><span class="t">${tHtml(b)}</span><span class="mono" style="color:var(--muted)">${esc(b.d||'')} · ${esc(b.r||'')} min</span></div>`).join('');
@@ -2785,7 +2788,7 @@ const SCH={
   articles:{name:'matéria',coll:articles,top:true,order:true,title:i=>i.t,sub:i=>(i.pubAt&&Date.parse(i.pubAt)>Date.now()?'⏰ Agendada · '+new Date(i.pubAt).toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})+' · ':'')+(i.cat||'')+' · '+(i.d||''),
     fields:[F('cat','Categoria','select',{o:cats.filter(c=>c!=='Tudo').map(c=>[c,c])}),F('t','Título','text',{r:1}),F('x','Resumo (aparece no card)','textarea',{rows:2,r:1}),F('b','Texto da matéria (separe os parágrafos com uma linha em branco)','textarea',{rows:8}),F('d','Data (ex.: 7 out)'),F('r','Minutos de leitura','number'),F('emoji','Emoji da capa'),F('img','Link da imagem da capa (opcional)')],
     blank:()=>({id:'a'+Date.now(),cat:'Notícia',t:'',x:'',b:'',d:today(),r:3,emoji:'📰',c:randGrad(),img:''})},
-  ticker:{name:'nota rápida',coll:ticker,order:true,title:i=>i.t,sub:i=>i.k||'',fields:[F('k','Selo (ex.: NOTA, SÉRIE)'),F('t','Texto','text',{r:1}),F('a','Ligar a uma matéria já publicada (opcional: a nota vira link pra ela)','select',{o:()=>[['','— Nenhuma (só texto) —'],...articles.map(x=>[x.id,(x.t||'(sem título)')+(x.cat?' · '+x.cat:'')])]})],blank:()=>({k:'NOTA',t:'',a:''})},
+  ticker:{name:'nota rápida',coll:ticker,order:true,title:i=>tkText(i)||'(sem texto)',sub:i=>(tkKind(i)||'')+(i.a?' · ligada a uma matéria':''),fields:[F('a','Matéria que essa nota vai promover (o site preenche o resto sozinho)','select',{o:()=>[['','— Nenhuma (nota só de texto) —'],...articles.map(x=>[x.id,(x.t||'(sem título)').replace(/\*/g,'')+(x.cat?' · '+x.cat:'')])]}),F('k','Selo (opcional: se vazio, usa a editoria da matéria)'),F('t','Texto (opcional: se vazio, usa o título da matéria)','text',{r2:'a'})],blank:()=>({k:'',t:'',a:''})},
   interviews:{name:'entrevista',coll:interviews,order:true,title:i=>i.n,sub:i=>i.r||'',
     fields:[F('n','Nome','text',{r:1}),F('r','Quem é (ex.: Roteirista de séries)'),F('q','Frase de destaque','textarea',{rows:2,r:1}),F('b','Texto completo','textarea',{rows:6}),F('i','Iniciais (2 letras)'),F('c','Cor do avatar','select',{o:[['#FFD21F','Amarelo'],['#2FD69A','Verde'],['#FF7AB8','Rosa'],['#7B5CFF','Violeta'],['#FF4A1C','Laranja']]})],
     blank:()=>({n:'',r:'',q:'',b:'',i:'',c:'#FFD21F'})},
@@ -2804,6 +2807,7 @@ function readForm(form,fields){
   const fd=new FormData(form),vals={};
   for(const f of fields){
     let v=String(fd.get(f.k)==null?'':fd.get(f.k)).trim();
+    if(f.r2&&!v&&!String(fd.get(f.r2)||'').trim())return {err:'Escolha uma matéria ou escreva o texto da nota.'};
     if(f.r&&!v)return {err:'Preenche o campo “'+f.l+'”.'};
     if(f.t==='number'){v=v===''?null:parseFloat(v.replace(',','.'));if(Number.isNaN(v))v=null}
     vals[f.k]=v;
