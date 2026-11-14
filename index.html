@@ -224,7 +224,7 @@ main#topo>#materias{order:0;padding-top:8px}main#topo>#ranking{order:1}main#topo
 [data-theme="dark"] .chips button[aria-pressed="true"]{background:var(--ink);color:var(--chapa)}
 .grid-art{display:grid;grid-template-columns:repeat(12,1fr);gap:56px 40px}
 .art{grid-column:span 4;display:flex;flex-direction:column;text-align:left;width:100%;background:transparent;border:0;border-top:4px solid var(--rule);padding-top:16px}
-.art:nth-child(1){grid-column:span 8}
+.art:nth-child(1){grid-column:span 12}
 .art:hover h3{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px;text-decoration-color:var(--gema)}
 .art-cover{aspect-ratio:3/2;width:100%;position:relative;margin-bottom:16px;background-size:cover;background-position:center}
 .art:nth-child(1) .art-cover{aspect-ratio:16/9}
@@ -236,6 +236,7 @@ main#topo>#materias{order:0;padding-top:8px}main#topo>#ranking{order:1}main#topo
 .art-foot{margin-top:auto;padding-top:6px;font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;gap:14px}
 .more{text-align:center;margin-top:48px}
 .empty{padding:30px;text-align:center;color:var(--muted);list-style:none}
+@media(min-width:961px){#artGrid>.art:nth-child(1){display:grid;grid-template-columns:7fr 5fr;column-gap:40px;align-items:center}#artGrid>.art:nth-child(1) .art-cover{margin-bottom:0}#artGrid>.art:nth-child(1) .art-body{flex:none;justify-content:center}}
 @media(max-width:960px){.grid-art{gap:44px 28px}.art{grid-column:span 6}.art:nth-child(1){grid-column:span 12}}
 @media(max-width:620px){.art,.art:nth-child(1){grid-column:span 12}}
 
@@ -960,7 +961,7 @@ ul.blk-ed{list-style:disc;padding-left:1.4em}ol.blk-ed{list-style:decimal;paddin
       <div><h4>Seções</h4><ul><li><a href="#materias">Matérias</a></li><li><a href="#ranking">Ranking</a></li><li><a href="#resenha">Ao ponto</a></li><li><a href="#entrevistas">Papo reto</a></li></ul></div>
       <div><h4>Redação</h4><ul><li><a href="#nacional">Coluna Descascando</a></li><li><a href="mailto:oi@ovofrito.example">Fale com a gente</a></li><li><a href="#topo">Sugira uma pauta</a></li></ul></div>
       <div><h4>Participe</h4><ul><li><a href="#participe">Enquete</a></li><li><a href="#participe">Indica aí</a></li><li><a href="#ranking">Avalie filmes</a></li></ul></div>
-      <div><h4>Créditos</h4><p class="mono" style="color:#bdb8aa">Cinema e séries com a cara de quem assiste. Dados de filmes e séries: TMDB. Projeto acadêmico de Jornalismo.</p></div>
+      <div><h4>Créditos</h4><p class="mono" style="color:#bdb8aa">Cinema e séries com a cara de quem assiste. Dados de filmes e séries: TMDB. Trabalho de jornalismo da disciplina “Práticas Inovadoras de Jornalismo”, da Faculdade Cásper Líbero.</p></div>
     </div>
     <p class="credit">Dados de filmes e séries: <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>. Notas do IMDb via <a href="https://www.omdbapi.com" target="_blank" rel="noopener">OMDb</a>. This product uses the TMDB API but is not endorsed or certified by TMDB. (Este produto usa a API do TMDB, mas não é endossado nem certificado por ele.)</p>
     <div class="copy"><span>© <span id="year"></span> Ovo Frito. Projeto acadêmico de Jornalismo.</span><span><a href="#admin" id="openAdmin">Redação</a></span></div>
